@@ -14,6 +14,7 @@ Premium landing page for San Fernando Valley Young People in Alcoholics Anonymou
 
 ```bash
 bun install
+export SFVYPAA_SITE_PASSWORD="your-password"
 bun run dev
 ```
 
@@ -40,6 +41,7 @@ The current copy intentionally uses launch placeholders until SFVYPAA approves f
 
 ## Routes
 
+- `/access` password gate
 - `/` homepage hub
 - `/get-involved` committee and service page
 - `/upcoming-events` hosted and co-hosted events page
