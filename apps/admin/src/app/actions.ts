@@ -3,18 +3,23 @@
 import {
   deleteEvent,
   deleteNewsletter,
+  deleteSocialPost,
   eventInputSchema,
   getNewsletter,
   getNewsletterBySlug,
   newsletterInputSchema,
   saveEvent,
   saveNewsletter,
+  saveSocialPost,
   slugify,
+  socialPostInputSchema,
   uploadEventImage,
+  uploadSocialPostImage,
   type EventHost,
   type EventInput,
   type ContentStatus,
   type NewsletterInput,
+  type SocialPostInput,
 } from "@sfvypaa/content";
 import { format } from "date-fns";
 import { revalidatePath } from "next/cache";
@@ -202,6 +207,18 @@ function newsletterInput(formData: FormData): NewsletterInput {
   };
 }
 
+function socialPostInput(formData: FormData): SocialPostInput {
+  return {
+    id: field(formData, "id") || undefined,
+    title: field(formData, "title"),
+    caption: field(formData, "caption"),
+    instagramUrl: field(formData, "instagramUrl"),
+    imageUrl: field(formData, "existingImageUrl"),
+    postDate: field(formData, "postDate"),
+    status: status(formData),
+  };
+}
+
 function publicSiteUrl() {
   const value = process.env.SFVYPAA_PUBLIC_SITE_URL?.trim();
 
@@ -364,6 +381,70 @@ export async function deleteNewsletterAction(formData: FormData) {
   revalidatePath("/newsletters");
   await revalidatePublicSite(publicPaths);
   redirect("/newsletters");
+}
+
+export async function saveSocialPostAction(
+  _previousState: AdminActionState,
+  formData: FormData,
+): Promise<AdminActionState> {
+  const sessionError = await adminSessionError();
+
+  if (sessionError) {
+    return sessionError;
+  }
+
+  const parsed = socialPostInputSchema.safeParse(socialPostInput(formData));
+
+  if (!parsed.success) {
+    return validationState(parsed.error);
+  }
+
+  let id: string;
+
+  try {
+    const image = uploadedImage(formData);
+    const data = image
+      ? {
+          ...parsed.data,
+          imageUrl: await uploadSocialPostImage(image, parsed.data.title),
+        }
+      : parsed.data;
+
+    if (data.status === "published" && !data.imageUrl) {
+      return {
+        message: "Add an image before publishing this social post.",
+        fieldErrors: {
+          imageFile: "Add an image before publishing this social post.",
+        },
+      };
+    }
+
+    id = await saveSocialPost(data);
+  } catch (error) {
+    return isImageUploadError(error)
+      ? errorState(error, "imageFile")
+      : errorState(error);
+  }
+
+  revalidatePath("/");
+  revalidatePath("/social-posts");
+  await revalidatePublicSite(["/"]);
+  redirect(`/social-posts/${id}`);
+}
+
+export async function deleteSocialPostAction(formData: FormData) {
+  await requireAdminOrRedirect("/social-posts");
+
+  const id = field(formData, "id");
+
+  if (id) {
+    await deleteSocialPost(id);
+  }
+
+  revalidatePath("/");
+  revalidatePath("/social-posts");
+  await revalidatePublicSite(["/"]);
+  redirect("/social-posts");
 }
 
 export async function logoutAdminAction() {

@@ -9,7 +9,11 @@ type RevalidateBody = {
 };
 
 function allowedPath(path: string) {
-  return path === "/newsletters" || newsletterSlugPathPattern.test(path);
+  return (
+    path === "/" ||
+    path === "/newsletters" ||
+    newsletterSlugPathPattern.test(path)
+  );
 }
 
 function cleanPaths(value: unknown) {

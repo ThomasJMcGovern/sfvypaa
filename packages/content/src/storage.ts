@@ -21,9 +21,11 @@ const imageExtensions: Record<string, string> = {
   "image/webp": "webp",
 };
 
-export async function uploadEventImage(
+async function uploadImage(
   image: UploadableImage,
-  eventTitle: string,
+  title: string,
+  folder: string,
+  fallbackName: string,
 ) {
   const extension = imageExtensions[image.type];
 
@@ -37,7 +39,7 @@ export async function uploadEventImage(
 
   const bytes = Buffer.from(await image.arrayBuffer());
   const token = randomUUID();
-  const filename = `${slugify(eventTitle) || "event"}-${randomUUID()}.${extension}`;
+  const filename = `${slugify(title) || fallbackName}-${randomUUID()}.${extension}`;
   const bucket = getAdminBucket();
   const [bucketExists] = await bucket.exists();
 
@@ -47,7 +49,7 @@ export async function uploadEventImage(
     );
   }
 
-  const file = bucket.file(`events/${filename}`);
+  const file = bucket.file(`${folder}/${filename}`);
 
   await file.save(bytes, {
     metadata: {
@@ -60,4 +62,18 @@ export async function uploadEventImage(
   });
 
   return getDownloadURL(file);
+}
+
+export async function uploadEventImage(
+  image: UploadableImage,
+  eventTitle: string,
+) {
+  return uploadImage(image, eventTitle, "events", "event");
+}
+
+export async function uploadSocialPostImage(
+  image: UploadableImage,
+  postTitle: string,
+) {
+  return uploadImage(image, postTitle, "social-posts", "social-post");
 }

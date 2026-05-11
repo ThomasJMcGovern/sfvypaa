@@ -1,17 +1,22 @@
 export {
   deleteEvent,
   deleteNewsletter,
+  deleteSocialPost,
   getEvent,
   getNewsletter,
   getNewsletterBySlug,
   getPublishedNewsletterBySlug,
+  getSocialPost,
   listEventLocations,
   listEvents,
   listNewsletters,
   listPublishedEvents,
   listPublishedNewsletters,
+  listPublishedSocialPosts,
+  listSocialPosts,
   saveEvent,
   saveNewsletter,
+  saveSocialPost,
   slugify,
 } from "./store";
 export {
@@ -22,14 +27,22 @@ export {
   contentStatusSchema,
   emptyEvent,
   emptyNewsletter,
+  emptySocialPost,
   eventHostSchema,
   eventInputSchema,
   newsletterInputSchema,
+  socialPostInputSchema,
   type ContentStatus,
   type EventHost,
   type EventInput,
   type EventRecord,
   type NewsletterInput,
   type NewsletterRecord,
+  type SocialPostInput,
+  type SocialPostRecord,
 } from "./schema";
-export { uploadEventImage, type UploadableImage } from "./storage";
+export {
+  uploadEventImage,
+  uploadSocialPostImage,
+  type UploadableImage,
+} from "./storage";

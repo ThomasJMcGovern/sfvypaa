@@ -1,5 +1,12 @@
 import Link from "next/link";
-import { CalendarDays, ExternalLink, Home, LogOut, Newspaper } from "lucide-react";
+import {
+  AtSign,
+  CalendarDays,
+  ExternalLink,
+  Home,
+  LogOut,
+  Newspaper,
+} from "lucide-react";
 
 import { logoutAdminAction } from "@/app/actions";
 import { Button } from "@/components/ui/button";
@@ -14,9 +21,15 @@ const navItems = [
     icon: Newspaper,
     key: "newsletters",
   },
+  {
+    href: "/social-posts",
+    label: "Social Posts",
+    icon: AtSign,
+    key: "social-posts",
+  },
 ];
 
-type AdminSection = "dashboard" | "events" | "newsletters";
+type AdminSection = "dashboard" | "events" | "newsletters" | "social-posts";
 
 function publicSiteUrl() {
   return (process.env.SFVYPAA_PUBLIC_SITE_URL || "https://sfvypaa.org").replace(
@@ -43,7 +56,7 @@ export function AdminShell({
             <span>
               <span className="block text-base font-black">SFVYPAA Admin</span>
               <span className="text-xs font-medium text-white/55">
-                Events and newsletters
+                Publishing console
               </span>
             </span>
           </Link>

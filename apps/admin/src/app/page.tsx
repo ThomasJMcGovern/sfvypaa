@@ -4,8 +4,16 @@ import {
   isFirebaseStorageConfigured,
   listEvents,
   listNewsletters,
+  listSocialPosts,
 } from "@sfvypaa/content";
-import { CalendarDays, CheckCircle2, Newspaper, Plus, ServerCog } from "lucide-react";
+import {
+  AtSign,
+  CalendarDays,
+  CheckCircle2,
+  Newspaper,
+  Plus,
+  ServerCog,
+} from "lucide-react";
 
 import { AdminShell } from "@/components/admin-shell";
 import { Button } from "@/components/ui/button";
@@ -19,13 +27,17 @@ import {
 export const dynamic = "force-dynamic";
 
 export default async function AdminHomePage() {
-  const [events, newsletters] = await Promise.all([
+  const [events, newsletters, socialPosts] = await Promise.all([
     listEvents(),
     listNewsletters(),
+    listSocialPosts(),
   ]);
   const publishedEvents = events.filter((event) => event.status === "published");
   const publishedNewsletters = newsletters.filter(
     (newsletter) => newsletter.status === "published",
+  );
+  const publishedSocialPosts = socialPosts.filter(
+    (post) => post.status === "published",
   );
   const checks = [
     { label: "Firebase", ok: isFirebaseConfigured() },
@@ -42,11 +54,11 @@ export default async function AdminHomePage() {
             Publishing dashboard
           </h1>
           <p className="mt-3 max-w-2xl text-base leading-7 text-white/62">
-            Publish approved SFVYPAA events and newsletter archive posts to the
-            public site.
+            Publish approved SFVYPAA events, newsletters, and curated social
+            posts to the public site.
           </p>
         </div>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
           <Metric label="Events" value={events.length} icon={CalendarDays} />
           <Metric
             label="Published events"
@@ -58,6 +70,12 @@ export default async function AdminHomePage() {
             label="Published newsletters"
             value={publishedNewsletters.length}
             icon={Newspaper}
+          />
+          <Metric label="Social posts" value={socialPosts.length} icon={AtSign} />
+          <Metric
+            label="Published socials"
+            value={publishedSocialPosts.length}
+            icon={AtSign}
           />
         </div>
         <Card className="rounded-[8px] border-white/10 bg-white/[0.06] text-white ring-white/10">
@@ -81,7 +99,7 @@ export default async function AdminHomePage() {
             </div>
           </CardContent>
         </Card>
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           <ActionCard
             title="Events"
             body="Create flyers, speaker nights, committee meetings, and co-hosted events."
@@ -93,6 +111,12 @@ export default async function AdminHomePage() {
             body="Publish committee updates and announcements to the newsletter archive."
             href="/newsletters/new"
             label="New newsletter"
+          />
+          <ActionCard
+            title="Social Posts"
+            body="Feature curated Instagram posts on the public homepage without relying on the Instagram API."
+            href="/social-posts/new"
+            label="New social post"
           />
         </div>
       </section>

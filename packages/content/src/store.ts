@@ -8,10 +8,14 @@ import {
   newsletterInputSchema,
   type NewsletterInput,
   type NewsletterRecord,
+  socialPostInputSchema,
+  type SocialPostInput,
+  type SocialPostRecord,
 } from "./schema";
 
 const eventsCollection = "events";
 const newslettersCollection = "newsletters";
+const socialPostsCollection = "socialPosts";
 
 type FirestoreTimestampLike = {
   toDate?: () => Date;
@@ -99,6 +103,23 @@ function newsletterFromDoc(doc: QueryDocumentSnapshot): NewsletterRecord {
   };
 }
 
+function socialPostFromDoc(doc: QueryDocumentSnapshot): SocialPostRecord {
+  const data = doc.data();
+
+  return {
+    id: doc.id,
+    title: String(data.title ?? ""),
+    caption: String(data.caption ?? ""),
+    instagramUrl: String(data.instagramUrl ?? ""),
+    imageUrl: typeof data.imageUrl === "string" ? data.imageUrl : "",
+    postDate: String(data.postDate ?? ""),
+    status: data.status === "published" ? "published" : "draft",
+    createdAt: toIsoString(data.createdAt),
+    updatedAt: toIsoString(data.updatedAt),
+    publishedAt: toIsoString(data.publishedAt),
+  };
+}
+
 function byEventDate(a: EventRecord, b: EventRecord) {
   return (a.eventDate || a.sortDate || a.date).localeCompare(
     b.eventDate || b.sortDate || b.date,
@@ -107,6 +128,10 @@ function byEventDate(a: EventRecord, b: EventRecord) {
 
 function byNewsletterDate(a: NewsletterRecord, b: NewsletterRecord) {
   return b.publishDate.localeCompare(a.publishDate);
+}
+
+function bySocialPostDate(a: SocialPostRecord, b: SocialPostRecord) {
+  return b.postDate.localeCompare(a.postDate);
 }
 
 export async function listEvents() {
@@ -311,4 +336,76 @@ export async function saveNewsletter(input: NewsletterInput) {
 
 export async function deleteNewsletter(id: string) {
   await getAdminDb().collection(newslettersCollection).doc(id).delete();
+}
+
+export async function listSocialPosts() {
+  if (!isFirebaseConfigured()) {
+    return [];
+  }
+
+  const snapshot = await getAdminDb().collection(socialPostsCollection).get();
+  return snapshot.docs.map(socialPostFromDoc).sort(bySocialPostDate);
+}
+
+export async function listPublishedSocialPosts() {
+  if (!isFirebaseConfigured()) {
+    return [];
+  }
+
+  try {
+    const snapshot = await getAdminDb()
+      .collection(socialPostsCollection)
+      .where("status", "==", "published")
+      .get();
+
+    return snapshot.docs.map(socialPostFromDoc).sort(bySocialPostDate);
+  } catch {
+    return [];
+  }
+}
+
+export async function getSocialPost(id: string) {
+  if (!isFirebaseConfigured()) {
+    return null;
+  }
+
+  const doc = await getAdminDb().collection(socialPostsCollection).doc(id).get();
+
+  return doc.exists
+    ? socialPostFromDoc(doc as QueryDocumentSnapshot)
+    : null;
+}
+
+export async function saveSocialPost(input: SocialPostInput) {
+  const parsed = socialPostInputSchema.parse(input);
+  const db = getAdminDb();
+  const ref = parsed.id
+    ? db.collection(socialPostsCollection).doc(parsed.id)
+    : db.collection(socialPostsCollection).doc();
+  const existing = await ref.get();
+  const existingData = existing.data();
+  const data = {
+    title: parsed.title,
+    caption: parsed.caption,
+    instagramUrl: parsed.instagramUrl,
+    imageUrl: cleanOptionalUrl(parsed.imageUrl),
+    postDate: parsed.postDate,
+    status: parsed.status,
+    createdAt: existing.exists
+      ? existingData?.createdAt
+      : FieldValue.serverTimestamp(),
+    updatedAt: FieldValue.serverTimestamp(),
+    publishedAt:
+      parsed.status === "published"
+        ? existingData?.publishedAt ?? FieldValue.serverTimestamp()
+        : existingData?.publishedAt ?? null,
+  };
+
+  await ref.set(data, { merge: true });
+
+  return ref.id;
+}
+
+export async function deleteSocialPost(id: string) {
+  await getAdminDb().collection(socialPostsCollection).doc(id).delete();
 }

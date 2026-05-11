@@ -1,5 +1,13 @@
 import Image from "next/image"
-import { ArrowRight, AtSign, HeartHandshake, ShieldCheck, Sparkles } from "lucide-react"
+import { listPublishedSocialPosts, type SocialPostRecord } from "@sfvypaa/content"
+import {
+  ArrowRight,
+  AtSign,
+  ExternalLink,
+  HeartHandshake,
+  ShieldCheck,
+  Sparkles,
+} from "lucide-react"
 
 import { LinkCard } from "@/components/link-card"
 import { SiteFooter } from "@/components/site-footer"
@@ -31,7 +39,30 @@ const principles = [
   },
 ]
 
-export default function Home() {
+export const revalidate = 60
+
+const socialDateFormatter = new Intl.DateTimeFormat("en-US", {
+  month: "short",
+  day: "numeric",
+  year: "numeric",
+})
+
+function formatSocialDate(value: string) {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value)
+
+  if (!match) {
+    return value
+  }
+
+  const [, year, month, day] = match
+  return socialDateFormatter.format(
+    new Date(Number(year), Number(month) - 1, Number(day)),
+  )
+}
+
+export default async function Home() {
+  const socialPosts = (await listPublishedSocialPosts()).slice(0, 3)
+
   return (
     <main className="min-h-screen overflow-hidden bg-[#171310] text-white">
       <section className="relative overflow-hidden pb-20" id="top">
@@ -115,24 +146,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="bg-[#1d1b18] px-5 py-14 text-center sm:px-8 lg:px-10" id="socials">
-        <p className="text-5xl font-black tracking-normal text-white sm:text-7xl">
-          SOCIALS
-        </p>
-        <div className="mt-7 flex justify-center">
-          <Button
-            className="h-11 rounded-[8px] border-white/20 bg-white/10 px-4 text-white hover:bg-white/20"
-            nativeButton={false}
-            render={
-              <a href={site.links.instagram} rel="noreferrer" target="_blank" />
-            }
-            variant="outline"
-          >
-            <AtSign />
-            @sfvypaa
-          </Button>
-        </div>
-      </section>
+      <SocialSection posts={socialPosts} />
 
       <LinkCard
         body="SFVYPAA business meeting details live on the get involved page, with the current flyer and meeting information in one place."
@@ -204,5 +218,99 @@ export default function Home() {
 
       <SiteFooter />
     </main>
+  )
+}
+
+function SocialSection({ posts }: { posts: SocialPostRecord[] }) {
+  return (
+    <section className="bg-[#1d1b18] px-5 py-16 sm:px-8 lg:px-10" id="socials">
+      <div className="mx-auto grid max-w-7xl gap-8">
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#ffcf6b]">
+              Instagram
+            </p>
+            <h2 className="mt-3 text-5xl font-black tracking-normal text-white sm:text-7xl">
+              SOCIALS
+            </h2>
+            <p className="mt-4 max-w-2xl text-base leading-7 text-white/64">
+              Follow current committee posts, event reminders, and service
+              announcements from SFVYPAA.
+            </p>
+          </div>
+          <Button
+            className="h-11 w-fit rounded-[8px] border-white/20 bg-white/10 px-4 text-white hover:bg-white/20"
+            nativeButton={false}
+            render={
+              <a href={site.links.instagram} rel="noreferrer" target="_blank" />
+            }
+            variant="outline"
+          >
+            <AtSign />
+            @sfvypaa
+          </Button>
+        </div>
+
+        {posts.length > 0 ? (
+          <div className="grid gap-4 md:grid-cols-3">
+            {posts.map((post) => (
+              <article
+                className="overflow-hidden rounded-[8px] border border-white/10 bg-white text-[#171310] shadow-2xl shadow-black/20"
+                key={post.id}
+              >
+                <a
+                  className="group block"
+                  href={post.instagramUrl}
+                  rel="noreferrer"
+                  target="_blank"
+                >
+                  <div className="relative aspect-square bg-[#f5eee5]">
+                    <Image
+                      alt={post.title}
+                      className="object-cover transition group-hover:scale-[1.02]"
+                      fill
+                      sizes="(min-width: 768px) 33vw, 100vw"
+                      src={post.imageUrl}
+                      unoptimized
+                    />
+                  </div>
+                </a>
+                <div className="grid gap-3 p-5">
+                  <p className="text-xs font-semibold uppercase tracking-normal text-[#d94b2b]">
+                    {formatSocialDate(post.postDate)}
+                  </p>
+                  <h3 className="text-xl font-black leading-tight">
+                    {post.title}
+                  </h3>
+                  <p className="line-clamp-4 text-sm leading-6 text-[#5e554c]">
+                    {post.caption}
+                  </p>
+                  <Button
+                    className="h-10 w-fit rounded-[8px] bg-[#171310] px-4 text-white hover:bg-[#2c241d]"
+                    nativeButton={false}
+                    render={
+                      <a
+                        href={post.instagramUrl}
+                        rel="noreferrer"
+                        target="_blank"
+                      />
+                    }
+                  >
+                    View on Instagram
+                    <ExternalLink className="size-4" />
+                  </Button>
+                </div>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <div className="rounded-[8px] border border-white/12 bg-white/8 p-8 text-center text-white/64">
+            <p className="text-base leading-7">
+              New Instagram highlights will appear here once they are published.
+            </p>
+          </div>
+        )}
+      </div>
+    </section>
   )
 }

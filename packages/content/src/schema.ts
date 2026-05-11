@@ -58,6 +58,27 @@ export type NewsletterRecord = Omit<NewsletterInput, "id" | "slug"> & {
   publishedAt?: string;
 };
 
+export const socialPostInputSchema = z.object({
+  id: z.string().optional(),
+  title: z.string().trim().min(1, "Title is required"),
+  caption: z.string().trim().min(1, "Caption is required"),
+  instagramUrl: z
+    .string()
+    .trim()
+    .url("Enter a full Instagram URL including https://"),
+  imageUrl: optionalUrlSchema,
+  postDate: z.string().trim().min(1, "Post date is required"),
+  status: contentStatusSchema,
+});
+export type SocialPostInput = z.infer<typeof socialPostInputSchema>;
+
+export type SocialPostRecord = Omit<SocialPostInput, "id"> & {
+  id: string;
+  createdAt?: string;
+  updatedAt?: string;
+  publishedAt?: string;
+};
+
 export const emptyEvent: EventInput = {
   title: "",
   eventDate: "",
@@ -78,5 +99,14 @@ export const emptyNewsletter: NewsletterInput = {
   excerpt: "",
   body: "",
   publishDate: "",
+  status: "draft",
+};
+
+export const emptySocialPost: SocialPostInput = {
+  title: "",
+  caption: "",
+  instagramUrl: "https://www.instagram.com/",
+  imageUrl: "",
+  postDate: "",
   status: "draft",
 };

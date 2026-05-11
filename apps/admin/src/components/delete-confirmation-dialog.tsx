@@ -10,7 +10,7 @@ type DeleteConfirmationDialogProps = {
   action: (formData: FormData) => void | Promise<void>;
   id: string;
   resourceName: string;
-  resourceType: "event" | "newsletter";
+  resourceType: "event" | "newsletter" | "social post";
 };
 
 function DeleteSubmitButton() {
@@ -37,7 +37,11 @@ export function DeleteConfirmationDialog({
   const fallbackName = `this ${resourceType}`;
   const displayName = trimmedName || fallbackName;
   const triggerLabel =
-    resourceType === "event" ? "Delete event" : "Delete newsletter";
+    resourceType === "event"
+      ? "Delete event"
+      : resourceType === "newsletter"
+        ? "Delete newsletter"
+        : "Delete social post";
 
   return (
     <AlertDialog.Root>
