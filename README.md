@@ -1,6 +1,6 @@
 # SFVYPAA
 
-Premium landing page for San Fernando Valley Young People in Alcoholics Anonymous.
+Premium site and admin portal for San Fernando Valley Young People in Alcoholics Anonymous.
 
 ## Stack
 
@@ -9,27 +9,60 @@ Premium landing page for San Fernando Valley Young People in Alcoholics Anonymou
 - Bun
 - Tailwind CSS 4
 - shadcn/ui
+- Firebase Admin SDK + Cloud Firestore
 
 ## Run Locally
 
 ```bash
 bun install
 export SFVYPAA_SITE_PASSWORD="your-password"
-bun run dev
+bun run dev:web
 ```
 
 Open `http://localhost:3000`.
+
+For the admin portal:
+
+```bash
+export SFVYPAA_ADMIN_PASSWORD="your-password"
+bun run dev:admin
+```
+
+Open `http://localhost:3001`.
 
 ## Useful Commands
 
 ```bash
 bun run lint
 bun run build
+bun run build:web
+bun run build:admin
 ```
+
+## Firebase
+
+The shared content package reads and writes Firestore through Firebase Admin SDK.
+Set these environment variables in Vercel for both apps:
+
+- `FIREBASE_PROJECT_ID`
+- `FIREBASE_CLIENT_EMAIL`
+- `FIREBASE_PRIVATE_KEY`
+
+The public app also uses:
+
+- `SFVYPAA_SITE_PASSWORD`
+
+The admin app also uses:
+
+- `SFVYPAA_ADMIN_PASSWORD`
+
+Client-side Firebase keys are exposed with `NEXT_PUBLIC_FIREBASE_*` names for future browser SDK use.
+
+Firestore rules live in `firestore.rules` and currently deny client reads/writes.
 
 ## Launch Content
 
-Operational details are centralized in `src/lib/site.ts`:
+Static operational details are centralized in `apps/web/src/lib/site.ts`:
 
 - meeting schedule
 - event cards
@@ -37,12 +70,34 @@ Operational details are centralized in `src/lib/site.ts`:
 - contact link
 - image credits
 
-The current copy intentionally uses launch placeholders until SFVYPAA approves final meeting, social, and event details.
-
 ## Routes
+
+Public site:
 
 - `/access` password gate
 - `/` homepage hub
 - `/get-involved` committee and service page
 - `/upcoming-events` hosted and co-hosted events page
+- `/newsletters` published newsletters
 - `LA YP Meetings` nav item opens the Los Angeles Central Office young people meeting search
+
+Admin portal:
+
+- `/access` password gate
+- `/` dashboard
+- `/events` event publisher
+- `/newsletters` newsletter publisher
+
+## Deploy
+
+The public Vercel project is `sfvypaa`. The root `vercel.json` builds `apps/web`.
+
+The admin Vercel project is `sfvypaa-admin`. Deploy it from `apps/admin`:
+
+```bash
+cd apps/admin
+vercel build --prod --scope tj-mcgoverns-projects
+vercel deploy --prebuilt --prod --scope tj-mcgoverns-projects
+```
+
+`admin.sfvypaa.org` should point to Vercel with an `A` record for host `admin` and value `76.76.21.21`.

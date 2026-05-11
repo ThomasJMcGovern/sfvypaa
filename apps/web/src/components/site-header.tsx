@@ -7,7 +7,7 @@ import { navItems, site } from "@/lib/site"
 import { cn } from "@/lib/utils"
 
 type SiteHeaderProps = {
-  active: "home" | "get-involved" | "upcoming-events"
+  active: "home" | "get-involved" | "upcoming-events" | "newsletters"
 }
 
 export function SiteHeader({ active }: SiteHeaderProps) {
@@ -21,7 +21,7 @@ export function SiteHeader({ active }: SiteHeaderProps) {
           {site.name}
         </span>
       </Link>
-      <nav className="hidden items-center gap-7 md:flex" aria-label="Primary navigation">
+      <nav className="hidden items-center gap-5 md:flex" aria-label="Primary navigation">
         {navItems.map((item) => (
           <a
             className={cn(

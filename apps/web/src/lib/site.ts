@@ -10,6 +10,7 @@ export const site = {
     home: "/",
     getInvolved: "/get-involved",
     events: "/upcoming-events",
+    newsletters: "/newsletters",
     meetings: meetingSearchUrl,
     instagram: "https://www.instagram.com/sfvypaa/",
     contact: "/get-involved#contact",
@@ -21,6 +22,7 @@ export const navItems = [
   { key: "home", label: "Home", href: site.links.home },
   { key: "get-involved", label: "Get Involved", href: site.links.getInvolved },
   { key: "upcoming-events", label: "Upcoming Events", href: site.links.events },
+  { key: "newsletters", label: "Newsletters", href: site.links.newsletters },
   {
     key: "meetings",
     label: "LA YP Meetings",

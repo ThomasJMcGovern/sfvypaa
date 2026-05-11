@@ -1,6 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  transpilePackages: ["@sfvypaa/content"],
+  serverExternalPackages: ["firebase-admin"],
   async redirects() {
     return [
       {
@@ -22,9 +24,6 @@ const nextConfig: NextConfig = {
         permanent: true,
       },
     ];
-  },
-  turbopack: {
-    root: __dirname,
   },
 };
 

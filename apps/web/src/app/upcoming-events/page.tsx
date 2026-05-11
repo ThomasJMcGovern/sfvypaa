@@ -1,4 +1,9 @@
 import type { Metadata } from "next"
+import {
+  listPublishedEvents,
+  type EventHost,
+  type EventRecord,
+} from "@sfvypaa/content"
 import { CalendarDays, Clock, MapPin, Sparkles } from "lucide-react"
 
 import { SiteFooter } from "@/components/site-footer"
@@ -14,15 +19,31 @@ import {
 import { Separator } from "@/components/ui/separator"
 import { events, site } from "@/lib/site"
 
+export const revalidate = 60
+
 export const metadata: Metadata = {
   title: "Upcoming Events | SFVYPAA",
   description:
     "Hosted and co-hosted young people in AA events for the San Fernando Valley.",
 }
 
-export default function UpcomingEventsPage() {
-  const hosted = events.filter((event) => event.host === "Hosted by SFVYPAA")
-  const cohosted = events.filter((event) => event.host === "Co-hosted by SFVYPAA")
+const fallbackEvents: EventRecord[] = events.map((event) => ({
+  ...event,
+  id: event.title,
+  host: event.host as EventHost,
+  status: "published",
+  sortDate: "",
+  rsvpUrl: "",
+  imageUrl: "",
+}))
+
+export default async function UpcomingEventsPage() {
+  const publishedEvents = await listPublishedEvents()
+  const pageEvents = publishedEvents.length > 0 ? publishedEvents : fallbackEvents
+  const hosted = pageEvents.filter((event) => event.host === "Hosted by SFVYPAA")
+  const cohosted = pageEvents.filter(
+    (event) => event.host === "Co-hosted by SFVYPAA",
+  )
 
   return (
     <main className="min-h-screen bg-[#171310] text-white">
@@ -77,7 +98,7 @@ function EventGroup({
   events,
   title,
 }: {
-  events: typeof import("@/lib/site").events
+  events: EventRecord[]
   title: string
 }) {
   return (
@@ -90,7 +111,7 @@ function EventGroup({
           {events.map((event, index) => (
             <Card
               className="rounded-[8px] border-white/10 bg-white p-0 text-[#171310] ring-white/10"
-              key={event.title}
+              key={event.id}
             >
               <CardHeader className="border-b border-[#171310]/10 px-5 py-5">
                 <div className="flex items-start justify-between gap-4">
@@ -111,6 +132,21 @@ function EventGroup({
                 <p className="text-base leading-7 text-[#5e554c]">
                   {event.tone}
                 </p>
+                {event.rsvpUrl ? (
+                  <Button
+                    className="h-10 w-fit rounded-[8px] bg-[#171310] px-4 text-white hover:bg-[#2c241d]"
+                    nativeButton={false}
+                    render={
+                      <a
+                        href={event.rsvpUrl}
+                        rel="noreferrer"
+                        target="_blank"
+                      />
+                    }
+                  >
+                    RSVP
+                  </Button>
+                ) : null}
               </CardContent>
             </Card>
           ))}

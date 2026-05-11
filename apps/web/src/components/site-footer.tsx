@@ -29,6 +29,12 @@ export function SiteFooter() {
           <a className="text-sm text-white/62 hover:text-white" href={site.links.contact}>
             {site.contactEmail}
           </a>
+          <a
+            className="text-sm text-white/62 hover:text-white"
+            href={site.links.newsletters}
+          >
+            Newsletters
+          </a>
           <a className="text-sm text-white/62 hover:text-white" href="#top">
             Back to top
           </a>

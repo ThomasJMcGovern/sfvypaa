@@ -155,6 +155,16 @@ export default function Home() {
       />
 
       <LinkCard
+        body="Published committee updates, service notes, and event announcements live in the SFVYPAA newsletter archive."
+        buttonLabel="Read newsletters"
+        href={site.links.newsletters}
+        imageAlt="Anonymous abstract event lights"
+        imageSrc="/stage-lights.jpg"
+        title="Newsletters"
+        reverse
+      />
+
+      <LinkCard
         body="Use the Los Angeles Central Office young people meeting search for current local young people meetings."
         buttonLabel="Find meetings here"
         external
