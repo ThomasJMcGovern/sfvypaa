@@ -95,12 +95,13 @@ Admin portal:
 
 The public Vercel project is `sfvypaa`. The root `vercel.json` builds `apps/web`.
 
-The admin Vercel project is `sfvypaa-admin`. Deploy it from `apps/admin`:
+The admin Vercel project is `sfvypaa-admin`. Deploy it from the repo root with the admin config:
 
 ```bash
-cd apps/admin
-vercel build --prod --scope tj-mcgoverns-projects
-vercel deploy --prebuilt --prod --scope tj-mcgoverns-projects
+vercel link --yes --project sfvypaa-admin --scope tj-mcgoverns-projects
+vercel pull --yes --environment=production --scope tj-mcgoverns-projects
+vercel build --prod --scope tj-mcgoverns-projects --local-config vercel.admin.json
+vercel deploy --prebuilt --prod --scope tj-mcgoverns-projects --local-config vercel.admin.json
 ```
 
 `admin.sfvypaa.org` should point to Vercel with an `A` record for host `admin` and value `76.76.21.21`.
