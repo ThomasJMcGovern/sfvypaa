@@ -52,12 +52,16 @@ Set these environment variables in Vercel for both apps:
 The public app also uses:
 
 - `SFVYPAA_SITE_PASSWORD`
+- `SFVYPAA_REVALIDATE_SECRET`
 
 The admin app also uses:
 
 - `SFVYPAA_ADMIN_PASSWORD`
+- `SFVYPAA_REVALIDATE_SECRET`
+- `SFVYPAA_PUBLIC_SITE_URL` (optional; defaults to `https://sfvypaa.org`)
 
 The Storage bucket is used by the admin app for event image uploads.
+The shared revalidation secret lets admin refresh public newsletter pages after publishing.
 
 Firestore rules live in `firestore.rules` and currently deny client reads/writes.
 Storage rules can stay locked down because admin uploads use the Admin SDK.

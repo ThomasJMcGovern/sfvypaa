@@ -4,9 +4,11 @@ import {
   deleteEvent,
   deleteNewsletter,
   eventInputSchema,
+  getNewsletter,
   newsletterInputSchema,
   saveEvent,
   saveNewsletter,
+  slugify,
   uploadEventImage,
   type EventHost,
   type EventInput,
@@ -20,6 +22,9 @@ import { redirect } from "next/navigation";
 export type AdminActionState = {
   message: string;
 } | null;
+
+const publicSiteFallbackUrl = "https://sfvypaa.org";
+const publicRevalidateHeader = "x-sfvypaa-revalidate-secret";
 
 function field(formData: FormData, key: string) {
   const value = formData.get(key);
@@ -124,6 +129,53 @@ function newsletterInput(formData: FormData): NewsletterInput {
   };
 }
 
+function publicSiteUrl() {
+  const value = process.env.SFVYPAA_PUBLIC_SITE_URL?.trim();
+
+  return value || publicSiteFallbackUrl;
+}
+
+function publicNewsletterPaths(...slugs: Array<string | undefined>) {
+  const paths = ["/newsletters"];
+
+  for (const slug of slugs) {
+    if (slug) {
+      paths.push(`/newsletters/${slug}`);
+    }
+  }
+
+  return [...new Set(paths)];
+}
+
+async function revalidatePublicSite(paths: string[]) {
+  const secret = process.env.SFVYPAA_REVALIDATE_SECRET;
+
+  if (!secret) {
+    return;
+  }
+
+  try {
+    const response = await fetch(new URL("/api/revalidate", publicSiteUrl()), {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        [publicRevalidateHeader]: secret,
+      },
+      body: JSON.stringify({ paths }),
+      cache: "no-store",
+      signal: AbortSignal.timeout(5000),
+    });
+
+    if (!response.ok) {
+      console.error(
+        `Public site revalidation failed with status ${response.status}.`,
+      );
+    }
+  } catch (error) {
+    console.error("Public site revalidation failed.", error);
+  }
+}
+
 export async function saveEventAction(
   _previousState: AdminActionState,
   formData: FormData,
@@ -178,24 +230,37 @@ export async function saveNewsletterAction(
   }
 
   let id: string;
+  let publicPaths: string[];
 
   try {
+    const existingNewsletter = parsed.data.id
+      ? await getNewsletter(parsed.data.id)
+      : null;
+    const slug = slugify(parsed.data.slug || parsed.data.title);
+
     id = await saveNewsletter(parsed.data);
+    publicPaths = publicNewsletterPaths(slug, existingNewsletter?.slug);
   } catch (error) {
     return { message: saveErrorMessage(error) };
   }
 
   revalidatePath("/newsletters");
+  await revalidatePublicSite(publicPaths);
   redirect(`/newsletters/${id}`);
 }
 
 export async function deleteNewsletterAction(formData: FormData) {
   const id = field(formData, "id");
+  let publicPaths = publicNewsletterPaths();
 
   if (id) {
+    const existingNewsletter = await getNewsletter(id);
+
     await deleteNewsletter(id);
+    publicPaths = publicNewsletterPaths(existingNewsletter?.slug);
   }
 
   revalidatePath("/newsletters");
+  await revalidatePublicSite(publicPaths);
   redirect("/newsletters");
 }

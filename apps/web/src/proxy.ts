@@ -9,6 +9,11 @@ import {
 
 export async function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
+
+  if (pathname === "/api/revalidate") {
+    return NextResponse.next();
+  }
+
   const accessCookie = request.cookies.get(gateCookieName)?.value;
   const hasAccess = await isGateCookieValid(accessCookie);
 
