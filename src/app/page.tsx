@@ -29,7 +29,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
 import {
   events,
@@ -110,6 +109,7 @@ function HeroSection() {
         <div className="hidden items-center gap-2 md:flex">
           <Button
             className="h-10 rounded-[8px] border-white/20 bg-white/10 px-4 text-white hover:bg-white/20"
+            nativeButton={false}
             render={<a href={site.links.instagram} />}
             variant="outline"
           >
@@ -118,6 +118,7 @@ function HeroSection() {
           </Button>
           <Button
             className="h-10 rounded-[8px] bg-[#ffcf6b] px-4 text-[#191109] hover:bg-[#f3b83f]"
+            nativeButton={false}
             render={<a href={site.links.getInvolved} />}
           >
             Get involved
@@ -144,6 +145,7 @@ function HeroSection() {
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <Button
               className="h-12 rounded-[8px] bg-[#ffcf6b] px-5 text-base font-semibold text-[#191109] hover:bg-[#f3b83f]"
+              nativeButton={false}
               render={<a href={site.links.events} />}
             >
               Upcoming events
@@ -151,6 +153,7 @@ function HeroSection() {
             </Button>
             <Button
               className="h-12 rounded-[8px] border-white/25 bg-white/10 px-5 text-base text-white hover:bg-white/20"
+              nativeButton={false}
               render={<a href={site.links.meetings} />}
               variant="outline"
             >
@@ -306,6 +309,7 @@ function EventsSection() {
           </div>
           <Button
             className="h-11 w-fit rounded-[8px] bg-[#171310] px-4 text-white hover:bg-[#2c241d]"
+            nativeButton={false}
             render={<a href={site.links.getInvolved} />}
           >
             Help plan one
@@ -404,15 +408,12 @@ function GetInvolvedSection() {
               preferred form provider when SFVYPAA has an approved contact flow.
             </p>
             <div className="mt-6 grid gap-3">
-              <Input
-                aria-label="Email address"
-                className="h-12 rounded-[8px]"
-                placeholder="Email address"
-                readOnly
-                type="email"
-              />
+              <div className="flex h-12 w-full items-center rounded-[8px] border border-[#171310]/15 bg-[#f7f3ea] px-3 text-sm text-[#85786a]">
+                Email address
+              </div>
               <Button
                 className="h-12 rounded-[8px] bg-[#d94b2b] text-white hover:bg-[#bc3f23]"
+                nativeButton={false}
                 render={<a href={site.links.contact} />}
               >
                 Contact coming soon
@@ -444,6 +445,7 @@ function SocialSection() {
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <Button
               className="h-11 rounded-[8px] bg-[#171310] px-4 text-white hover:bg-[#2c241d]"
+              nativeButton={false}
               render={<a href={site.links.instagram} />}
             >
               <AtSign />
@@ -451,6 +453,7 @@ function SocialSection() {
             </Button>
             <Button
               className="h-11 rounded-[8px] border-[#171310]/20 bg-transparent px-4 hover:bg-[#171310]/5"
+              nativeButton={false}
               render={<a href={site.links.contact} />}
               variant="outline"
             >

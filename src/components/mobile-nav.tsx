@@ -44,6 +44,7 @@ export function MobileNav() {
             <SheetClose
               key={item.href}
               className="border-b border-white/10 py-4 text-left text-lg font-semibold text-white transition hover:text-[#ffcf6b]"
+              nativeButton={false}
               render={<a href={item.href} />}
             >
               {item.label}
@@ -53,6 +54,7 @@ export function MobileNav() {
         <div className="mt-auto p-5">
           <SheetClose
             className="inline-flex h-11 w-full items-center justify-center rounded-[8px] bg-[#ffcf6b] px-4 text-sm font-semibold text-[#191109] transition hover:bg-[#f3b83f]"
+            nativeButton={false}
             render={<a href={site.links.getInvolved} />}
           >
             Get involved
