@@ -20,6 +20,25 @@ export const metadata: Metadata = {
     "Published SFVYPAA newsletter archive for San Fernando Valley young people in AA.",
 }
 
+const newsletterDateFormatter = new Intl.DateTimeFormat("en-US", {
+  month: "long",
+  day: "numeric",
+  year: "numeric",
+})
+
+function formatNewsletterDate(value: string) {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value)
+
+  if (!match) {
+    return value
+  }
+
+  const [, year, month, day] = match
+  return newsletterDateFormatter.format(
+    new Date(Number(year), Number(month) - 1, Number(day)),
+  )
+}
+
 export default async function NewslettersPage() {
   const newsletters = await listPublishedNewsletters()
 
@@ -49,7 +68,7 @@ export default async function NewslettersPage() {
                 <Card className="rounded-[8px] border-white/10 bg-white text-[#171310] ring-white/10 transition group-hover:-translate-y-0.5 group-hover:shadow-2xl">
                   <CardHeader className="gap-3">
                     <p className="text-sm font-semibold uppercase tracking-normal text-[#d94b2b]">
-                      {newsletter.publishDate}
+                      {formatNewsletterDate(newsletter.publishDate)}
                     </p>
                     <CardTitle className="flex items-center justify-between gap-4 text-3xl font-black">
                       <span>{newsletter.title}</span>

@@ -14,6 +14,25 @@ import {
 
 export const dynamic = "force-dynamic";
 
+const newsletterDateFormatter = new Intl.DateTimeFormat("en-US", {
+  month: "long",
+  day: "numeric",
+  year: "numeric",
+});
+
+function formatNewsletterDate(value: string) {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+
+  if (!match) {
+    return value;
+  }
+
+  const [, year, month, day] = match;
+  return newsletterDateFormatter.format(
+    new Date(Number(year), Number(month) - 1, Number(day)),
+  );
+}
+
 export default async function NewslettersPage() {
   const newsletters = await listNewsletters();
 
@@ -52,7 +71,7 @@ export default async function NewslettersPage() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="grid gap-2 text-sm text-[#5e554c]">
-                    <p>{newsletter.publishDate}</p>
+                    <p>{formatNewsletterDate(newsletter.publishDate)}</p>
                     <p>{newsletter.excerpt}</p>
                   </CardContent>
                 </Card>

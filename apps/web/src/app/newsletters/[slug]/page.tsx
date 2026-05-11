@@ -8,6 +8,25 @@ import { SiteHeader } from "@/components/site-header"
 
 export const revalidate = 60
 
+const newsletterDateFormatter = new Intl.DateTimeFormat("en-US", {
+  month: "long",
+  day: "numeric",
+  year: "numeric",
+})
+
+function formatNewsletterDate(value: string) {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value)
+
+  if (!match) {
+    return value
+  }
+
+  const [, year, month, day] = match
+  return newsletterDateFormatter.format(
+    new Date(Number(year), Number(month) - 1, Number(day)),
+  )
+}
+
 export async function generateMetadata({
   params,
 }: {
@@ -41,7 +60,7 @@ export default async function NewsletterDetailPage({
         <div className="mx-auto max-w-3xl">
           <Newspaper className="size-9 text-[#ffcf6b]" />
           <p className="mt-5 text-sm font-semibold uppercase tracking-normal text-white/56">
-            {newsletter.publishDate}
+            {formatNewsletterDate(newsletter.publishDate)}
           </p>
           <h1 className="mt-4 text-4xl font-black leading-tight tracking-normal sm:text-6xl">
             {newsletter.title}
