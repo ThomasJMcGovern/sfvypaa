@@ -34,7 +34,9 @@ export default async function NewsletterEditPage({
               Save as draft or publish to the public newsletter archive.
             </p>
           </div>
-          {!isNew ? <DeleteNewsletterForm id={id} /> : null}
+          {!isNew ? (
+            <DeleteNewsletterForm id={id} title={newsletter.title} />
+          ) : null}
         </div>
         <div className="rounded-[8px] border border-white/10 bg-white/[0.06] p-5 sm:p-7">
           <NewsletterForm newsletter={newsletter} />

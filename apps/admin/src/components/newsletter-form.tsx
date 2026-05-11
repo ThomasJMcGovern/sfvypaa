@@ -10,6 +10,7 @@ import {
   saveNewsletterAction,
   type AdminActionState,
 } from "@/app/actions";
+import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Input } from "@/components/ui/input";
@@ -140,18 +141,20 @@ function DateField({ defaultValue }: { defaultValue?: string }) {
   );
 }
 
-export function DeleteNewsletterForm({ id }: { id: string }) {
+export function DeleteNewsletterForm({
+  id,
+  title,
+}: {
+  id: string;
+  title: string;
+}) {
   return (
-    <form action={deleteNewsletterAction}>
-      <input type="hidden" name="id" value={id} />
-      <Button
-        type="submit"
-        variant="destructive"
-        className="h-10 rounded-[8px] px-4"
-      >
-        Delete newsletter
-      </Button>
-    </form>
+    <DeleteConfirmationDialog
+      action={deleteNewsletterAction}
+      id={id}
+      resourceName={title}
+      resourceType="newsletter"
+    />
   );
 }
 

@@ -10,6 +10,7 @@ import {
   saveEventAction,
   type AdminActionState,
 } from "@/app/actions";
+import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Input } from "@/components/ui/input";
@@ -265,18 +266,14 @@ function ImageUploadField({ defaultValue }: { defaultValue?: string }) {
   );
 }
 
-export function DeleteEventForm({ id }: { id: string }) {
+export function DeleteEventForm({ id, title }: { id: string; title: string }) {
   return (
-    <form action={deleteEventAction}>
-      <input type="hidden" name="id" value={id} />
-      <Button
-        type="submit"
-        variant="destructive"
-        className="h-10 rounded-[8px] px-4"
-      >
-        Delete event
-      </Button>
-    </form>
+    <DeleteConfirmationDialog
+      action={deleteEventAction}
+      id={id}
+      resourceName={title}
+      resourceType="event"
+    />
   );
 }
 

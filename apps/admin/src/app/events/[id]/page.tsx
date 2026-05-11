@@ -44,7 +44,7 @@ export default async function EventEditPage({
               Save as draft or publish to the public events page.
             </p>
           </div>
-          {!isNew ? <DeleteEventForm id={id} /> : null}
+          {!isNew ? <DeleteEventForm id={id} title={event.title} /> : null}
         </div>
         <div className="rounded-[8px] border border-white/10 bg-white/[0.06] p-5 sm:p-7">
           <EventForm event={event} locationSuggestions={locationSuggestions} />
