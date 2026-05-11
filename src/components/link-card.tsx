@@ -12,6 +12,7 @@ type LinkCardProps = {
   buttonLabel: string
   href: string
   external?: boolean
+  imageMode?: "cover" | "contain"
   reverse?: boolean
 }
 
@@ -23,6 +24,7 @@ export function LinkCard({
   buttonLabel,
   href,
   external,
+  imageMode = "cover",
   reverse,
 }: LinkCardProps) {
   return (
@@ -36,12 +38,13 @@ export function LinkCard({
         <div
           className={cn(
             "relative min-h-[320px] overflow-hidden rounded-[8px] bg-[#2a241e] lg:min-h-[520px]",
+            imageMode === "contain" && "bg-[#f3ead9]",
             reverse && "lg:order-2"
           )}
         >
           <Image
             alt={imageAlt}
-            className="object-cover"
+            className={imageMode === "contain" ? "object-contain" : "object-cover"}
             fill
             sizes="(min-width: 1024px) 58vw, 100vw"
             src={imageSrc}

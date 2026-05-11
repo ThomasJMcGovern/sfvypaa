@@ -123,21 +123,24 @@ export default function Home() {
           <Button
             className="h-11 rounded-[8px] border-white/20 bg-white/10 px-4 text-white hover:bg-white/20"
             nativeButton={false}
-            render={<a href={site.links.instagram} />}
+            render={
+              <a href={site.links.instagram} rel="noreferrer" target="_blank" />
+            }
             variant="outline"
           >
             <AtSign />
-            Instagram coming soon
+            @sfvypaa
           </Button>
         </div>
       </section>
 
       <LinkCard
-        body="SFVYPAA committee details live on the get involved page so meeting time, address, and online access can be updated without changing the homepage."
+        body="SFVYPAA business meeting details live on the get involved page, with the current flyer and meeting information in one place."
         buttonLabel="Get involved"
         href={site.links.getInvolved}
-        imageAlt="Empty event room with vivid stage lights"
-        imageSrc="/stage-lights.jpg"
+        imageAlt="SFVYPAA business meeting flyer"
+        imageMode="contain"
+        imageSrc="/business-meeting.png"
         title="When does SFVYPAA meet?"
         reverse
       />

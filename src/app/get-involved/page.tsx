@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 import Image from "next/image"
-import { Mail, MapPin, Monitor, Sparkles, UsersRound } from "lucide-react"
+import { CalendarDays, Clock, Mail, MapPin, Sparkles } from "lucide-react"
 
 import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
@@ -42,14 +42,14 @@ export default function GetInvolvedPage() {
 
       <section className="px-5 py-12 sm:px-8 lg:px-10" id="business-meeting">
         <div className="mx-auto grid max-w-6xl gap-0 lg:grid-cols-[1fr_0.58fr] lg:items-center">
-          <div className="relative min-h-[360px] overflow-hidden rounded-[8px] bg-[#2a241e] lg:min-h-[560px]">
+          <div className="relative min-h-[620px] overflow-hidden rounded-[8px] bg-[#f3ead9] lg:min-h-[720px]">
             <Image
-              alt="Empty event room with vivid stage lights"
-              className="object-cover object-bottom"
+              alt="SFVYPAA business meeting flyer"
+              className="object-contain"
               fill
               priority
               sizes="(min-width: 1024px) 58vw, 100vw"
-              src="/stage-lights.jpg"
+              src="/business-meeting.png"
             />
           </div>
           <Card className="relative z-10 mx-4 -mt-12 rounded-[8px] border-none bg-white p-4 text-[#171310] shadow-2xl ring-0 lg:mx-0 lg:-ml-20 lg:mt-0 lg:p-8">
@@ -63,19 +63,21 @@ export default function GetInvolvedPage() {
             </CardHeader>
             <CardContent className="grid gap-5 text-base leading-7 text-[#5e554c]">
               <p>
-                {businessMeeting.schedule} The approved meeting link and any
-                final in-person address can be added here when SFVYPAA is ready
-                to publish.
+                SFVYPAA meets once per month for committee business, service
+                planning, and upcoming young people events.
               </p>
+              <Detail icon={CalendarDays} text={businessMeeting.schedule} />
+              <Detail icon={Clock} text={businessMeeting.time} />
               <Detail icon={MapPin} text={businessMeeting.location} />
-              <Detail icon={Monitor} text={businessMeeting.online} />
-              <Detail icon={UsersRound} text={businessMeeting.passcode} />
+              <Detail icon={MapPin} text={businessMeeting.address} />
               <Button
                 className="mt-2 h-12 w-fit rounded-[8px] bg-[#171310] px-5 text-white hover:bg-[#2c241d]"
                 nativeButton={false}
-                render={<a href={site.links.contact} />}
+                render={
+                  <a href={site.links.instagram} rel="noreferrer" target="_blank" />
+                }
               >
-                Meeting link coming soon
+                Follow @sfvypaa
               </Button>
             </CardContent>
           </Card>

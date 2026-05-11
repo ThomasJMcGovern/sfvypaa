@@ -41,7 +41,9 @@ export function SiteHeader({ active }: SiteHeaderProps) {
         <Button
           className="h-10 rounded-[8px] border-white/20 bg-white/10 px-4 text-white hover:bg-white/20"
           nativeButton={false}
-          render={<a href={site.links.instagram} />}
+          render={
+            <a href={site.links.instagram} rel="noreferrer" target="_blank" />
+          }
           variant="outline"
         >
           <AtSign />

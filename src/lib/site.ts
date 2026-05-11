@@ -11,7 +11,7 @@ export const site = {
     getInvolved: "/get-involved",
     events: "/upcoming-events",
     meetings: meetingSearchUrl,
-    instagram: "/#socials",
+    instagram: "https://www.instagram.com/sfvypaa/",
     contact: "/get-involved#contact",
   },
   contactEmail: "Contact link coming soon",
@@ -45,10 +45,10 @@ export const events = [
     host: "Hosted by SFVYPAA",
   },
   {
-    title: "Service Committee Meeting",
-    date: "Monthly schedule coming soon",
-    time: "Hybrid details pending",
-    location: "In person and online",
+    title: "Business Meeting",
+    date: "Second Saturday of each month",
+    time: "2 pm",
+    location: "Hole in the Sky, Canoga Park",
     tone: "Help plan events, outreach, and young people service work.",
     host: "Hosted by SFVYPAA",
   },
@@ -64,10 +64,10 @@ export const events = [
 
 export const businessMeeting = {
   title: "Business Meeting",
-  schedule: "Monthly committee schedule coming soon.",
-  location: "San Fernando Valley location TBD",
-  online: "Online details pending",
-  passcode: "Passcode pending",
+  schedule: "Second Saturday of each month",
+  time: "2 pm",
+  location: "Hole in the Sky",
+  address: "21520 Sherman Way, Canoga Park, CA 91303",
 }
 
 export const involvement = [
@@ -110,5 +110,10 @@ export const imageCredits = [
     label: "Blurred lights image",
     href: "https://unsplash.com/photos/blurred-stage-lights-with-audience-silhouettes-HgD2kVqgHic",
     credit: "Ryan Spaulding, Unsplash",
+  },
+  {
+    label: "Business meeting flyer",
+    href: "https://www.instagram.com/sfvypaa/",
+    credit: "SFVYPAA",
   },
 ]
