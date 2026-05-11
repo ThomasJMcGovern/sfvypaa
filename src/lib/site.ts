@@ -1,23 +1,32 @@
+export const meetingSearchUrl =
+  "https://lacoaa.org/meetings.php?lat=0&lng=0&pday=0&pformat=0&pmethod=1&pregion=0&ptime=0&ptype=Y#search"
+
 export const site = {
   name: "SFVYPAA",
   fullName: "San Fernando Valley Young People in Alcoholics Anonymous",
   description:
     "A young people in Alcoholics Anonymous committee serving the San Fernando Valley through meetings, service, fellowship, and events.",
   links: {
-    getInvolved: "#get-involved",
-    events: "#events",
-    meetings: "#meetings",
-    instagram: "#socials",
-    contact: "#contact",
+    home: "/",
+    getInvolved: "/get-involved",
+    events: "/upcoming-events",
+    meetings: meetingSearchUrl,
+    instagram: "/#socials",
+    contact: "/get-involved#contact",
   },
   contactEmail: "Contact link coming soon",
 }
 
 export const navItems = [
-  { label: "About", href: "#about" },
-  { label: "Meetings", href: "#meetings" },
-  { label: "Events", href: "#events" },
-  { label: "Get involved", href: "#get-involved" },
+  { key: "home", label: "Home", href: site.links.home },
+  { key: "get-involved", label: "Get Involved", href: site.links.getInvolved },
+  { key: "upcoming-events", label: "Upcoming Events", href: site.links.events },
+  {
+    key: "meetings",
+    label: "LA YP Meetings",
+    href: site.links.meetings,
+    external: true,
+  },
 ]
 
 export const stats = [
@@ -33,6 +42,7 @@ export const events = [
     time: "Evening fellowship",
     location: "San Fernando Valley",
     tone: "Speaker panel, music, and connection after the meeting.",
+    host: "Hosted by SFVYPAA",
   },
   {
     title: "Service Committee Meeting",
@@ -40,6 +50,7 @@ export const events = [
     time: "Hybrid details pending",
     location: "In person and online",
     tone: "Help plan events, outreach, and young people service work.",
+    host: "Hosted by SFVYPAA",
   },
   {
     title: "Sober Social Pop-Up",
@@ -47,8 +58,17 @@ export const events = [
     time: "Weekend gathering",
     location: "Valley venue TBD",
     tone: "A premium, anonymous, alcohol-free space to meet sober friends.",
+    host: "Co-hosted by SFVYPAA",
   },
 ]
+
+export const businessMeeting = {
+  title: "Business Meeting",
+  schedule: "Monthly committee schedule coming soon.",
+  location: "San Fernando Valley location TBD",
+  online: "Online details pending",
+  passcode: "Passcode pending",
+}
 
 export const involvement = [
   "Events and programming",
@@ -64,9 +84,9 @@ export const faqs = [
       "No. Young people committees focus on people who got sober young, young newcomers, and young-at-heart AA members. Anyone with a desire to stop drinking is welcome around AA.",
   },
   {
-    question: "Is this an AA meeting list?",
+    question: "Where do I find young people meetings?",
     answer:
-      "This page is a launch landing page for SFVYPAA. Exact meeting listings and event links should be replaced with current committee-approved details before public promotion.",
+      "Use the LA YP Meetings nav link to open the Los Angeles Central Office young people meeting search.",
   },
   {
     question: "Can I help even if I am new?",

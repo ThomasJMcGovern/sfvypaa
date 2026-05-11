@@ -37,3 +37,10 @@ Operational details are centralized in `src/lib/site.ts`:
 - image credits
 
 The current copy intentionally uses launch placeholders until SFVYPAA approves final meeting, social, and event details.
+
+## Routes
+
+- `/` homepage hub
+- `/get-involved` committee and service page
+- `/upcoming-events` hosted and co-hosted events page
+- `LA YP Meetings` nav item opens the Los Angeles Central Office young people meeting search

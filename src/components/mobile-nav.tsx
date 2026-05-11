@@ -42,10 +42,16 @@ export function MobileNav() {
         <nav className="flex flex-col px-5 py-3">
           {navItems.map((item) => (
             <SheetClose
-              key={item.href}
+              key={item.key}
               className="border-b border-white/10 py-4 text-left text-lg font-semibold text-white transition hover:text-[#ffcf6b]"
               nativeButton={false}
-              render={<a href={item.href} />}
+              render={
+                <a
+                  href={item.href}
+                  rel={item.external ? "noreferrer" : undefined}
+                  target={item.external ? "_blank" : undefined}
+                />
+              }
             >
               {item.label}
             </SheetClose>
