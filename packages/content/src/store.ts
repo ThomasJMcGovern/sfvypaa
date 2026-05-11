@@ -63,6 +63,7 @@ function eventFromDoc(doc: QueryDocumentSnapshot): EventRecord {
   return {
     id: doc.id,
     title: String(data.title ?? ""),
+    eventDate: typeof data.eventDate === "string" ? data.eventDate : "",
     date: String(data.date ?? ""),
     time: String(data.time ?? ""),
     location: String(data.location ?? ""),
@@ -99,7 +100,9 @@ function newsletterFromDoc(doc: QueryDocumentSnapshot): NewsletterRecord {
 }
 
 function byEventDate(a: EventRecord, b: EventRecord) {
-  return (a.sortDate || a.date).localeCompare(b.sortDate || b.date);
+  return (a.eventDate || a.sortDate || a.date).localeCompare(
+    b.eventDate || b.sortDate || b.date,
+  );
 }
 
 function byNewsletterDate(a: NewsletterRecord, b: NewsletterRecord) {
@@ -113,6 +116,21 @@ export async function listEvents() {
 
   const snapshot = await getAdminDb().collection(eventsCollection).get();
   return snapshot.docs.map(eventFromDoc).sort(byEventDate);
+}
+
+export async function listEventLocations() {
+  const events = await listEvents();
+  const locations = new Set<string>();
+
+  for (const event of events) {
+    const location = event.location.trim();
+
+    if (location) {
+      locations.add(location);
+    }
+  }
+
+  return [...locations].sort((a, b) => a.localeCompare(b));
 }
 
 export async function listPublishedEvents() {
@@ -152,8 +170,10 @@ export async function saveEvent(input: EventInput) {
     : db.collection(eventsCollection).doc();
 
   const existing = await ref.get();
+  const existingData = existing.data();
   const data = {
     title: parsed.title,
+    eventDate: parsed.eventDate ?? "",
     date: parsed.date,
     time: parsed.time,
     location: parsed.location,
@@ -163,12 +183,14 @@ export async function saveEvent(input: EventInput) {
     sortDate: parsed.sortDate ?? "",
     rsvpUrl: cleanOptionalUrl(parsed.rsvpUrl),
     imageUrl: cleanOptionalUrl(parsed.imageUrl),
-    createdAt: existing.exists ? existing.data()?.createdAt : FieldValue.serverTimestamp(),
+    createdAt: existing.exists
+      ? existingData?.createdAt
+      : FieldValue.serverTimestamp(),
     updatedAt: FieldValue.serverTimestamp(),
     publishedAt:
       parsed.status === "published"
-        ? FieldValue.serverTimestamp()
-        : existing.data()?.publishedAt ?? null,
+        ? existingData?.publishedAt ?? FieldValue.serverTimestamp()
+        : existingData?.publishedAt ?? null,
   };
 
   await ref.set(data, { merge: true });

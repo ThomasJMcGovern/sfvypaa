@@ -1,16 +1,38 @@
+"use client";
+
+import { useActionState } from "react";
 import type { NewsletterInput } from "@sfvypaa/content";
 
-import { deleteNewsletterAction, saveNewsletterAction } from "@/app/actions";
+import {
+  deleteNewsletterAction,
+  saveNewsletterAction,
+  type AdminActionState,
+} from "@/app/actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+
+const initialState: AdminActionState = null;
 
 export function NewsletterForm({
   newsletter,
 }: {
   newsletter: NewsletterInput;
 }) {
+  const [state, formAction, isPending] = useActionState(
+    saveNewsletterAction,
+    initialState,
+  );
+
   return (
-    <form action={saveNewsletterAction} className="grid gap-5">
+    <form action={formAction} className="grid gap-5">
+      {state?.message ? (
+        <p
+          aria-live="polite"
+          className="rounded-[8px] border border-red-400/40 bg-red-950/50 px-4 py-3 text-sm font-medium text-red-100"
+        >
+          {state.message}
+        </p>
+      ) : null}
       <input type="hidden" name="id" value={newsletter.id ?? ""} />
       <Field label="Title" name="title" defaultValue={newsletter.title} required />
       <div className="grid gap-5 md:grid-cols-2">
@@ -44,9 +66,10 @@ export function NewsletterForm({
       />
       <Button
         type="submit"
+        disabled={isPending}
         className="h-11 w-fit rounded-[8px] bg-[#ffcf6b] px-5 text-[#191109] hover:bg-[#f3b83f]"
       >
-        Save newsletter
+        {isPending ? "Saving..." : "Save newsletter"}
       </Button>
     </form>
   );

@@ -1,5 +1,11 @@
-import { cert, getApps, initializeApp } from "firebase-admin/app";
-import { getFirestore } from "firebase-admin/firestore";
+import { cert, getApps, initializeApp, type App } from "firebase-admin/app";
+import {
+  initializeFirestore,
+  type Firestore,
+} from "firebase-admin/firestore";
+import { getStorage } from "firebase-admin/storage";
+
+let adminDb: Firestore | undefined;
 
 export function isFirebaseConfigured() {
   return Boolean(
@@ -9,12 +15,24 @@ export function isFirebaseConfigured() {
   );
 }
 
-export function getAdminDb() {
+export function getStorageBucketName() {
+  return (
+    process.env.FIREBASE_STORAGE_BUCKET ||
+    process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET ||
+    ""
+  );
+}
+
+export function isFirebaseStorageConfigured() {
+  return Boolean(isFirebaseConfigured() && getStorageBucketName());
+}
+
+export function getAdminApp(): App {
   if (!isFirebaseConfigured()) {
     throw new Error("Firebase Admin env vars are not configured.");
   }
 
-  const app =
+  return (
     getApps()[0] ??
     initializeApp({
       credential: cert({
@@ -23,7 +41,21 @@ export function getAdminDb() {
         privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
       }),
       projectId: process.env.FIREBASE_PROJECT_ID,
-    });
+      storageBucket: getStorageBucketName() || undefined,
+    })
+  );
+}
 
-  return getFirestore(app);
+export function getAdminDb() {
+  adminDb ??= initializeFirestore(getAdminApp(), { preferRest: true });
+
+  return adminDb;
+}
+
+export function getAdminBucket() {
+  if (!isFirebaseStorageConfigured()) {
+    throw new Error("Firebase Storage bucket is not configured.");
+  }
+
+  return getStorage(getAdminApp()).bucket(getStorageBucketName());
 }

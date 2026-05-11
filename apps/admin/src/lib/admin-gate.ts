@@ -21,6 +21,33 @@ export function getAdminPassword() {
   return process.env.SFVYPAA_ADMIN_PASSWORD ?? "";
 }
 
+function isLocalHost(host: string | null) {
+  const normalizedHost = host?.toLowerCase() ?? "";
+
+  return (
+    normalizedHost.startsWith("localhost") ||
+    normalizedHost.startsWith("127.0.0.1") ||
+    normalizedHost.startsWith("[::1]")
+  );
+}
+
+export function shouldUseSecureAdminCookie(
+  host: string | null,
+  forwardedProto: string | null,
+) {
+  if (process.env.NODE_ENV !== "production") {
+    return false;
+  }
+
+  const proto = forwardedProto?.split(",")[0]?.trim().toLowerCase();
+
+  if (proto === "http") {
+    return false;
+  }
+
+  return proto === "https" || !isLocalHost(host);
+}
+
 export function getSafeReturnPath(value: unknown) {
   if (typeof value !== "string") {
     return "/";

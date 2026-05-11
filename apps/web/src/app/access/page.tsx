@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { ArrowRight, KeyRound } from "lucide-react";
 
@@ -19,6 +19,7 @@ import {
   gatePath,
   getSafeReturnPath,
   getSitePassword,
+  shouldUseSecureGateCookie,
 } from "@/lib/password-gate";
 
 export const metadata: Metadata = {
@@ -46,6 +47,7 @@ async function unlockSite(formData: FormData) {
   }
 
   const token = await createGateToken(configuredPassword);
+  const requestHeaders = await headers();
   const cookieStore = await cookies();
 
   cookieStore.set(gateCookieName, token, {
@@ -53,7 +55,10 @@ async function unlockSite(formData: FormData) {
     maxAge: 60 * 60 * 24 * 30,
     path: "/",
     sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
+    secure: shouldUseSecureGateCookie(
+      requestHeaders.get("host"),
+      requestHeaders.get("x-forwarded-proto"),
+    ),
   });
 
   redirect(nextPath);

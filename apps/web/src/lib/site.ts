@@ -37,33 +37,6 @@ export const stats = [
   { value: "All", label: "ages welcome" },
 ]
 
-export const events = [
-  {
-    title: "Valley Young People Speaker Night",
-    date: "Date announced soon",
-    time: "Evening fellowship",
-    location: "San Fernando Valley",
-    tone: "Speaker panel, music, and connection after the meeting.",
-    host: "Hosted by SFVYPAA",
-  },
-  {
-    title: "Business Meeting",
-    date: "Second Saturday of each month",
-    time: "2 pm",
-    location: "Hole in the Sky, Canoga Park",
-    tone: "Help plan events, outreach, and young people service work.",
-    host: "Hosted by SFVYPAA",
-  },
-  {
-    title: "Sober Social Pop-Up",
-    date: "Next event in planning",
-    time: "Weekend gathering",
-    location: "Valley venue TBD",
-    tone: "A premium, anonymous, alcohol-free space to meet sober friends.",
-    host: "Co-hosted by SFVYPAA",
-  },
-]
-
 export const businessMeeting = {
   title: "Business Meeting",
   schedule: "Second Saturday of each month",

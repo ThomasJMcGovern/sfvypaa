@@ -9,9 +9,17 @@ export const eventHostSchema = z.enum([
 ]);
 export type EventHost = z.infer<typeof eventHostSchema>;
 
+const optionalUrlSchema = z.string().trim().pipe(
+  z.union([
+    z.literal(""),
+    z.string().url("Enter a full URL including https://"),
+  ]),
+);
+
 export const eventInputSchema = z.object({
   id: z.string().optional(),
   title: z.string().trim().min(1, "Title is required"),
+  eventDate: z.string().trim().min(1, "Date is required"),
   date: z.string().trim().min(1, "Date is required"),
   time: z.string().trim().min(1, "Time is required"),
   location: z.string().trim().min(1, "Location is required"),
@@ -19,8 +27,8 @@ export const eventInputSchema = z.object({
   host: eventHostSchema,
   status: contentStatusSchema,
   sortDate: z.string().trim().optional(),
-  rsvpUrl: z.string().trim().url().optional().or(z.literal("")),
-  imageUrl: z.string().trim().url().optional().or(z.literal("")),
+  rsvpUrl: optionalUrlSchema,
+  imageUrl: optionalUrlSchema,
 });
 export type EventInput = z.infer<typeof eventInputSchema>;
 
@@ -52,6 +60,7 @@ export type NewsletterRecord = Omit<NewsletterInput, "id" | "slug"> & {
 
 export const emptyEvent: EventInput = {
   title: "",
+  eventDate: "",
   date: "",
   time: "",
   location: "",

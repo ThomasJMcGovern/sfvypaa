@@ -18,6 +18,7 @@
     "lint": "bun run --filter @sfvypaa/web lint && bun run --filter @sfvypaa/admin lint"
   },
   "devDependencies": {
+    "next": "16.2.6",
     "typescript": "^5"
   },
   "ignoreScripts": [

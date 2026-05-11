@@ -4,6 +4,7 @@ export {
   getEvent,
   getNewsletter,
   getPublishedNewsletterBySlug,
+  listEventLocations,
   listEvents,
   listNewsletters,
   listPublishedEvents,
@@ -26,3 +27,4 @@ export {
   type NewsletterInput,
   type NewsletterRecord,
 } from "./schema";
+export { uploadEventImage, type UploadableImage } from "./storage";

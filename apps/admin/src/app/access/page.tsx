@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { ArrowRight, LockKeyhole } from "lucide-react";
 
@@ -18,6 +18,7 @@ import {
   createAdminToken,
   getAdminPassword,
   getSafeReturnPath,
+  shouldUseSecureAdminCookie,
 } from "@/lib/admin-gate";
 
 async function unlockAdmin(formData: FormData) {
@@ -37,6 +38,7 @@ async function unlockAdmin(formData: FormData) {
   }
 
   const token = await createAdminToken(configuredPassword);
+  const requestHeaders = await headers();
   const cookieStore = await cookies();
 
   cookieStore.set(adminCookieName, token, {
@@ -44,7 +46,10 @@ async function unlockAdmin(formData: FormData) {
     maxAge: 60 * 60 * 24 * 14,
     path: "/",
     sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
+    secure: shouldUseSecureAdminCookie(
+      requestHeaders.get("host"),
+      requestHeaders.get("x-forwarded-proto"),
+    ),
   });
 
   redirect(nextPath);

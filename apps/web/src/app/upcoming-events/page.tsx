@@ -1,9 +1,5 @@
 import type { Metadata } from "next"
-import {
-  listPublishedEvents,
-  type EventHost,
-  type EventRecord,
-} from "@sfvypaa/content"
+import { listPublishedEvents, type EventRecord } from "@sfvypaa/content"
 import { CalendarDays, Clock, MapPin, Sparkles } from "lucide-react"
 
 import { SiteFooter } from "@/components/site-footer"
@@ -17,9 +13,9 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
-import { events, site } from "@/lib/site"
+import { site } from "@/lib/site"
 
-export const revalidate = 60
+export const dynamic = "force-dynamic"
 
 export const metadata: Metadata = {
   title: "Upcoming Events | SFVYPAA",
@@ -27,21 +23,10 @@ export const metadata: Metadata = {
     "Hosted and co-hosted young people in AA events for the San Fernando Valley.",
 }
 
-const fallbackEvents: EventRecord[] = events.map((event) => ({
-  ...event,
-  id: event.title,
-  host: event.host as EventHost,
-  status: "published",
-  sortDate: "",
-  rsvpUrl: "",
-  imageUrl: "",
-}))
-
 export default async function UpcomingEventsPage() {
-  const publishedEvents = await listPublishedEvents()
-  const pageEvents = publishedEvents.length > 0 ? publishedEvents : fallbackEvents
-  const hosted = pageEvents.filter((event) => event.host === "Hosted by SFVYPAA")
-  const cohosted = pageEvents.filter(
+  const events = await listPublishedEvents()
+  const hosted = events.filter((event) => event.host === "Hosted by SFVYPAA")
+  const cohosted = events.filter(
     (event) => event.host === "Co-hosted by SFVYPAA",
   )
 
@@ -68,8 +53,18 @@ export default async function UpcomingEventsPage() {
         </div>
       </section>
 
-      <EventGroup events={hosted} title="Hosted by SFVYPAA" />
-      <EventGroup events={cohosted} title="Co-hosted by SFVYPAA" />
+      {events.length > 0 ? (
+        <>
+          {hosted.length > 0 ? (
+            <EventGroup events={hosted} title="Hosted by SFVYPAA" />
+          ) : null}
+          {cohosted.length > 0 ? (
+            <EventGroup events={cohosted} title="Co-hosted by SFVYPAA" />
+          ) : null}
+        </>
+      ) : (
+        <EmptyEvents />
+      )}
 
       <section className="px-5 pb-24 pt-8 sm:px-8 lg:px-10">
         <div className="mx-auto max-w-7xl rounded-[8px] border border-white/10 bg-white/[0.06] p-8 text-center">
@@ -91,6 +86,22 @@ export default async function UpcomingEventsPage() {
 
       <SiteFooter />
     </main>
+  )
+}
+
+function EmptyEvents() {
+  return (
+    <section className="px-5 py-10 sm:px-8 lg:px-10">
+      <div className="mx-auto max-w-4xl rounded-[8px] border border-white/12 bg-white/[0.06] px-6 py-10 text-center">
+        <CalendarDays className="mx-auto size-8 text-[#ffcf6b]" />
+        <h2 className="mt-4 text-3xl font-black tracking-normal">
+          No published events yet
+        </h2>
+        <p className="mx-auto mt-3 max-w-2xl text-base leading-7 text-white/64">
+          New SFVYPAA events will appear here once they are announced.
+        </p>
+      </div>
+    </section>
   )
 }
 
@@ -124,6 +135,15 @@ function EventGroup({
                   {event.title}
                 </CardTitle>
               </CardHeader>
+              {event.imageUrl ? (
+                <div className="border-b border-[#171310]/10 bg-[#f5eee5]">
+                  <img
+                    alt={`${event.title} flyer`}
+                    className="aspect-[4/3] w-full object-cover"
+                    src={event.imageUrl}
+                  />
+                </div>
+              ) : null}
               <CardContent className="grid gap-4 px-5 py-5">
                 <EventMeta icon={CalendarDays} text={event.date} />
                 <EventMeta icon={Clock} text={event.time} />

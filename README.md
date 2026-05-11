@@ -41,12 +41,13 @@ bun run build:admin
 
 ## Firebase
 
-The shared content package reads and writes Firestore through Firebase Admin SDK.
+The shared content package reads and writes Firestore and Storage through Firebase Admin SDK.
 Set these environment variables in Vercel for both apps:
 
 - `FIREBASE_PROJECT_ID`
 - `FIREBASE_CLIENT_EMAIL`
 - `FIREBASE_PRIVATE_KEY`
+- `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET` or `FIREBASE_STORAGE_BUCKET`
 
 The public app also uses:
 
@@ -56,19 +57,21 @@ The admin app also uses:
 
 - `SFVYPAA_ADMIN_PASSWORD`
 
-Client-side Firebase keys are exposed with `NEXT_PUBLIC_FIREBASE_*` names for future browser SDK use.
+The Storage bucket is used by the admin app for event image uploads.
 
 Firestore rules live in `firestore.rules` and currently deny client reads/writes.
+Storage rules can stay locked down because admin uploads use the Admin SDK.
 
 ## Launch Content
 
 Static operational details are centralized in `apps/web/src/lib/site.ts`:
 
 - meeting schedule
-- event cards
 - Instagram link
 - contact link
 - image credits
+
+Events and newsletters are published through the admin portal and loaded from Firestore.
 
 ## Routes
 
