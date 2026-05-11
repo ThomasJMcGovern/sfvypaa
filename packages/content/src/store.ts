@@ -259,6 +259,20 @@ export async function getPublishedNewsletterBySlug(slug: string) {
   }
 }
 
+export async function getNewsletterBySlug(slug: string) {
+  if (!isFirebaseConfigured()) {
+    return null;
+  }
+
+  const snapshot = await getAdminDb()
+    .collection(newslettersCollection)
+    .where("slug", "==", slug)
+    .limit(1)
+    .get();
+
+  return snapshot.empty ? null : newsletterFromDoc(snapshot.docs[0]!);
+}
+
 export async function saveNewsletter(input: NewsletterInput) {
   const parsed = newsletterInputSchema.parse(input);
   const slug = slugify(parsed.slug || parsed.title);
@@ -272,6 +286,7 @@ export async function saveNewsletter(input: NewsletterInput) {
     ? db.collection(newslettersCollection).doc(parsed.id)
     : db.collection(newslettersCollection).doc(slug);
   const existing = await ref.get();
+  const existingData = existing.data();
   const data = {
     title: parsed.title,
     slug,
@@ -279,12 +294,14 @@ export async function saveNewsletter(input: NewsletterInput) {
     body: parsed.body,
     publishDate: parsed.publishDate,
     status: parsed.status,
-    createdAt: existing.exists ? existing.data()?.createdAt : FieldValue.serverTimestamp(),
+    createdAt: existing.exists
+      ? existingData?.createdAt
+      : FieldValue.serverTimestamp(),
     updatedAt: FieldValue.serverTimestamp(),
     publishedAt:
       parsed.status === "published"
-        ? FieldValue.serverTimestamp()
-        : existing.data()?.publishedAt ?? null,
+        ? existingData?.publishedAt ?? FieldValue.serverTimestamp()
+        : existingData?.publishedAt ?? null,
   };
 
   await ref.set(data, { merge: true });

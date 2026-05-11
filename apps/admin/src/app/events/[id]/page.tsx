@@ -12,6 +12,13 @@ const defaultLocationSuggestions = [
   "Location TBD",
 ];
 
+function publicSiteUrl() {
+  return (process.env.SFVYPAA_PUBLIC_SITE_URL || "https://sfvypaa.org").replace(
+    /\/+$/,
+    "",
+  );
+}
+
 export default async function EventEditPage({
   params,
 }: {
@@ -33,7 +40,7 @@ export default async function EventEditPage({
   ];
 
   return (
-    <AdminShell>
+    <AdminShell active="events">
       <section className="grid gap-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
@@ -47,7 +54,11 @@ export default async function EventEditPage({
           {!isNew ? <DeleteEventForm id={id} title={event.title} /> : null}
         </div>
         <div className="rounded-[8px] border border-white/10 bg-white/[0.06] p-5 sm:p-7">
-          <EventForm event={event} locationSuggestions={locationSuggestions} />
+          <EventForm
+            event={event}
+            locationSuggestions={locationSuggestions}
+            publicSiteUrl={publicSiteUrl()}
+          />
         </div>
       </section>
     </AdminShell>

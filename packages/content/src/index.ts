@@ -3,6 +3,7 @@ export {
   deleteNewsletter,
   getEvent,
   getNewsletter,
+  getNewsletterBySlug,
   getPublishedNewsletterBySlug,
   listEventLocations,
   listEvents,
@@ -13,6 +14,10 @@ export {
   saveNewsletter,
   slugify,
 } from "./store";
+export {
+  isFirebaseConfigured,
+  isFirebaseStorageConfigured,
+} from "./firebase";
 export {
   contentStatusSchema,
   emptyEvent,

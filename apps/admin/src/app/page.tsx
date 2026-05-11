@@ -1,6 +1,11 @@
 import Link from "next/link";
-import { listEvents, listNewsletters } from "@sfvypaa/content";
-import { CalendarDays, Newspaper, Plus } from "lucide-react";
+import {
+  isFirebaseConfigured,
+  isFirebaseStorageConfigured,
+  listEvents,
+  listNewsletters,
+} from "@sfvypaa/content";
+import { CalendarDays, CheckCircle2, Newspaper, Plus, ServerCog } from "lucide-react";
 
 import { AdminShell } from "@/components/admin-shell";
 import { Button } from "@/components/ui/button";
@@ -22,9 +27,15 @@ export default async function AdminHomePage() {
   const publishedNewsletters = newsletters.filter(
     (newsletter) => newsletter.status === "published",
   );
+  const checks = [
+    { label: "Firebase", ok: isFirebaseConfigured() },
+    { label: "Storage", ok: isFirebaseStorageConfigured() },
+    { label: "Public revalidation", ok: Boolean(process.env.SFVYPAA_REVALIDATE_SECRET) },
+  ];
+  const deployedCommit = process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7);
 
   return (
-    <AdminShell>
+    <AdminShell active="dashboard">
       <section className="grid gap-6">
         <div>
           <h1 className="text-4xl font-black tracking-normal sm:text-5xl">
@@ -49,6 +60,27 @@ export default async function AdminHomePage() {
             icon={Newspaper}
           />
         </div>
+        <Card className="rounded-[8px] border-white/10 bg-white/[0.06] text-white ring-white/10">
+          <CardHeader className="gap-3">
+            <ServerCog className="size-5 text-[#ffcf6b]" />
+            <CardTitle className="text-xl font-black">
+              Publishing system status
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {checks.map((check) => (
+              <StatusCheck key={check.label} label={check.label} ok={check.ok} />
+            ))}
+            <div className="rounded-[8px] border border-white/10 bg-white/8 px-4 py-3">
+              <p className="text-xs font-semibold uppercase tracking-normal text-white/48">
+                Deploy
+              </p>
+              <p className="mt-1 font-mono text-sm text-white/82">
+                {deployedCommit || "local"}
+              </p>
+            </div>
+          </CardContent>
+        </Card>
         <div className="grid gap-4 md:grid-cols-2">
           <ActionCard
             title="Events"
@@ -65,6 +97,22 @@ export default async function AdminHomePage() {
         </div>
       </section>
     </AdminShell>
+  );
+}
+
+function StatusCheck({ label, ok }: { label: string; ok: boolean }) {
+  return (
+    <div className="rounded-[8px] border border-white/10 bg-white/8 px-4 py-3">
+      <p className="text-xs font-semibold uppercase tracking-normal text-white/48">
+        {label}
+      </p>
+      <p className="mt-1 flex items-center gap-2 text-sm font-semibold">
+        <CheckCircle2
+          className={ok ? "size-4 text-emerald-300" : "size-4 text-red-300"}
+        />
+        {ok ? "Configured" : "Missing"}
+      </p>
+    </div>
   );
 }
 

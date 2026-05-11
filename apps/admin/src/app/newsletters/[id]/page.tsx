@@ -9,6 +9,13 @@ import {
 
 export const dynamic = "force-dynamic";
 
+function publicSiteUrl() {
+  return (process.env.SFVYPAA_PUBLIC_SITE_URL || "https://sfvypaa.org").replace(
+    /\/+$/,
+    "",
+  );
+}
+
 export default async function NewsletterEditPage({
   params,
 }: {
@@ -23,7 +30,7 @@ export default async function NewsletterEditPage({
   }
 
   return (
-    <AdminShell>
+    <AdminShell active="newsletters">
       <section className="grid gap-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
@@ -39,7 +46,10 @@ export default async function NewsletterEditPage({
           ) : null}
         </div>
         <div className="rounded-[8px] border border-white/10 bg-white/[0.06] p-5 sm:p-7">
-          <NewsletterForm newsletter={newsletter} />
+          <NewsletterForm
+            newsletter={newsletter}
+            publicSiteUrl={publicSiteUrl()}
+          />
         </div>
       </section>
     </AdminShell>

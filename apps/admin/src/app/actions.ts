@@ -5,6 +5,7 @@ import {
   deleteNewsletter,
   eventInputSchema,
   getNewsletter,
+  getNewsletterBySlug,
   newsletterInputSchema,
   saveEvent,
   saveNewsletter,
@@ -17,10 +18,18 @@ import {
 } from "@sfvypaa/content";
 import { format } from "date-fns";
 import { revalidatePath } from "next/cache";
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
+import {
+  adminAccessPath,
+  adminCookieName,
+  isAdminCookieValid,
+} from "@/lib/admin-gate";
+
 export type AdminActionState = {
-  message: string;
+  message?: string;
+  fieldErrors?: Record<string, string>;
 } | null;
 
 const publicSiteFallbackUrl = "https://sfvypaa.org";
@@ -32,7 +41,7 @@ function field(formData: FormData, key: string) {
 }
 
 function status(formData: FormData): ContentStatus {
-  return field(formData, "status") === "published" ? "published" : "draft";
+  return field(formData, "intent") === "publish" ? "published" : "draft";
 }
 
 function host(formData: FormData): EventHost {
@@ -69,20 +78,32 @@ function uploadedImage(formData: FormData) {
   return null;
 }
 
-function validationMessage(error: {
+function validationState(error: {
   issues: Array<{ path: Array<PropertyKey>; message: string }>;
-}) {
+}): AdminActionState {
+  const fieldErrors: Record<string, string> = {};
   const firstIssue = error.issues[0];
 
   if (!firstIssue) {
-    return "Check the form fields and try again.";
+    return { message: "Check the form fields and try again." };
+  }
+
+  for (const issue of error.issues) {
+    const fieldName = issue.path.map(String).join(".");
+
+    if (fieldName && !fieldErrors[fieldName]) {
+      fieldErrors[fieldName] = issue.message;
+    }
   }
 
   const fieldName = firstIssue.path.map(String).join(".");
 
-  return fieldName
-    ? `${fieldName}: ${firstIssue.message}`
-    : firstIssue.message;
+  return {
+    message: fieldName
+      ? "Fix the highlighted fields and try again."
+      : firstIssue.message,
+    fieldErrors,
+  };
 }
 
 function saveErrorMessage(error: unknown) {
@@ -96,6 +117,58 @@ function saveErrorMessage(error: unknown) {
   return error instanceof Error
     ? error.message
     : "Unable to save. Check the form fields and try again.";
+}
+
+function errorState(error: unknown, fieldName?: string): AdminActionState {
+  const message = saveErrorMessage(error);
+
+  return {
+    message,
+    fieldErrors: fieldName ? { [fieldName]: message } : undefined,
+  };
+}
+
+function slugError(message: string): AdminActionState {
+  return {
+    message,
+    fieldErrors: {
+      slug: message,
+    },
+  };
+}
+
+function isImageUploadError(error: unknown) {
+  return (
+    error instanceof Error &&
+    (error.message.startsWith("Upload a ") ||
+      error.message.startsWith("Image must be "))
+  );
+}
+
+async function hasAdminAccess() {
+  const cookieStore = await cookies();
+  const accessCookie = cookieStore.get(adminCookieName)?.value;
+
+  return isAdminCookieValid(accessCookie);
+}
+
+async function adminSessionError() {
+  const hasAccess = await hasAdminAccess();
+
+  return hasAccess
+    ? null
+    : {
+        message: "Your admin session expired. Reload and sign in again.",
+      };
+}
+
+async function requireAdminOrRedirect(nextPath: string) {
+  if (await hasAdminAccess()) {
+    return;
+  }
+
+  const params = new URLSearchParams({ next: nextPath });
+  redirect(`${adminAccessPath}?${params.toString()}`);
 }
 
 function eventInput(formData: FormData): EventInput {
@@ -180,10 +253,16 @@ export async function saveEventAction(
   _previousState: AdminActionState,
   formData: FormData,
 ): Promise<AdminActionState> {
+  const sessionError = await adminSessionError();
+
+  if (sessionError) {
+    return sessionError;
+  }
+
   const parsed = eventInputSchema.safeParse(eventInput(formData));
 
   if (!parsed.success) {
-    return { message: validationMessage(parsed.error) };
+    return validationState(parsed.error);
   }
 
   let id: string;
@@ -199,7 +278,9 @@ export async function saveEventAction(
 
     id = await saveEvent(data);
   } catch (error) {
-    return { message: saveErrorMessage(error) };
+    return isImageUploadError(error)
+      ? errorState(error, "imageFile")
+      : errorState(error);
   }
 
   revalidatePath("/events");
@@ -208,6 +289,8 @@ export async function saveEventAction(
 }
 
 export async function deleteEventAction(formData: FormData) {
+  await requireAdminOrRedirect("/events");
+
   const id = field(formData, "id");
 
   if (id) {
@@ -223,10 +306,16 @@ export async function saveNewsletterAction(
   _previousState: AdminActionState,
   formData: FormData,
 ): Promise<AdminActionState> {
+  const sessionError = await adminSessionError();
+
+  if (sessionError) {
+    return sessionError;
+  }
+
   const parsed = newsletterInputSchema.safeParse(newsletterInput(formData));
 
   if (!parsed.success) {
-    return { message: validationMessage(parsed.error) };
+    return validationState(parsed.error);
   }
 
   let id: string;
@@ -238,10 +327,20 @@ export async function saveNewsletterAction(
       : null;
     const slug = slugify(parsed.data.slug || parsed.data.title);
 
+    if (!slug) {
+      return slugError("Use at least one letter or number in the URL slug.");
+    }
+
+    const slugOwner = await getNewsletterBySlug(slug);
+
+    if (slugOwner && slugOwner.id !== parsed.data.id) {
+      return slugError("That URL slug is already used by another newsletter.");
+    }
+
     id = await saveNewsletter(parsed.data);
     publicPaths = publicNewsletterPaths(slug, existingNewsletter?.slug);
   } catch (error) {
-    return { message: saveErrorMessage(error) };
+    return errorState(error);
   }
 
   revalidatePath("/newsletters");
@@ -250,6 +349,8 @@ export async function saveNewsletterAction(
 }
 
 export async function deleteNewsletterAction(formData: FormData) {
+  await requireAdminOrRedirect("/newsletters");
+
   const id = field(formData, "id");
   let publicPaths = publicNewsletterPaths();
 
@@ -263,4 +364,15 @@ export async function deleteNewsletterAction(formData: FormData) {
   revalidatePath("/newsletters");
   await revalidatePublicSite(publicPaths);
   redirect("/newsletters");
+}
+
+export async function logoutAdminAction() {
+  const cookieStore = await cookies();
+
+  cookieStore.set(adminCookieName, "", {
+    maxAge: 0,
+    path: "/",
+  });
+
+  redirect(adminAccessPath);
 }
