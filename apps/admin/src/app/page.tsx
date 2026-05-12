@@ -2,6 +2,7 @@ import Link from "next/link";
 import {
   isFirebaseConfigured,
   isFirebaseStorageConfigured,
+  getSiteSettings,
   listEvents,
   listNewsletters,
   listSocialPosts,
@@ -13,6 +14,7 @@ import {
   Newspaper,
   Plus,
   ServerCog,
+  Settings,
 } from "lucide-react";
 
 import { AdminShell } from "@/components/admin-shell";
@@ -27,10 +29,11 @@ import {
 export const dynamic = "force-dynamic";
 
 export default async function AdminHomePage() {
-  const [events, newsletters, socialPosts] = await Promise.all([
+  const [events, newsletters, socialPosts, siteSettings] = await Promise.all([
     listEvents(),
     listNewsletters(),
     listSocialPosts(),
+    getSiteSettings(),
   ]);
   const publishedEvents = events.filter((event) => event.status === "published");
   const publishedNewsletters = newsletters.filter(
@@ -85,10 +88,14 @@ export default async function AdminHomePage() {
               Publishing system status
             </CardTitle>
           </CardHeader>
-          <CardContent className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <CardContent className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
             {checks.map((check) => (
               <StatusCheck key={check.label} label={check.label} ok={check.ok} />
             ))}
+            <StatusValue
+              label="Instagram socials"
+              value={siteSettings.showInstagramSocials ? "Shown" : "Hidden"}
+            />
             <div className="rounded-[8px] border border-white/10 bg-white/8 px-4 py-3">
               <p className="text-xs font-semibold uppercase tracking-normal text-white/48">
                 Deploy
@@ -118,6 +125,13 @@ export default async function AdminHomePage() {
             href="/social-posts/new"
             label="New social post"
           />
+          <ActionCard
+            title="Settings"
+            body="Show or hide the public homepage Instagram Socials section."
+            href="/settings"
+            label="Manage settings"
+            icon={Settings}
+          />
         </div>
       </section>
     </AdminShell>
@@ -136,6 +150,17 @@ function StatusCheck({ label, ok }: { label: string; ok: boolean }) {
         />
         {ok ? "Configured" : "Missing"}
       </p>
+    </div>
+  );
+}
+
+function StatusValue({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-[8px] border border-white/10 bg-white/8 px-4 py-3">
+      <p className="text-xs font-semibold uppercase tracking-normal text-white/48">
+        {label}
+      </p>
+      <p className="mt-1 text-sm font-semibold text-white/82">{value}</p>
     </div>
   );
 }
@@ -167,11 +192,13 @@ function ActionCard({
   body,
   href,
   label,
+  icon: Icon = Plus,
 }: {
   title: string;
   body: string;
   href: string;
   label: string;
+  icon?: typeof Plus;
 }) {
   return (
     <Card className="rounded-[8px] border-white/10 bg-white text-[#171310] ring-white/10">
@@ -185,7 +212,7 @@ function ActionCard({
           render={<Link href={href} />}
           className="h-11 w-fit rounded-[8px] bg-[#171310] px-4 text-white hover:bg-[#2c241d]"
         >
-          <Plus className="size-4" />
+          <Icon className="size-4" />
           {label}
         </Button>
       </CardContent>

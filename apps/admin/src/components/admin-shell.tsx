@@ -6,6 +6,7 @@ import {
   Home,
   LogOut,
   Newspaper,
+  Settings,
 } from "lucide-react";
 
 import { logoutAdminAction } from "@/app/actions";
@@ -27,9 +28,20 @@ const navItems = [
     icon: AtSign,
     key: "social-posts",
   },
+  {
+    href: "/settings",
+    label: "Settings",
+    icon: Settings,
+    key: "settings",
+  },
 ];
 
-type AdminSection = "dashboard" | "events" | "newsletters" | "social-posts";
+type AdminSection =
+  | "dashboard"
+  | "events"
+  | "newsletters"
+  | "social-posts"
+  | "settings";
 
 function publicSiteUrl() {
   return (process.env.SFVYPAA_PUBLIC_SITE_URL || "https://sfvypaa.org").replace(

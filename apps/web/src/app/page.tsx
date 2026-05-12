@@ -1,5 +1,9 @@
 import Image from "next/image"
-import { listPublishedSocialPosts, type SocialPostRecord } from "@sfvypaa/content"
+import {
+  getSiteSettings,
+  listPublishedSocialPosts,
+  type SocialPostRecord,
+} from "@sfvypaa/content"
 import {
   ArrowRight,
   AtSign,
@@ -61,7 +65,10 @@ function formatSocialDate(value: string) {
 }
 
 export default async function Home() {
-  const socialPosts = (await listPublishedSocialPosts()).slice(0, 3)
+  const settings = await getSiteSettings()
+  const socialPosts = settings.showInstagramSocials
+    ? (await listPublishedSocialPosts()).slice(0, 3)
+    : []
 
   return (
     <main className="min-h-screen overflow-hidden bg-[#171310] text-white">
@@ -146,7 +153,9 @@ export default async function Home() {
         </div>
       </section>
 
-      <SocialSection posts={socialPosts} />
+      {settings.showInstagramSocials ? (
+        <SocialSection posts={socialPosts} />
+      ) : null}
 
       <LinkCard
         body="SFVYPAA business meeting details live on the get involved page, with the current flyer and meeting information in one place."

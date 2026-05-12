@@ -79,6 +79,16 @@ export type SocialPostRecord = Omit<SocialPostInput, "id"> & {
   publishedAt?: string;
 };
 
+export const siteSettingsInputSchema = z.object({
+  showInstagramSocials: z.boolean(),
+});
+export type SiteSettingsInput = z.infer<typeof siteSettingsInputSchema>;
+
+export type SiteSettingsRecord = SiteSettingsInput & {
+  id: string;
+  updatedAt?: string;
+};
+
 export const emptyEvent: EventInput = {
   title: "",
   eventDate: "",
@@ -109,4 +119,8 @@ export const emptySocialPost: SocialPostInput = {
   imageUrl: "",
   postDate: "",
   status: "draft",
+};
+
+export const defaultSiteSettings: SiteSettingsInput = {
+  showInstagramSocials: true,
 };

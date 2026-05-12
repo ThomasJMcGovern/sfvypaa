@@ -1,13 +1,21 @@
-import { FieldValue, type QueryDocumentSnapshot } from "firebase-admin/firestore";
+import {
+  FieldValue,
+  type DocumentData,
+  type QueryDocumentSnapshot,
+} from "firebase-admin/firestore";
 
 import { getAdminDb, isFirebaseConfigured } from "./firebase";
 import {
+  defaultSiteSettings,
   eventInputSchema,
   type EventInput,
   type EventRecord,
   newsletterInputSchema,
   type NewsletterInput,
   type NewsletterRecord,
+  siteSettingsInputSchema,
+  type SiteSettingsInput,
+  type SiteSettingsRecord,
   socialPostInputSchema,
   type SocialPostInput,
   type SocialPostRecord,
@@ -16,6 +24,8 @@ import {
 const eventsCollection = "events";
 const newslettersCollection = "newsletters";
 const socialPostsCollection = "socialPosts";
+const settingsCollection = "settings";
+const siteSettingsDocument = "site";
 
 type FirestoreTimestampLike = {
   toDate?: () => Date;
@@ -117,6 +127,21 @@ function socialPostFromDoc(doc: QueryDocumentSnapshot): SocialPostRecord {
     createdAt: toIsoString(data.createdAt),
     updatedAt: toIsoString(data.updatedAt),
     publishedAt: toIsoString(data.publishedAt),
+  };
+}
+
+function siteSettingsFromData(
+  id: string,
+  data: DocumentData | undefined,
+): SiteSettingsRecord {
+  return {
+    id,
+    ...defaultSiteSettings,
+    showInstagramSocials:
+      typeof data?.showInstagramSocials === "boolean"
+        ? data.showInstagramSocials
+        : defaultSiteSettings.showInstagramSocials,
+    updatedAt: toIsoString(data?.updatedAt),
   };
 }
 
@@ -408,4 +433,38 @@ export async function saveSocialPost(input: SocialPostInput) {
 
 export async function deleteSocialPost(id: string) {
   await getAdminDb().collection(socialPostsCollection).doc(id).delete();
+}
+
+export async function getSiteSettings() {
+  if (!isFirebaseConfigured()) {
+    return siteSettingsFromData(siteSettingsDocument, undefined);
+  }
+
+  try {
+    const doc = await getAdminDb()
+      .collection(settingsCollection)
+      .doc(siteSettingsDocument)
+      .get();
+
+    return siteSettingsFromData(siteSettingsDocument, doc.data());
+  } catch {
+    return siteSettingsFromData(siteSettingsDocument, undefined);
+  }
+}
+
+export async function saveSiteSettings(input: SiteSettingsInput) {
+  const parsed = siteSettingsInputSchema.parse(input);
+  const ref = getAdminDb()
+    .collection(settingsCollection)
+    .doc(siteSettingsDocument);
+
+  await ref.set(
+    {
+      showInstagramSocials: parsed.showInstagramSocials,
+      updatedAt: FieldValue.serverTimestamp(),
+    },
+    { merge: true },
+  );
+
+  return siteSettingsDocument;
 }

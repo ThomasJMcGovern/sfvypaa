@@ -10,7 +10,9 @@ import {
   newsletterInputSchema,
   saveEvent,
   saveNewsletter,
+  saveSiteSettings,
   saveSocialPost,
+  siteSettingsInputSchema,
   slugify,
   socialPostInputSchema,
   uploadEventImage,
@@ -19,6 +21,7 @@ import {
   type EventInput,
   type ContentStatus,
   type NewsletterInput,
+  type SiteSettingsInput,
   type SocialPostInput,
 } from "@sfvypaa/content";
 import { format } from "date-fns";
@@ -216,6 +219,12 @@ function socialPostInput(formData: FormData): SocialPostInput {
     imageUrl: field(formData, "existingImageUrl"),
     postDate: field(formData, "postDate"),
     status: status(formData),
+  };
+}
+
+function siteSettingsInput(formData: FormData): SiteSettingsInput {
+  return {
+    showInstagramSocials: field(formData, "showInstagramSocials") === "on",
   };
 }
 
@@ -445,6 +454,37 @@ export async function deleteSocialPostAction(formData: FormData) {
   revalidatePath("/social-posts");
   await revalidatePublicSite(["/"]);
   redirect("/social-posts");
+}
+
+export async function saveSiteSettingsAction(
+  _previousState: AdminActionState,
+  formData: FormData,
+): Promise<AdminActionState> {
+  const sessionError = await adminSessionError();
+
+  if (sessionError) {
+    return sessionError;
+  }
+
+  const parsed = siteSettingsInputSchema.safeParse(siteSettingsInput(formData));
+
+  if (!parsed.success) {
+    return validationState(parsed.error);
+  }
+
+  try {
+    await saveSiteSettings(parsed.data);
+  } catch (error) {
+    return errorState(error);
+  }
+
+  revalidatePath("/");
+  revalidatePath("/settings");
+  await revalidatePublicSite(["/"]);
+
+  return {
+    message: "Settings saved.",
+  };
 }
 
 export async function logoutAdminAction() {

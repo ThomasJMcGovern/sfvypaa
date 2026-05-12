@@ -7,6 +7,7 @@ export {
   getNewsletterBySlug,
   getPublishedNewsletterBySlug,
   getSocialPost,
+  getSiteSettings,
   listEventLocations,
   listEvents,
   listNewsletters,
@@ -16,6 +17,7 @@ export {
   listSocialPosts,
   saveEvent,
   saveNewsletter,
+  saveSiteSettings,
   saveSocialPost,
   slugify,
 } from "./store";
@@ -25,12 +27,14 @@ export {
 } from "./firebase";
 export {
   contentStatusSchema,
+  defaultSiteSettings,
   emptyEvent,
   emptyNewsletter,
   emptySocialPost,
   eventHostSchema,
   eventInputSchema,
   newsletterInputSchema,
+  siteSettingsInputSchema,
   socialPostInputSchema,
   type ContentStatus,
   type EventHost,
@@ -38,6 +42,8 @@ export {
   type EventRecord,
   type NewsletterInput,
   type NewsletterRecord,
+  type SiteSettingsInput,
+  type SiteSettingsRecord,
   type SocialPostInput,
   type SocialPostRecord,
 } from "./schema";

@@ -76,6 +76,7 @@ Static operational details are centralized in `apps/web/src/lib/site.ts`:
 - image credits
 
 Events and newsletters are published through the admin portal and loaded from Firestore.
+The admin settings page controls whether the public homepage shows the curated Instagram Socials section.
 
 ## Routes
 
