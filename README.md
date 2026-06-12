@@ -11,11 +11,24 @@ Premium site and admin portal for San Fernando Valley Young People in Alcoholics
 - shadcn/ui
 - Firebase Admin SDK + Cloud Firestore
 
+## Design System
+
+The public site implements the **SFVYPAA design system** (DIY punk / photocopied zine,
+authored in Claude Design): bone paper + near-black ink + safety orange, Anton poster
+headlines, Public Sans body, JetBrains Mono for times and details, Permanent Marker for
+decorative stamps only. Square corners, chunky ink borders, hard "stamp" shadows, and
+grain/halftone/tape texture utilities live in `apps/web/src/app/globals.css`. Dark mode
+("show poster at night") is toggled from the header and persisted in `localStorage`.
+Punk Bill mascot knockouts live in `apps/web/public/assets/`.
+
+Rules of the brand: headlines are ALL CAPS; meeting/event times, dates, and addresses
+stay sentence-cased, high contrast, and often mono — never sacrifice legibility for
+style. The admin portal intentionally stays utilitarian.
+
 ## Run Locally
 
 ```bash
 bun install
-export SFVYPAA_SITE_PASSWORD="your-password"
 bun run dev:web
 ```
 
@@ -51,7 +64,6 @@ Set these environment variables in Vercel for both apps:
 
 The public app also uses:
 
-- `SFVYPAA_SITE_PASSWORD`
 - `SFVYPAA_REVALIDATE_SECRET`
 
 The admin app also uses:
@@ -80,9 +92,8 @@ The admin settings page controls whether the public homepage shows the curated I
 
 ## Routes
 
-Public site:
+Public site (no password gate — publicly accessible):
 
-- `/access` password gate
 - `/` homepage hub
 - `/get-involved` committee and service page
 - `/upcoming-events` hosted and co-hosted events page
