@@ -1,7 +1,10 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { emptyNewsletter, getNewsletter } from "@sfvypaa/content";
+import { ArrowLeft } from "lucide-react";
 
 import { AdminShell } from "@/components/admin-shell";
+import { ContentStatusBadge } from "@/components/content-status-badge";
 import {
   DeleteNewsletterForm,
   NewsletterForm,
@@ -30,28 +33,30 @@ export default async function NewsletterEditPage({
   }
 
   return (
-    <AdminShell active="newsletters">
-      <section className="grid gap-6">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <h1 className="text-4xl font-black tracking-normal">
-              {isNew ? "New newsletter" : "Edit newsletter"}
-            </h1>
-            <p className="mt-2 text-white/62">
-              Save as draft or publish to the public newsletter archive.
-            </p>
-          </div>
+    <AdminShell active="newsletters" publicSiteUrl={publicSiteUrl()}>
+      <div className="mx-auto max-w-[840px]">
+        <Link
+          className="mb-5 inline-flex items-center gap-2 text-[13px] font-extrabold tracking-[0.08em] text-orange uppercase transition-colors hover:text-foreground"
+          href="/newsletters"
+        >
+          <ArrowLeft className="size-[15px]" /> Back to newsletters
+        </Link>
+        <div className="mb-6 flex flex-wrap items-center gap-3.5">
+          <h1 className="text-[clamp(2.2rem,4vw,3rem)] text-foreground">
+            {isNew ? "New newsletter" : "Edit newsletter"}
+          </h1>
+          <ContentStatusBadge status={newsletter.status} />
           {!isNew ? (
-            <DeleteNewsletterForm id={id} title={newsletter.title} />
+            <div className="ml-auto">
+              <DeleteNewsletterForm id={id} title={newsletter.title} />
+            </div>
           ) : null}
         </div>
-        <div className="rounded-[8px] border border-white/10 bg-white/[0.06] p-5 sm:p-7">
-          <NewsletterForm
-            newsletter={newsletter}
-            publicSiteUrl={publicSiteUrl()}
-          />
-        </div>
-      </section>
+        <NewsletterForm
+          newsletter={newsletter}
+          publicSiteUrl={publicSiteUrl()}
+        />
+      </div>
     </AdminShell>
   );
 }

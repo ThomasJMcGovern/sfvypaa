@@ -10,23 +10,29 @@ import {
 import {
   AtSign,
   CalendarDays,
-  CheckCircle2,
+  Database,
+  Eye,
+  EyeOff,
+  GitCommitHorizontal,
+  HardDrive,
   Newspaper,
   Plus,
-  ServerCog,
-  Settings,
+  RefreshCw,
+  Server,
+  Settings2,
 } from "lucide-react";
 
-import { AdminShell } from "@/components/admin-shell";
+import { AdminPageHead, AdminShell } from "@/components/admin-shell";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 
 export const dynamic = "force-dynamic";
+
+function publicSiteUrl() {
+  return (process.env.SFVYPAA_PUBLIC_SITE_URL || "https://sfvypaa.org").replace(
+    /\/+$/,
+    "",
+  );
+}
 
 export default async function AdminHomePage() {
   const [events, newsletters, socialPosts, siteSettings] = await Promise.all([
@@ -35,187 +41,188 @@ export default async function AdminHomePage() {
     listSocialPosts(),
     getSiteSettings(),
   ]);
-  const publishedEvents = events.filter((event) => event.status === "published");
-  const publishedNewsletters = newsletters.filter(
-    (newsletter) => newsletter.status === "published",
-  );
-  const publishedSocialPosts = socialPosts.filter(
-    (post) => post.status === "published",
-  );
-  const checks = [
-    { label: "Firebase", ok: isFirebaseConfigured() },
-    { label: "Storage", ok: isFirebaseStorageConfigured() },
-    { label: "Public revalidation", ok: Boolean(process.env.SFVYPAA_REVALIDATE_SECRET) },
-  ];
+  const published = (items: Array<{ status: string }>) =>
+    items.filter((item) => item.status === "published").length;
   const deployedCommit = process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7);
 
+  const metrics = [
+    { icon: CalendarDays, label: "Events", value: events.length, live: published(events) },
+    { icon: Newspaper, label: "Newsletters", value: newsletters.length, live: published(newsletters) },
+    { icon: AtSign, label: "Social posts", value: socialPosts.length, live: published(socialPosts) },
+  ];
+
+  const actions = [
+    {
+      icon: CalendarDays,
+      title: "Events",
+      body: "Create flyers, speaker nights, committee meetings, and co-hosted events.",
+      cta: "New event",
+      href: "/events/new",
+    },
+    {
+      icon: Newspaper,
+      title: "Newsletters",
+      body: "Publish committee updates and announcements to the newsletter archive.",
+      cta: "New newsletter",
+      href: "/newsletters/new",
+    },
+    {
+      icon: AtSign,
+      title: "Social Posts",
+      body: "Feature curated Instagram posts on the homepage — no Instagram API needed.",
+      cta: "New social post",
+      href: "/social-posts/new",
+    },
+    {
+      icon: Settings2,
+      title: "Settings",
+      body: "Show or hide the homepage Socials section, and manage publishing.",
+      cta: "Open settings",
+      href: "/settings",
+    },
+  ];
+
   return (
-    <AdminShell active="dashboard">
-      <section className="grid gap-6">
-        <div>
-          <h1 className="text-4xl font-black tracking-normal sm:text-5xl">
-            Publishing dashboard
-          </h1>
-          <p className="mt-3 max-w-2xl text-base leading-7 text-white/62">
-            Publish approved SFVYPAA events, newsletters, and curated social
-            posts to the public site.
-          </p>
-        </div>
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
-          <Metric label="Events" value={events.length} icon={CalendarDays} />
-          <Metric
-            label="Published events"
-            value={publishedEvents.length}
-            icon={CalendarDays}
-          />
-          <Metric label="Newsletters" value={newsletters.length} icon={Newspaper} />
-          <Metric
-            label="Published newsletters"
-            value={publishedNewsletters.length}
-            icon={Newspaper}
-          />
-          <Metric label="Social posts" value={socialPosts.length} icon={AtSign} />
-          <Metric
-            label="Published socials"
-            value={publishedSocialPosts.length}
-            icon={AtSign}
-          />
-        </div>
-        <Card className="rounded-[8px] border-white/10 bg-white/[0.06] text-white ring-white/10">
-          <CardHeader className="gap-3">
-            <ServerCog className="size-5 text-[#ffcf6b]" />
-            <CardTitle className="text-xl font-black">
-              Publishing system status
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
-            {checks.map((check) => (
-              <StatusCheck key={check.label} label={check.label} ok={check.ok} />
-            ))}
-            <StatusValue
-              label="Instagram socials"
-              value={siteSettings.showInstagramSocials ? "Shown" : "Hidden"}
-            />
-            <div className="rounded-[8px] border border-white/10 bg-white/8 px-4 py-3">
-              <p className="text-xs font-semibold uppercase tracking-normal text-white/48">
-                Deploy
-              </p>
-              <p className="mt-1 font-mono text-sm text-white/82">
-                {deployedCommit || "local"}
-              </p>
+    <AdminShell active="dashboard" publicSiteUrl={publicSiteUrl()}>
+      <AdminPageHead
+        action={
+          <span className="stamp -rotate-4 border-2 border-orange px-2 py-1 text-sm text-orange">
+            committee only
+          </span>
+        }
+        eyebrow="Publishing console"
+        sub="Publish approved SFVYPAA events, newsletters, and curated social posts to the public site. The grit lives in the frame — the data stays loud and clear."
+        title="Dashboard"
+      />
+
+      {/* metric tiles */}
+      <div className="mb-7 grid gap-4 sm:grid-cols-3">
+        {metrics.map(({ icon: Icon, label, value, live }) => (
+          <div
+            className="border-[3px] border-border bg-card p-5 shadow-stamp"
+            key={label}
+          >
+            <div className="flex items-center justify-between">
+              <Icon className="size-5 text-orange" />
+              <span className="font-mono text-xs font-bold text-go">
+                {live} live
+              </span>
             </div>
-          </CardContent>
-        </Card>
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          <ActionCard
-            title="Events"
-            body="Create flyers, speaker nights, committee meetings, and co-hosted events."
-            href="/events/new"
-            label="New event"
-          />
-          <ActionCard
-            title="Newsletters"
-            body="Publish committee updates and announcements to the newsletter archive."
-            href="/newsletters/new"
-            label="New newsletter"
-          />
-          <ActionCard
-            title="Social Posts"
-            body="Feature curated Instagram posts on the public homepage without relying on the Instagram API."
-            href="/social-posts/new"
-            label="New social post"
-          />
-          <ActionCard
-            title="Settings"
-            body="Show or hide the public homepage Instagram Socials section."
-            href="/settings"
-            label="Manage settings"
-            icon={Settings}
-          />
+            <div className="label-stamp mt-3.5 mb-1 text-muted-foreground">
+              {label}
+            </div>
+            <div className="font-display text-[52px] leading-[0.85] text-foreground">
+              {value}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* system status */}
+      <div className="mb-8 border-[3px] border-border bg-secondary p-6 shadow-stamp">
+        <div className="mb-4.5 flex items-center gap-2.5">
+          <Server className="size-[18px] text-orange" />
+          <h2 className="text-[1.6rem] text-foreground">
+            Publishing system status
+          </h2>
         </div>
-      </section>
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+          <StatusTile
+            icon={Database}
+            label="Firebase"
+            ok={isFirebaseConfigured()}
+          />
+          <StatusTile
+            icon={HardDrive}
+            label="Storage"
+            ok={isFirebaseStorageConfigured()}
+          />
+          <StatusTile
+            icon={RefreshCw}
+            label="Public revalidation"
+            ok={Boolean(process.env.SFVYPAA_REVALIDATE_SECRET)}
+            okLabel="On"
+            missingLabel="Off"
+          />
+          <StatusTile
+            icon={siteSettings.showInstagramSocials ? Eye : EyeOff}
+            label="Instagram socials"
+            ok={siteSettings.showInstagramSocials}
+            okLabel="Showing"
+            missingLabel="Hidden"
+            missingIsMuted
+          />
+          <div className="border-2 border-border/35 bg-background px-4 py-3.5">
+            <div className="label-stamp mb-2 flex items-center gap-1.5 text-muted-foreground">
+              <GitCommitHorizontal className="size-3.5" /> Deploy
+            </div>
+            <span className="font-mono text-[15px] font-bold text-foreground">
+              {deployedCommit || "local"}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* action cards */}
+      <div className="grid gap-4.5 sm:grid-cols-2 xl:grid-cols-4">
+        {actions.map(({ icon: Icon, title, body, cta, href }) => (
+          <div
+            className="tape relative flex flex-col border-[3px] border-ink bg-paper p-6 text-ink shadow-stamp-lg"
+            key={title}
+          >
+            <div className="mb-4 flex size-[46px] items-center justify-center border-[3px] border-ink text-orange-deep">
+              <Icon className="size-[22px]" />
+            </div>
+            <h3 className="mb-2.5 text-[1.9rem] leading-[0.92] text-ink">
+              {title}
+            </h3>
+            <p className="mb-5 grow text-sm leading-normal text-ink-2">
+              {body}
+            </p>
+            <Button
+              className="w-fit"
+              nativeButton={false}
+              render={<Link href={href} />}
+              size="sm"
+            >
+              <Plus data-icon="inline-start" />
+              {cta}
+            </Button>
+          </div>
+        ))}
+      </div>
     </AdminShell>
   );
 }
 
-function StatusCheck({ label, ok }: { label: string; ok: boolean }) {
-  return (
-    <div className="rounded-[8px] border border-white/10 bg-white/8 px-4 py-3">
-      <p className="text-xs font-semibold uppercase tracking-normal text-white/48">
-        {label}
-      </p>
-      <p className="mt-1 flex items-center gap-2 text-sm font-semibold">
-        <CheckCircle2
-          className={ok ? "size-4 text-emerald-300" : "size-4 text-red-300"}
-        />
-        {ok ? "Configured" : "Missing"}
-      </p>
-    </div>
-  );
-}
-
-function StatusValue({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-[8px] border border-white/10 bg-white/8 px-4 py-3">
-      <p className="text-xs font-semibold uppercase tracking-normal text-white/48">
-        {label}
-      </p>
-      <p className="mt-1 text-sm font-semibold text-white/82">{value}</p>
-    </div>
-  );
-}
-
-function Metric({
-  label,
-  value,
+function StatusTile({
   icon: Icon,
-}: {
-  label: string;
-  value: number;
-  icon: typeof CalendarDays;
-}) {
-  return (
-    <Card className="rounded-[8px] border-white/10 bg-white/[0.06] text-white ring-white/10">
-      <CardHeader>
-        <Icon className="size-5 text-[#ffcf6b]" />
-        <CardTitle className="text-sm font-semibold uppercase tracking-normal text-white/55">
-          {label}
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="text-4xl font-black">{value}</CardContent>
-    </Card>
-  );
-}
-
-function ActionCard({
-  title,
-  body,
-  href,
   label,
-  icon: Icon = Plus,
+  ok,
+  okLabel = "Configured",
+  missingLabel = "Missing",
+  missingIsMuted = false,
 }: {
-  title: string;
-  body: string;
-  href: string;
+  icon: typeof Database;
   label: string;
-  icon?: typeof Plus;
+  ok: boolean;
+  okLabel?: string;
+  missingLabel?: string;
+  missingIsMuted?: boolean;
 }) {
   return (
-    <Card className="rounded-[8px] border-white/10 bg-white text-[#171310] ring-white/10">
-      <CardHeader>
-        <CardTitle className="text-3xl font-black">{title}</CardTitle>
-      </CardHeader>
-      <CardContent className="grid gap-5">
-        <p className="text-base leading-7 text-[#5e554c]">{body}</p>
-        <Button
-          nativeButton={false}
-          render={<Link href={href} />}
-          className="h-11 w-fit rounded-[8px] bg-[#171310] px-4 text-white hover:bg-[#2c241d]"
-        >
-          <Icon className="size-4" />
-          {label}
-        </Button>
-      </CardContent>
-    </Card>
+    <div className="border-2 border-border/35 bg-background px-4 py-3.5">
+      <div className="label-stamp mb-2 flex items-center gap-1.5 text-muted-foreground">
+        <Icon className="size-3.5" /> {label}
+      </div>
+      <span className="inline-flex items-center gap-2 text-sm font-bold text-foreground">
+        <span
+          className={`size-[9px] shrink-0 rounded-full ${
+            ok ? "bg-go" : missingIsMuted ? "bg-muted-foreground" : "bg-stop"
+          }`}
+        />
+        {ok ? okLabel : missingLabel}
+      </span>
+    </div>
   );
 }

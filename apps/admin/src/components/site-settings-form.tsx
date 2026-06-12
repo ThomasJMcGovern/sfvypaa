@@ -2,7 +2,7 @@
 
 import { useActionState } from "react";
 import type { SiteSettingsInput } from "@sfvypaa/content";
-import { Eye, EyeOff, Save } from "lucide-react";
+import { Eye, Save } from "lucide-react";
 
 import {
   saveSiteSettingsAction,
@@ -24,51 +24,53 @@ export function SiteSettingsForm({
   const hasErrors = Boolean(state?.fieldErrors);
 
   return (
-    <form action={formAction} className="grid gap-5">
+    <form action={formAction} className="grid gap-4.5">
       {state?.message ? (
         <p
           aria-live="polite"
           className={
             hasErrors
-              ? "rounded-[8px] border border-red-400/40 bg-red-950/50 px-4 py-3 text-sm font-medium text-red-100"
-              : "rounded-[8px] border border-emerald-300/30 bg-emerald-950/40 px-4 py-3 text-sm font-medium text-emerald-100"
+              ? "border-2 border-stop border-l-8 bg-card px-4 py-3 text-sm font-bold text-stop"
+              : "border-2 border-go border-l-8 bg-card px-4 py-3 text-sm font-bold text-go"
           }
         >
           {state.message}
         </p>
       ) : null}
-      <label className="grid gap-4 rounded-[8px] border border-white/10 bg-white/[0.06] p-5 sm:grid-cols-[auto_1fr_auto] sm:items-center">
-        <span className="flex size-11 items-center justify-center rounded-[8px] bg-[#ffcf6b] text-[#191109]">
-          {settings.showInstagramSocials ? (
-            <Eye className="size-5" />
-          ) : (
-            <EyeOff className="size-5" />
-          )}
+
+      <label className="flex cursor-pointer items-center gap-4.5 border-[3px] border-border bg-card p-5 text-card-foreground shadow-stamp">
+        <span className="flex size-11 shrink-0 items-center justify-center border-[3px] border-border text-orange">
+          <Eye className="size-5" />
         </span>
-        <span>
-          <span className="block text-lg font-black text-white">
-            Show Instagram socials on homepage
+        <span className="min-w-0 flex-1">
+          <span className="block text-base font-extrabold text-foreground">
+            Show Instagram Socials on homepage
           </span>
-          <span className="mt-1 block text-sm leading-6 text-white/62">
-            Controls whether the curated Instagram Socials section appears on
-            the public homepage.
+          <span className="mt-1 block text-sm leading-normal text-text-soft">
+            When on, the homepage shows the curated Social Posts section. Turn
+            off to hide it entirely.
           </span>
         </span>
-        <input
-          className="size-6 rounded-[6px] accent-[#ffcf6b]"
-          defaultChecked={settings.showInstagramSocials}
-          name="showInstagramSocials"
-          type="checkbox"
-        />
+        {/* stamp switch: ink knob slides on an orange track */}
+        <span className="relative inline-flex shrink-0">
+          <input
+            className="peer absolute inset-0 cursor-pointer opacity-0"
+            defaultChecked={settings.showInstagramSocials}
+            name="showInstagramSocials"
+            type="checkbox"
+          />
+          <span className="flex h-[34px] w-16 items-center border-[3px] border-border bg-secondary p-[3px] transition-colors peer-checked:justify-end peer-checked:bg-orange peer-focus-visible:ring-3 peer-focus-visible:ring-ring/60">
+            <span className="block size-6 bg-ink" />
+          </span>
+        </span>
       </label>
-      <Button
-        className="h-11 w-fit rounded-[8px] bg-[#ffcf6b] px-4 text-[#191109] hover:bg-[#f3b83f]"
-        disabled={isPending}
-        type="submit"
-      >
-        <Save className="size-4" />
-        {isPending ? "Saving..." : "Save settings"}
-      </Button>
+
+      <div className="flex justify-end">
+        <Button disabled={isPending} type="submit">
+          <Save data-icon="inline-start" />
+          {isPending ? "Saving…" : "Save settings"}
+        </Button>
+      </div>
     </form>
   );
 }

@@ -1,15 +1,10 @@
 import { Badge } from "@/components/ui/badge";
 
+/* Exactly two statuses everywhere: green Published, amber Draft. */
 export function ContentStatusBadge({ status }: { status: string }) {
-  return (
-    <Badge
-      className={
-        status === "published"
-          ? "h-7 rounded-[8px] bg-[#1c6f70] px-3 text-white"
-          : "h-7 rounded-[8px] bg-[#ffcf6b] px-3 text-[#191109]"
-      }
-    >
-      {status}
-    </Badge>
+  return status === "published" ? (
+    <Badge variant="go">Published</Badge>
+  ) : (
+    <Badge className="border-warn bg-warn text-paper">Draft</Badge>
   );
 }

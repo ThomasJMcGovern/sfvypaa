@@ -1,7 +1,10 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { emptyEvent, getEvent, listEventLocations } from "@sfvypaa/content";
+import { ArrowLeft } from "lucide-react";
 
 import { AdminShell } from "@/components/admin-shell";
+import { ContentStatusBadge } from "@/components/content-status-badge";
 import { DeleteEventForm, EventForm } from "@/components/event-form";
 
 export const dynamic = "force-dynamic";
@@ -40,27 +43,31 @@ export default async function EventEditPage({
   ];
 
   return (
-    <AdminShell active="events">
-      <section className="grid gap-6">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <h1 className="text-4xl font-black tracking-normal">
-              {isNew ? "New event" : "Edit event"}
-            </h1>
-            <p className="mt-2 text-white/62">
-              Save as draft or publish to the public events page.
-            </p>
-          </div>
-          {!isNew ? <DeleteEventForm id={id} title={event.title} /> : null}
+    <AdminShell active="events" publicSiteUrl={publicSiteUrl()}>
+      <div className="mx-auto max-w-[840px]">
+        <Link
+          className="mb-5 inline-flex items-center gap-2 text-[13px] font-extrabold tracking-[0.08em] text-orange uppercase transition-colors hover:text-foreground"
+          href="/events"
+        >
+          <ArrowLeft className="size-[15px]" /> Back to events
+        </Link>
+        <div className="mb-6 flex flex-wrap items-center gap-3.5">
+          <h1 className="text-[clamp(2.2rem,4vw,3rem)] text-foreground">
+            {isNew ? "New event" : "Edit event"}
+          </h1>
+          <ContentStatusBadge status={event.status} />
+          {!isNew ? (
+            <div className="ml-auto">
+              <DeleteEventForm id={id} title={event.title} />
+            </div>
+          ) : null}
         </div>
-        <div className="rounded-[8px] border border-white/10 bg-white/[0.06] p-5 sm:p-7">
-          <EventForm
-            event={event}
-            locationSuggestions={locationSuggestions}
-            publicSiteUrl={publicSiteUrl()}
-          />
-        </div>
-      </section>
+        <EventForm
+          event={event}
+          locationSuggestions={locationSuggestions}
+          publicSiteUrl={publicSiteUrl()}
+        />
+      </div>
     </AdminShell>
   );
 }

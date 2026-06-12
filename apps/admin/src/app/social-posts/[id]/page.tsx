@@ -1,7 +1,10 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { emptySocialPost, getSocialPost } from "@sfvypaa/content";
+import { ArrowLeft } from "lucide-react";
 
 import { AdminShell } from "@/components/admin-shell";
+import { ContentStatusBadge } from "@/components/content-status-badge";
 import {
   DeleteSocialPostForm,
   SocialPostForm,
@@ -30,23 +33,27 @@ export default async function SocialPostEditPage({
   }
 
   return (
-    <AdminShell active="social-posts">
-      <section className="grid gap-6">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <h1 className="text-4xl font-black tracking-normal">
-              {isNew ? "New social post" : "Edit social post"}
-            </h1>
-            <p className="mt-2 text-white/62">
-              Curate Instagram posts for the public homepage feed.
-            </p>
-          </div>
-          {!isNew ? <DeleteSocialPostForm id={id} title={post.title} /> : null}
+    <AdminShell active="social-posts" publicSiteUrl={publicSiteUrl()}>
+      <div className="mx-auto max-w-[840px]">
+        <Link
+          className="mb-5 inline-flex items-center gap-2 text-[13px] font-extrabold tracking-[0.08em] text-orange uppercase transition-colors hover:text-foreground"
+          href="/social-posts"
+        >
+          <ArrowLeft className="size-[15px]" /> Back to social posts
+        </Link>
+        <div className="mb-6 flex flex-wrap items-center gap-3.5">
+          <h1 className="text-[clamp(2.2rem,4vw,3rem)] text-foreground">
+            {isNew ? "New social post" : "Edit social post"}
+          </h1>
+          <ContentStatusBadge status={post.status} />
+          {!isNew ? (
+            <div className="ml-auto">
+              <DeleteSocialPostForm id={id} title={post.title} />
+            </div>
+          ) : null}
         </div>
-        <div className="rounded-[8px] border border-white/10 bg-white/[0.06] p-5 sm:p-7">
-          <SocialPostForm post={post} publicSiteUrl={publicSiteUrl()} />
-        </div>
-      </section>
+        <SocialPostForm post={post} publicSiteUrl={publicSiteUrl()} />
+      </div>
     </AdminShell>
   );
 }

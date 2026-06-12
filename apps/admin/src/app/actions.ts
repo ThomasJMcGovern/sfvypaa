@@ -5,8 +5,10 @@ import {
   deleteNewsletter,
   deleteSocialPost,
   eventInputSchema,
+  getEvent,
   getNewsletter,
   getNewsletterBySlug,
+  getSocialPost,
   newsletterInputSchema,
   saveEvent,
   saveNewsletter,
@@ -485,6 +487,58 @@ export async function saveSiteSettingsAction(
   return {
     message: "Settings saved.",
   };
+}
+
+function nextStatus(formData: FormData): ContentStatus {
+  return field(formData, "nextStatus") === "published" ? "published" : "draft";
+}
+
+export async function toggleEventStatusAction(formData: FormData) {
+  await requireAdminOrRedirect("/events");
+
+  const id = field(formData, "id");
+  const event = id ? await getEvent(id) : null;
+
+  if (event) {
+    await saveEvent({ ...event, status: nextStatus(formData) });
+    revalidatePath("/events");
+    revalidatePath("/upcoming-events");
+  }
+
+  redirect("/events");
+}
+
+export async function toggleNewsletterStatusAction(formData: FormData) {
+  await requireAdminOrRedirect("/newsletters");
+
+  const id = field(formData, "id");
+  const newsletter = id ? await getNewsletter(id) : null;
+
+  if (newsletter) {
+    await saveNewsletter({ ...newsletter, status: nextStatus(formData) });
+    revalidatePath("/newsletters");
+    await revalidatePublicSite(publicNewsletterPaths(newsletter.slug));
+  }
+
+  redirect("/newsletters");
+}
+
+export async function toggleSocialPostStatusAction(formData: FormData) {
+  await requireAdminOrRedirect("/social-posts");
+
+  const id = field(formData, "id");
+  const post = id ? await getSocialPost(id) : null;
+  const target = nextStatus(formData);
+
+  // publishing a social post without an image is blocked in the editor too
+  if (post && !(target === "published" && !post.imageUrl)) {
+    await saveSocialPost({ ...post, status: target });
+    revalidatePath("/");
+    revalidatePath("/social-posts");
+    await revalidatePublicSite(["/"]);
+  }
+
+  redirect("/social-posts");
 }
 
 export async function logoutAdminAction() {
