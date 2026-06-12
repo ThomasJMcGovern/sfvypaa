@@ -77,6 +77,7 @@ Create and inspect content from the terminal in either environment:
 
 ```bash
 bun run content seed --env dev          # sample punk content into the emulator
+bun run content clear-events --env dev  # delete all emulator events
 bun run content list --env dev
 bun run content create-event --env dev \
   --title "Newcomer Night" --date 2026-06-25 --time "7:00 pm" \

@@ -47,9 +47,12 @@ function fail(message: string): never {
   process.exit(1);
 }
 
-if (!command || !["list", "seed", "create-event"].includes(command)) {
+if (
+  !command ||
+  !["list", "seed", "create-event", "clear-events"].includes(command)
+) {
   fail(
-    "Usage: bun run content <list|seed|create-event> --env dev|prod [options]",
+    "Usage: bun run content <list|seed|create-event|clear-events> --env dev|prod [options]",
   );
 }
 
@@ -92,8 +95,8 @@ if (env === "dev") {
     );
   }
 
-  if (command === "seed") {
-    fail("Seeding sample data into production is blocked.");
+  if (command === "seed" || command === "clear-events") {
+    fail(`The ${command} command is blocked in production.`);
   }
 
   if (isWrite && !args.force) {
@@ -198,6 +201,19 @@ if (command === "list") {
       `${event.status === "published" ? "●" : "○"} [${event.status}] ${event.date || event.eventDate} · ${event.title} · ${event.location} (${event.id})`,
     );
   }
+} else if (command === "clear-events") {
+  const events = await content.listEvents();
+
+  for (const event of events) {
+    await content.deleteEvent(event.id);
+    console.log(`✕ Deleted "${event.title}" (${event.id})`);
+  }
+
+  console.log(
+    events.length === 0
+      ? "No events to delete."
+      : `✓ Cleared ${events.length} event${events.length === 1 ? "" : "s"}.`,
+  );
 } else if (command === "create-event") {
   for (const key of ["title", "date", "time", "location", "summary"] as const) {
     if (!args[key]) {

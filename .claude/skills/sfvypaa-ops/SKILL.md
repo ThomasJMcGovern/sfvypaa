@@ -37,6 +37,7 @@ bun run dev:web          # plain dev — uses whatever Firebase env vars exist
 
 ```bash
 bun run content seed --env dev          # sample punk content (BLOCKED in prod)
+bun run content clear-events --env dev  # delete all events (BLOCKED in prod)
 bun run content list --env dev|prod
 bun run content create-event --env dev --title "..." --date YYYY-MM-DD \
   --time "7:00 pm" --location "..." --summary "..." \
