@@ -49,8 +49,10 @@ firebase-debug.log
 firestore-debug.log
 ui-debug.log
 
-# local agent tooling
-.claude/
-**/.claude/
+# local agent tooling — but keep shared project skills tracked
+.claude/*
+!.claude/skills/
+apps/*/.claude/
+packages/*/.claude/
 logs/
 **/logs/
