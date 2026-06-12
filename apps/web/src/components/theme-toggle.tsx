@@ -4,6 +4,9 @@ export function ThemeToggle() {
   function toggle() {
     const next = !document.documentElement.classList.contains("dark")
     document.documentElement.classList.toggle("dark", next)
+    document
+      .querySelector('meta[name="theme-color"]')
+      ?.setAttribute("content", next ? "#0D0B09" : "#F2EDE1")
     try {
       localStorage.setItem("sfv-theme", next ? "dark" : "light")
     } catch {

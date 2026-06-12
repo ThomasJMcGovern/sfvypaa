@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import {
   Anton,
   JetBrains_Mono,
@@ -30,6 +30,10 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 const themeInitScript = `try{if(localStorage.getItem("sfv-theme")==="dark")document.documentElement.classList.add("dark")}catch(e){}`;
+
+export const viewport: Viewport = {
+  themeColor: "#F2EDE1",
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://sfvypaa.org"),

@@ -18,7 +18,13 @@ export function SiteHeader({ active }: SiteHeaderProps) {
 
   return (
     <header className="sticky top-0 z-50 border-b-[3px] border-border bg-background">
-      <div className="mx-auto flex w-full max-w-7xl items-center gap-4 px-5 py-3 sm:px-8 lg:px-10">
+      {/* curtain: covers content that iOS Safari paints above the sticky
+          header (status-bar band, rubber-band overscroll) */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 bottom-full h-28 bg-background"
+      />
+      <div className="relative mx-auto flex w-full max-w-7xl items-center gap-4 px-5 py-3 sm:px-8 lg:px-10">
         <Link
           aria-label="SFVYPAA home"
           className="flex shrink-0 items-center gap-2.5"
