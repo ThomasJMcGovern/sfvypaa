@@ -49,7 +49,7 @@ export const involvement = [
   "Events and programming",
   "Outreach to young people meetings",
   "Speaker and hospitality service",
-  "Design, social, and digital service",
+  "Setup, coffee, and clean-up crew",
 ]
 
 export const faqs = [
