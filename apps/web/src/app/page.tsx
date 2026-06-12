@@ -4,42 +4,29 @@ import {
   listPublishedSocialPosts,
   type SocialPostRecord,
 } from "@sfvypaa/content"
-import {
-  ArrowRight,
-  AtSign,
-  ExternalLink,
-  HeartHandshake,
-  ShieldCheck,
-  Sparkles,
-} from "lucide-react"
+import { ArrowRight, AtSign } from "lucide-react"
 
-import { LinkCard } from "@/components/link-card"
+import { LinkRow } from "@/components/link-row"
 import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
 import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import { site, stats } from "@/lib/site"
+import { businessMeeting, site } from "@/lib/site"
 
 const principles = [
   {
+    glyph: "★",
     title: "Anonymous by design",
-    text: "Launch visuals use Valley landscapes, light, and atmosphere instead of identifiable member photography.",
-    icon: ShieldCheck,
+    text: "Loud visuals, zero identifiable member photography. We lean on Valley landscapes, light, and atmosphere instead of faces.",
   },
   {
+    glyph: "→",
     title: "Service-led events",
-    text: "Every gathering points back to AA service, sponsorship, meetings, and carrying the message.",
-    icon: HeartHandshake,
+    text: "Every gathering points back to AA service — speakers, steps, meetings, and carrying the message.",
   },
   {
+    glyph: "✱",
     title: "Young people energy",
-    text: "Premium, sober spaces that feel alive, current, and welcoming to newcomers.",
-    icon: Sparkles,
+    text: "Rooms and events that feel alive, current, and genuinely welcoming to anyone who walks in.",
   },
 ]
 
@@ -71,83 +58,116 @@ export default async function Home() {
     : []
 
   return (
-    <main className="min-h-screen overflow-hidden bg-[#171310] text-white">
-      <section className="relative overflow-hidden pb-20" id="top">
-        <Image
-          alt="Sunset over the San Fernando Valley"
-          className="object-cover opacity-42"
-          fill
-          priority
-          sizes="100vw"
-          src="/sfv-sunset.jpg"
-        />
-        <div className="absolute inset-0 bg-linear-to-b from-[#171310]/55 via-[#171310]/78 to-[#171310]" />
-        <SiteHeader active="home" />
-        <div className="relative z-10 mx-auto max-w-7xl px-5 pb-10 pt-16 sm:px-8 lg:px-10">
-          <div className="max-w-5xl">
-            <h1 className="text-[clamp(4rem,13vw,10rem)] font-black leading-[0.8] tracking-normal">
-              {site.name}
+    <main className="min-h-screen overflow-x-clip bg-background text-foreground">
+      <SiteHeader active="home" />
+
+      {/* 1 — flyer hero */}
+      <section
+        className="grain relative overflow-hidden border-b-[5px] border-border"
+        id="top"
+      >
+        <div className="relative z-10 mx-auto grid w-full max-w-7xl items-center gap-8 px-5 pt-13 pb-15 sm:px-8 lg:grid-cols-[1.25fr_0.9fr] lg:px-10">
+          <div className="relative z-[2]">
+            <div className="mb-5 flex flex-wrap items-center gap-3">
+              <span className="border-2 border-primary bg-primary px-2.5 py-0.5 text-xs font-bold tracking-[0.14em] text-primary-foreground uppercase">
+                San Fernando Valley
+              </span>
+              <span className="stamp -rotate-[5deg] border-2 border-orange px-2 py-0.5 text-sm text-orange">
+                since 1935 · still loud
+              </span>
+            </div>
+            <h1 className="text-[clamp(3rem,7.5vw,6rem)] text-foreground">
+              You&apos;re not too <span className="text-orange">young.</span>{" "}
+              And it&apos;s not too late.
             </h1>
-            <p className="mt-7 max-w-2xl text-lg leading-8 text-white/72">
-              {site.fullName}
+            <p className="mt-5.5 mb-7 max-w-[42ch] text-[19px] leading-normal font-medium text-text-soft">
+              SFVYPAA is young people in AA across the Valley. Show up as you
+              are — nothing&apos;s required of you but to walk in.
             </p>
-            <div className="mt-10 flex flex-col gap-3 sm:flex-row">
+            <div className="flex flex-wrap gap-3">
               <Button
-                className="h-12 rounded-[8px] bg-[#ffcf6b] px-5 text-base font-semibold text-[#191109] hover:bg-[#f3b83f]"
                 nativeButton={false}
-                render={<a href={site.links.getInvolved} />}
+                render={
+                  <a
+                    href={site.links.meetings}
+                    rel="noreferrer"
+                    target="_blank"
+                  />
+                }
+                size="lg"
               >
-                Get involved
-                <ArrowRight />
+                Find a meeting
+                <ArrowRight data-icon="inline-end" />
               </Button>
               <Button
-                className="h-12 rounded-[8px] border-white/25 bg-white/10 px-5 text-base text-white hover:bg-white/20"
                 nativeButton={false}
                 render={<a href={site.links.events} />}
+                size="lg"
                 variant="outline"
               >
-                Upcoming events
+                See what&apos;s on
               </Button>
             </div>
           </div>
-          <div className="mt-14 grid gap-3 sm:grid-cols-3">
-            {stats.map((stat) => (
-              <div
-                className="rounded-[8px] border border-white/12 bg-white/10 p-4 backdrop-blur-md"
-                key={stat.label}
-              >
-                <div className="text-3xl font-black text-[#ffcf6b]">
-                  {stat.value}
-                </div>
-                <div className="mt-1 text-sm font-medium uppercase tracking-[0.18em] text-white/65">
-                  {stat.label}
-                </div>
-              </div>
-            ))}
+          <div className="relative hidden justify-center sm:flex">
+            <div className="absolute inset-[6%_10%] -rotate-4 border-[3px] border-ink bg-orange" />
+            <Image
+              alt="Punk Bill — Bill W. with a mohawk"
+              className="relative w-full max-w-[360px] rotate-2 dark:invert"
+              height={1254}
+              priority
+              src="/assets/punk-bill-ink.png"
+              width={1254}
+            />
           </div>
         </div>
       </section>
 
-      <section className="px-5 pb-16 sm:px-8 lg:px-10">
-        <div className="mx-auto grid max-w-6xl gap-0 lg:grid-cols-[1fr_0.58fr] lg:items-center">
-          <div className="relative min-h-[320px] overflow-hidden rounded-[8px] bg-[#2a241e] lg:min-h-[520px]">
+      {/* 2 — next committee meeting ink strip */}
+      <section className="mx-auto w-full max-w-7xl px-5 pt-11 sm:px-8 lg:px-10">
+        <div className="flex flex-wrap items-center gap-5 border-[3px] border-border bg-ink px-6 py-5 text-bone shadow-stamp-lg">
+          <div className="min-w-[min(100%,280px)] flex-1">
+            <p className="label-stamp text-orange">Next committee meeting</p>
+            <p className="font-display mt-1.5 text-3xl uppercase">
+              {businessMeeting.title}
+            </p>
+            <p className="mt-2 font-mono text-sm text-[#C9C0AC]">
+              {businessMeeting.schedule} · {businessMeeting.time} ·{" "}
+              {businessMeeting.location}
+            </p>
+          </div>
+          <Button
+            nativeButton={false}
+            render={<a href={`${site.links.getInvolved}#business-meeting`} />}
+          >
+            Details
+            <ArrowRight data-icon="inline-end" />
+          </Button>
+        </div>
+      </section>
+
+      {/* 3 — what is SFVYPAA: duotone valley + overlapping card */}
+      <section className="mx-auto w-full max-w-7xl px-5 pt-16 sm:px-8 lg:px-10">
+        <div className="grid items-center lg:grid-cols-[minmax(0,1fr)_minmax(0,360px)]">
+          <div className="relative aspect-video border-[3px] border-border bg-bone-3">
             <Image
               alt="San Fernando Valley at sunset"
-              className="object-cover"
+              className="duotone object-cover"
               fill
-              sizes="(min-width: 1024px) 58vw, 100vw"
+              sizes="(min-width: 1024px) 60vw, 100vw"
               src="/sfv-sunset.jpg"
             />
           </div>
-          <div className="relative z-10 mx-4 -mt-12 rounded-[8px] bg-white p-8 text-[#171310] shadow-2xl lg:mx-0 lg:-ml-20 lg:mt-0 lg:p-14">
-            <h2 className="text-4xl font-black leading-tight tracking-normal sm:text-5xl">
+          <div className="relative z-[2] mx-4 -mt-10 border-[3px] border-border bg-card p-6 text-card-foreground shadow-stamp-lg lg:mx-0 lg:-ml-[72px] lg:mt-0 lg:p-7">
+            <p className="label-stamp mb-3 text-orange">Who we are</p>
+            <h2 className="mb-3 text-[clamp(2rem,4vw,3rem)] text-foreground">
               What is SFVYPAA?
             </h2>
-            <p className="mt-5 text-base leading-7 text-[#5e554c]">
+            <p className="text-base leading-relaxed text-text-soft">
               SFVYPAA is a young people in Alcoholics Anonymous committee
-              serving the San Fernando Valley. The committee creates
-              opportunities for service, fellowship, and events that help carry
-              the AA message to alcoholics who still suffer.
+              serving the San Fernando Valley. We create opportunities for
+              service, fellowship, and events that help carry the AA message to
+              anybody who still suffers.
             </p>
           </div>
         </div>
@@ -157,71 +177,108 @@ export default async function Home() {
         <SocialSection posts={socialPosts} />
       ) : null}
 
-      <LinkCard
-        body="SFVYPAA business meeting details live on the get involved page, with the current flyer and meeting information in one place."
-        buttonLabel="Get involved"
-        href={site.links.getInvolved}
-        imageAlt="SFVYPAA business meeting flyer"
-        imageMode="contain"
-        imageSrc="/business-meeting.png"
-        title="When does SFVYPAA meet?"
-        reverse
-      />
+      {/* 5 — alternating link rows */}
+      <section className="mx-auto w-full max-w-7xl px-5 pt-[72px] sm:px-8 lg:px-10">
+        <div className="flex flex-col gap-7">
+          <LinkRow
+            body="Meeting details live on the get-involved page, with the current time and place kept in one easy spot."
+            cta="Get involved"
+            eyebrow="When does SFVYPAA meet?"
+            href={site.links.getInvolved}
+            imageAlt="SFVYPAA business meeting flyer"
+            imageMode="contain"
+            imageSrc="/business-meeting.png"
+            title="Get involved"
+          />
+          <LinkRow
+            body="Events are separated from the homepage so flyers, hosted events, and RSVP times have room to breathe."
+            cta="Upcoming events"
+            eyebrow="What's on"
+            flip
+            href={site.links.events}
+            imageAlt="Anonymous abstract stage lights"
+            imageSrc="/stage-lights.jpg"
+            title="Events"
+          />
+          <LinkRow
+            body="Published committee updates, service notes, and event announcements live in the SFVYPAA newsletter archive."
+            cta="Read newsletters"
+            eyebrow="The zine rack"
+            href={site.links.newsletters}
+            imageAlt="Anonymous abstract event lights"
+            imageSrc="/community-lights.jpg"
+            title="Newsletters"
+          />
+          <LinkRow
+            body="Use the Los Angeles Central Office young people meeting search for current local young people meetings."
+            cta="Find meetings here"
+            external
+            eyebrow="Looking for a meeting?"
+            flip
+            href={site.links.meetings}
+            imageAlt="San Fernando Valley at dusk"
+            imageSrc="/sfv-sunset.jpg"
+            title="Find a meeting"
+          />
+        </div>
+      </section>
 
-      <LinkCard
-        body="Events are separated from the homepage so flyers, hosted events, co-hosted events, and RSVP links have room to breathe."
-        buttonLabel="Upcoming events"
-        href={site.links.events}
-        imageAlt="Anonymous abstract event lights"
-        imageSrc="/community-lights.jpg"
-        title="Events"
-      />
+      {/* 6 — principles */}
+      <section className="mx-auto w-full max-w-7xl px-5 pt-[72px] sm:px-8 lg:px-10">
+        <div className="grid gap-5 md:grid-cols-3">
+          {principles.map((principle) => (
+            <div
+              className="border-[3px] border-border bg-card p-6 text-card-foreground shadow-stamp"
+              key={principle.title}
+            >
+              <div className="font-display mb-4 flex size-[46px] items-center justify-center border-[3px] border-border text-2xl text-orange">
+                {principle.glyph}
+              </div>
+              <h3 className="mb-2 text-[22px] leading-[0.95] text-foreground">
+                {principle.title}
+              </h3>
+              <p className="text-sm leading-[1.55] text-text-soft">
+                {principle.text}
+              </p>
+            </div>
+          ))}
+        </div>
+      </section>
 
-      <LinkCard
-        body="Published committee updates, service notes, and event announcements live in the SFVYPAA newsletter archive."
-        buttonLabel="Read newsletters"
-        href={site.links.newsletters}
-        imageAlt="Anonymous abstract event lights"
-        imageSrc="/stage-lights.jpg"
-        title="Newsletters"
-        reverse
-      />
-
-      <LinkCard
-        body="Use the Los Angeles Central Office young people meeting search for current local young people meetings."
-        buttonLabel="Find meetings here"
-        external
-        href={site.links.meetings}
-        imageAlt="San Fernando Valley sunset"
-        imageSrc="/sfv-sunset.jpg"
-        title="Looking for a meeting?"
-        reverse
-      />
-
-      <section className="px-5 pb-20 pt-4 sm:px-8 lg:px-10">
-        <div className="mx-auto grid max-w-6xl gap-4 md:grid-cols-3">
-          {principles.map((principle) => {
-            const Icon = principle.icon
-
-            return (
-              <Card
-                className="rounded-[8px] border-white/10 bg-white/[0.06] text-white ring-white/10"
-                key={principle.title}
-              >
-                <CardHeader>
-                  <div className="mb-2 flex size-10 items-center justify-center rounded-[8px] bg-[#ffcf6b] text-[#191109]">
-                    <Icon className="size-5" />
-                  </div>
-                  <CardTitle className="text-xl font-black">
-                    {principle.title}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="text-base leading-7 text-white/68">
-                  {principle.text}
-                </CardContent>
-              </Card>
-            )
-          })}
+      {/* 7 — new here? reassurance */}
+      <section className="mx-auto w-full max-w-3xl px-5 pt-[72px] text-center sm:px-8">
+        <div
+          aria-hidden="true"
+          className="mb-6 text-sm tracking-[0.4em] text-orange select-none"
+        >
+          ★ ★ ★ ★ ★
+        </div>
+        <h2 className="mb-4 text-[clamp(2.2rem,5vw,3.4rem)] text-foreground">
+          New here? Read this.
+        </h2>
+        <p className="mx-auto mb-6 max-w-[46ch] text-lg leading-relaxed text-text-soft">
+          You don&apos;t have to have hit a bottom. You don&apos;t have to call
+          yourself anything. You don&apos;t have to talk. Come early, get a
+          coffee, sit in the back if you want. We&apos;ll be glad you came.
+        </p>
+        <div className="border-2 border-border border-l-8 border-l-orange bg-card p-4 text-left shadow-stamp">
+          <p className="text-sm font-extrabold tracking-[0.06em] uppercase">
+            It&apos;s free. It&apos;s anonymous.
+          </p>
+          <p className="mt-1 text-sm leading-6 text-text-soft">
+            No dues, no fees, no sign-up. Whatever you say in the room stays in
+            the room. If you&apos;re not sure where to start, come to a meeting
+            or DM{" "}
+            <a
+              className="font-bold underline decoration-2 underline-offset-2 hover:text-orange"
+              href={site.links.instagram}
+              rel="noreferrer"
+              target="_blank"
+            >
+              @sfvypaa
+            </a>{" "}
+            — a real person answers.
+          </p>
         </div>
       </section>
 
@@ -232,48 +289,46 @@ export default async function Home() {
 
 function SocialSection({ posts }: { posts: SocialPostRecord[] }) {
   return (
-    <section className="bg-[#1d1b18] px-5 py-16 sm:px-8 lg:px-10" id="socials">
-      <div className="mx-auto grid max-w-7xl gap-8">
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#ffcf6b]">
-              Instagram
-            </p>
-            <h2 className="mt-3 text-5xl font-black tracking-normal text-white sm:text-7xl">
-              SOCIALS
-            </h2>
-            <p className="mt-4 max-w-2xl text-base leading-7 text-white/64">
-              Follow current committee posts, event reminders, and service
-              announcements from SFVYPAA.
-            </p>
-          </div>
-          <Button
-            className="h-11 w-fit rounded-[8px] border-white/20 bg-white/10 px-4 text-white hover:bg-white/20"
-            nativeButton={false}
-            render={
-              <a href={site.links.instagram} rel="noreferrer" target="_blank" />
-            }
-            variant="outline"
-          >
-            <AtSign />
-            @sfvypaa
-          </Button>
+    <section
+      className="mx-auto w-full max-w-7xl px-5 pt-[72px] sm:px-8 lg:px-10"
+      id="socials"
+    >
+      <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <p className="label-stamp mb-2 flex items-center gap-2 text-orange">
+            <AtSign className="size-[15px]" /> Instagram
+          </p>
+          <h2 className="text-[clamp(2rem,4vw,3rem)] text-foreground">
+            Socials
+          </h2>
         </div>
+        <Button
+          nativeButton={false}
+          render={
+            <a href={site.links.instagram} rel="noreferrer" target="_blank" />
+          }
+          variant="outline"
+        >
+          <AtSign data-icon="inline-start" />
+          @sfvypaa
+        </Button>
+      </div>
 
-        {posts.length > 0 ? (
-          <div className="grid gap-4 md:grid-cols-3">
-            {posts.map((post) => (
-              <article
-                className="overflow-hidden rounded-[8px] border border-white/10 bg-white text-[#171310] shadow-2xl shadow-black/20"
-                key={post.id}
+      {posts.length > 0 ? (
+        <div className="grid gap-5 md:grid-cols-3">
+          {posts.map((post) => (
+            <article
+              className="flex flex-col border-[3px] border-border bg-card text-card-foreground shadow-stamp-lg"
+              key={post.id}
+            >
+              <a
+                className="group block"
+                href={post.instagramUrl}
+                rel="noreferrer"
+                target="_blank"
               >
-                <a
-                  className="group block"
-                  href={post.instagramUrl}
-                  rel="noreferrer"
-                  target="_blank"
-                >
-                  <div className="relative aspect-square bg-[#f5eee5]">
+                <div className="halftone relative aspect-square border-b-[3px] border-border bg-bone-2">
+                  {post.imageUrl ? (
                     <Image
                       alt={post.title}
                       className="object-cover transition group-hover:scale-[1.02]"
@@ -282,44 +337,50 @@ function SocialSection({ posts }: { posts: SocialPostRecord[] }) {
                       src={post.imageUrl}
                       unoptimized
                     />
-                  </div>
-                </a>
-                <div className="grid gap-3 p-5">
-                  <p className="text-xs font-semibold uppercase tracking-normal text-[#d94b2b]">
-                    {formatSocialDate(post.postDate)}
-                  </p>
-                  <h3 className="text-xl font-black leading-tight">
-                    {post.title}
-                  </h3>
-                  <p className="line-clamp-4 text-sm leading-6 text-[#5e554c]">
-                    {post.caption}
-                  </p>
-                  <Button
-                    className="h-10 w-fit rounded-[8px] bg-[#171310] px-4 text-white hover:bg-[#2c241d]"
-                    nativeButton={false}
-                    render={
-                      <a
-                        href={post.instagramUrl}
-                        rel="noreferrer"
-                        target="_blank"
-                      />
-                    }
-                  >
-                    View on Instagram
-                    <ExternalLink className="size-4" />
-                  </Button>
+                  ) : (
+                    <span className="label-stamp absolute inset-0 flex items-center justify-center text-muted-foreground">
+                      Instagram post
+                    </span>
+                  )}
                 </div>
-              </article>
-            ))}
-          </div>
-        ) : (
-          <div className="rounded-[8px] border border-white/12 bg-white/8 p-8 text-center text-white/64">
-            <p className="text-base leading-7">
-              New Instagram highlights will appear here once they are published.
-            </p>
-          </div>
-        )}
-      </div>
+              </a>
+              <div className="flex grow flex-col p-4">
+                <p className="mb-1.5 font-mono text-xs font-bold text-orange uppercase">
+                  {formatSocialDate(post.postDate)}
+                </p>
+                <h3 className="mb-2 text-[21px] leading-[0.95] text-foreground">
+                  {post.title}
+                </h3>
+                <p className="mb-4 grow text-sm leading-normal text-text-soft">
+                  {post.caption}
+                </p>
+                <Button
+                  className="w-full"
+                  nativeButton={false}
+                  render={
+                    <a
+                      href={post.instagramUrl}
+                      rel="noreferrer"
+                      target="_blank"
+                    />
+                  }
+                  size="sm"
+                  variant="outline"
+                >
+                  View on Instagram
+                </Button>
+              </div>
+            </article>
+          ))}
+        </div>
+      ) : (
+        <div className="border-2 border-dashed border-border/35 px-5 py-12 text-center">
+          <p className="text-base text-muted-foreground">
+            New Instagram highlights will appear here once they&apos;re
+            published.
+          </p>
+        </div>
+      )}
     </section>
   )
 }

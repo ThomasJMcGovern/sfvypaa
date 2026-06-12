@@ -1,7 +1,8 @@
 import type { Metadata } from "next"
+import Link from "next/link"
 import { notFound } from "next/navigation"
 import { getPublishedNewsletterBySlug } from "@sfvypaa/content"
-import { Newspaper } from "lucide-react"
+import { ArrowLeft } from "lucide-react"
 
 import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
@@ -53,28 +54,56 @@ export default async function NewsletterDetailPage({
     notFound()
   }
 
+  const paragraphs = newsletter.body
+    .split(/\n+/)
+    .map((paragraph) => paragraph.trim())
+    .filter(Boolean)
+
   return (
-    <main className="min-h-screen bg-[#171310] text-white">
+    <main className="min-h-screen bg-background text-foreground">
       <SiteHeader active="newsletters" />
-      <article className="px-5 pb-24 pt-16 sm:px-8 lg:px-10" id="top">
-        <div className="mx-auto max-w-3xl">
-          <Newspaper className="size-9 text-[#ffcf6b]" />
-          <p className="mt-5 text-sm font-semibold uppercase tracking-normal text-white/56">
-            {formatNewsletterDate(newsletter.publishDate)}
-          </p>
-          <h1 className="mt-4 text-4xl font-black leading-tight tracking-normal sm:text-6xl">
-            {newsletter.title}
-          </h1>
-          <p className="mt-6 text-xl leading-9 text-white/68">
-            {newsletter.excerpt}
-          </p>
-          <div className="mt-10 rounded-[8px] bg-white p-7 text-[#171310] shadow-2xl sm:p-10">
-            <div className="whitespace-pre-wrap text-base leading-8 text-[#4f463d]">
-              {newsletter.body}
+
+      <div className="border-b-[5px] border-border bg-secondary">
+        <article className="mx-auto w-full max-w-[740px] px-5 pt-8 pb-[72px]">
+          <Link
+            className="mb-7 inline-flex items-center gap-2 text-[13px] font-extrabold tracking-[0.08em] text-orange uppercase transition-colors hover:text-foreground"
+            href="/newsletters"
+          >
+            <ArrowLeft className="size-[15px]" />
+            All newsletters
+          </Link>
+
+          {/* taped paper sheet — stays white even at night */}
+          <div className="tape relative border-[3px] border-border bg-paper p-7 text-ink shadow-stamp-lg sm:p-[clamp(28px,5vw,56px)]">
+            <p className="mt-1 mb-4 font-mono text-[13px] font-bold text-orange-deep">
+              {formatNewsletterDate(newsletter.publishDate)}
+            </p>
+            <h1 className="mb-5 text-[clamp(2.2rem,5.5vw,3.4rem)] leading-[0.95] text-ink">
+              {newsletter.title}
+            </h1>
+            <p className="mb-7 text-[19px] leading-relaxed font-semibold text-ink-2">
+              {newsletter.excerpt}
+            </p>
+
+            {paragraphs.map((paragraph, index) => (
+              <p
+                className="mb-5 text-[17px] leading-[1.7] text-ink-2"
+                key={index}
+              >
+                {paragraph}
+              </p>
+            ))}
+
+            <div
+              aria-hidden="true"
+              className="mt-8 text-center text-sm tracking-[0.4em] text-orange select-none"
+            >
+              ★ ★ ★ ★ ★
             </div>
           </div>
-        </div>
-      </article>
+        </article>
+      </div>
+
       <SiteFooter />
     </main>
   )

@@ -1,19 +1,19 @@
 import type { Metadata } from "next"
 import { listPublishedEvents, type EventRecord } from "@sfvypaa/content"
-import { CalendarDays, Clock, MapPin, Sparkles } from "lucide-react"
+import {
+  ArrowRight,
+  CalendarDays,
+  CalendarX,
+  Clock,
+  MapPin,
+} from "lucide-react"
 
+import { PageHead } from "@/components/page-head"
 import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
 import { site } from "@/lib/site"
+import { cn } from "@/lib/utils"
 
 export const dynamic = "force-dynamic"
 
@@ -31,56 +31,56 @@ export default async function UpcomingEventsPage() {
   )
 
   return (
-    <main className="min-h-screen bg-[#171310] text-white">
+    <main className="min-h-screen bg-background text-foreground">
       <SiteHeader active="upcoming-events" />
-      <section className="px-5 pb-20 pt-16 text-center sm:px-8 lg:px-10" id="top">
-        <h1 className="text-5xl font-black tracking-normal sm:text-7xl lg:text-8xl">
-          Upcoming Events
-        </h1>
-        <div className="relative mx-auto mt-16 max-w-7xl overflow-hidden rounded-[8px] border border-white/10 bg-[#1d1b18] py-24">
-          <div className="absolute left-[-5%] top-16 h-20 w-[110%] rounded-[50%] border-t-8 border-white" />
-          <div className="absolute bottom-16 left-[-5%] h-20 w-[110%] rounded-[50%] border-b-8 border-white" />
-          <div className="relative z-10 mx-auto max-w-xl">
-            <Badge className="h-7 rounded-[8px] bg-[#ffcf6b] px-3 text-[#191109]">
-              Hosted by SFVYPAA
-            </Badge>
-            <p className="mt-6 text-lg leading-8 text-white/68">
-              Event listings are separated from the homepage so SFVYPAA can add
-              flyers, RSVP links, and co-hosted announcements as they are
-              approved.
-            </p>
-          </div>
-        </div>
+
+      <PageHead
+        eyebrow="What's on"
+        sub="Backyard shows, speaker jams, service, and fellowship — hosted and co-hosted by SFVYPAA. All ages. All sober. Just show up."
+        title="Upcoming events."
+      />
+
+      <section className="mx-auto w-full max-w-7xl px-5 pt-6 sm:px-8 lg:px-10">
+        {events.length > 0 ? (
+          <>
+            <EventGroup
+              events={hosted}
+              skew={-1}
+              title="Hosted by SFVYPAA"
+            />
+            <EventGroup
+              events={cohosted}
+              skew={1}
+              title="Co-hosted by SFVYPAA"
+            />
+          </>
+        ) : (
+          <EmptyEvents />
+        )}
       </section>
 
-      {events.length > 0 ? (
-        <>
-          {hosted.length > 0 ? (
-            <EventGroup events={hosted} title="Hosted by SFVYPAA" />
-          ) : null}
-          {cohosted.length > 0 ? (
-            <EventGroup events={cohosted} title="Co-hosted by SFVYPAA" />
-          ) : null}
-        </>
-      ) : (
-        <EmptyEvents />
-      )}
-
-      <section className="px-5 pb-24 pt-8 sm:px-8 lg:px-10">
-        <div className="mx-auto max-w-7xl rounded-[8px] border border-white/10 bg-white/[0.06] p-8 text-center">
-          <Sparkles className="mx-auto size-8 text-[#ffcf6b]" />
-          <h2 className="mt-4 text-3xl font-black">Want to help plan?</h2>
-          <p className="mx-auto mt-3 max-w-2xl text-base leading-7 text-white/64">
-            Join service, bring an idea, or help with hospitality, speakers,
-            graphics, setup, outreach, and clean up.
-          </p>
-          <Button
-            className="mt-6 h-12 rounded-[8px] bg-[#ffcf6b] px-5 text-[#191109] hover:bg-[#f3b83f]"
-            nativeButton={false}
-            render={<a href={site.links.getInvolved} />}
-          >
-            Get involved
-          </Button>
+      {/* want to help plan? */}
+      <section className="mx-auto w-full max-w-7xl px-5 pt-2 sm:px-8 lg:px-10">
+        <div className="grain relative border-[3px] border-border bg-ink px-8 py-10 text-center text-bone shadow-stamp-lg">
+          <div className="relative z-[2]">
+            <span className="stamp inline-block -rotate-4 border-2 border-pink px-2 py-1 text-sm text-pink">
+              your committee needs you
+            </span>
+            <h2 className="mt-3.5 mb-3 text-[clamp(2rem,4vw,3rem)] uppercase">
+              Want to help plan?
+            </h2>
+            <p className="mx-auto mb-6 max-w-[48ch] text-base leading-relaxed text-[#C9C0AC]">
+              Join service, bring an idea, or help with hospitality, speakers,
+              graphics, setup, outreach, and clean-up.
+            </p>
+            <Button
+              nativeButton={false}
+              render={<a href={site.links.getInvolved} />}
+            >
+              Get involved
+              <ArrowRight data-icon="inline-end" />
+            </Button>
+          </div>
         </div>
       </section>
 
@@ -91,88 +91,111 @@ export default async function UpcomingEventsPage() {
 
 function EmptyEvents() {
   return (
-    <section className="px-5 py-10 sm:px-8 lg:px-10">
-      <div className="mx-auto max-w-4xl rounded-[8px] border border-white/12 bg-white/[0.06] px-6 py-10 text-center">
-        <CalendarDays className="mx-auto size-8 text-[#ffcf6b]" />
-        <h2 className="mt-4 text-3xl font-black tracking-normal">
-          No published events yet
-        </h2>
-        <p className="mx-auto mt-3 max-w-2xl text-base leading-7 text-white/64">
-          New SFVYPAA events will appear here once they are announced.
-        </p>
-      </div>
-    </section>
+    <div className="border-2 border-dashed border-border/35 px-6 py-[72px] text-center">
+      <CalendarX className="mx-auto mb-4 size-9 text-muted-foreground" />
+      <h3 className="mb-2.5 text-2xl text-foreground">
+        No published events yet
+      </h3>
+      <p className="mx-auto max-w-[42ch] text-[15px] leading-relaxed text-text-soft">
+        New SFVYPAA events will appear here once they&apos;re announced. Check
+        back soon — or better, come help us plan one.
+      </p>
+    </div>
   )
 }
 
 function EventGroup({
   events,
+  skew,
   title,
 }: {
   events: EventRecord[]
+  skew: number
   title: string
 }) {
+  if (events.length === 0) {
+    return null
+  }
+
   return (
-    <section className="px-5 py-10 sm:px-8 lg:px-10">
-      <div className="mx-auto max-w-7xl">
-        <h2 className="text-center text-3xl font-black tracking-normal sm:text-4xl">
-          {title}
-        </h2>
-        <div className="mt-8 grid gap-4 lg:grid-cols-3">
-          {events.map((event, index) => (
-            <Card
-              className="rounded-[8px] border-white/10 bg-white p-0 text-[#171310] ring-white/10"
-              key={event.id}
-            >
-              <CardHeader className="border-b border-[#171310]/10 px-5 py-5">
-                <div className="flex items-start justify-between gap-4">
-                  <Badge className="h-7 rounded-[8px] bg-[#1c6f70] px-3 text-white">
-                    0{index + 1}
-                  </Badge>
-                  <CalendarDays className="size-5 text-[#d94b2b]" />
-                </div>
-                <CardTitle className="mt-4 text-2xl font-black leading-tight">
-                  {event.title}
-                </CardTitle>
-              </CardHeader>
-              {event.imageUrl ? (
-                <div className="border-b border-[#171310]/10 bg-[#f5eee5]">
-                  <img
-                    alt={`${event.title} flyer`}
-                    className="aspect-[4/3] w-full object-cover"
-                    src={event.imageUrl}
-                  />
-                </div>
-              ) : null}
-              <CardContent className="grid gap-4 px-5 py-5">
-                <EventMeta icon={CalendarDays} text={event.date} />
-                <EventMeta icon={Clock} text={event.time} />
-                <EventMeta icon={MapPin} text={event.location} />
-                <Separator className="bg-[#171310]/10" />
-                <p className="text-base leading-7 text-[#5e554c]">
-                  {event.tone}
-                </p>
-                {event.rsvpUrl ? (
-                  <Button
-                    className="h-10 w-fit rounded-[8px] bg-[#171310] px-4 text-white hover:bg-[#2c241d]"
-                    nativeButton={false}
-                    render={
-                      <a
-                        href={event.rsvpUrl}
-                        rel="noreferrer"
-                        target="_blank"
-                      />
-                    }
-                  >
-                    RSVP
-                  </Button>
-                ) : null}
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+    <div className="mb-14">
+      <div className="mb-6 flex items-center gap-4">
+        <h2 className="text-2xl whitespace-nowrap text-foreground">{title}</h2>
+        <span className="flex-1 border-t-[3px] border-border" />
       </div>
-    </section>
+      <div className="grid items-start gap-7 md:grid-cols-2 lg:grid-cols-3">
+        {events.map((event, index) => (
+          <EventCard
+            event={event}
+            key={event.id}
+            skew={index === 0 ? skew : 0}
+            tape={index === 0 && Boolean(event.imageUrl)}
+          />
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function EventCard({
+  event,
+  skew,
+  tape,
+}: {
+  event: EventRecord
+  skew: number
+  tape: boolean
+}) {
+  return (
+    <article
+      className={cn(
+        "relative flex flex-col overflow-hidden border-[3px] border-border bg-card text-card-foreground shadow-stamp-lg",
+        tape && "tape",
+        skew === -1 && "md:-rotate-1",
+        skew === 1 && "md:rotate-1"
+      )}
+    >
+      {event.imageUrl ? (
+        <div className="halftone border-b-[3px] border-border bg-bone-2">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            alt={`${event.title} flyer`}
+            className="aspect-[4/3] w-full object-cover"
+            src={event.imageUrl}
+          />
+        </div>
+      ) : null}
+      <div className="flex grow flex-col p-6">
+        <div className="mb-3.5">
+          <span className="border-2 border-primary bg-primary px-2.5 py-0.5 text-xs font-bold tracking-[0.14em] text-primary-foreground uppercase">
+            {event.host}
+          </span>
+        </div>
+        <h3 className="mb-4 text-2xl leading-[0.95] text-foreground">
+          {event.title}
+        </h3>
+        <div className="mb-4 flex flex-col gap-2 border-b-2 border-border/35 pb-4">
+          <EventMeta icon={CalendarDays} text={event.date} />
+          <EventMeta icon={Clock} text={event.time} />
+          <EventMeta icon={MapPin} text={event.location} />
+        </div>
+        <p className="mb-4.5 grow text-sm leading-[1.55] text-text-soft">
+          {event.tone}
+        </p>
+        {event.rsvpUrl ? (
+          <Button
+            className="w-full"
+            nativeButton={false}
+            render={
+              <a href={event.rsvpUrl} rel="noreferrer" target="_blank" />
+            }
+          >
+            RSVP — it&apos;s free
+            <ArrowRight data-icon="inline-end" />
+          </Button>
+        ) : null}
+      </div>
+    </article>
   )
 }
 
@@ -184,9 +207,11 @@ function EventMeta({
   text: string
 }) {
   return (
-    <div className="flex items-center gap-3 text-sm font-medium text-[#5e554c]">
-      <Icon className="size-4 text-[#d94b2b]" />
-      <span>{text}</span>
+    <div className="flex items-center gap-2.5">
+      <Icon className="size-4 shrink-0 text-orange" />
+      <span className="font-mono text-[13px] font-bold text-foreground">
+        {text}
+      </span>
     </div>
   )
 }

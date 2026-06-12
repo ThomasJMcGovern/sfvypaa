@@ -1,17 +1,17 @@
 import type { Metadata } from "next"
 import Image from "next/image"
-import { CalendarDays, Clock, Mail, MapPin, Sparkles } from "lucide-react"
+import {
+  ArrowDown,
+  AtSign,
+  CalendarDays,
+  Clock,
+  Map,
+  MapPin,
+} from "lucide-react"
 
 import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
 import { businessMeeting, involvement, site } from "@/lib/site"
 
 export const metadata: Metadata = {
@@ -20,124 +20,152 @@ export const metadata: Metadata = {
     "Join SFVYPAA committee service, business meetings, and young people AA event planning.",
 }
 
+const meetingDetails = [
+  { icon: CalendarDays, text: businessMeeting.schedule },
+  { icon: Clock, text: businessMeeting.time },
+  { icon: MapPin, text: businessMeeting.location },
+  { icon: Map, text: businessMeeting.address },
+]
+
+const involvementGlyphs = ["★", "→", "✱", "✕"]
+
 export default function GetInvolvedPage() {
   return (
-    <main className="min-h-screen bg-[#171310] text-white">
+    <main className="min-h-screen bg-background text-foreground">
       <SiteHeader active="get-involved" />
-      <section className="px-5 pb-20 pt-16 text-center sm:px-8 lg:px-10" id="top">
-        <h1 className="mx-auto max-w-5xl text-4xl font-black leading-tight tracking-normal sm:text-6xl">
-          We are building the next SFVYPAA committee chapter.
-        </h1>
-        <p className="mx-auto mt-7 max-w-4xl text-xl leading-9 text-white/68">
-          Join us and help plan service, outreach, fellowship, and young people
-          AA events across the San Fernando Valley.
-        </p>
-        <a
-          className="mt-5 inline-block text-sm font-semibold text-white/72 underline underline-offset-4 transition hover:text-white"
-          href="#business-meeting"
-        >
-          Business meeting details
-        </a>
+
+      {/* 1 — hero */}
+      <section className="border-b-[5px] border-border bg-secondary" id="top">
+        <div className="mx-auto w-full max-w-5xl px-5 pt-14 pb-13 text-center">
+          <div className="mb-5 flex justify-center">
+            <span className="stamp -rotate-4 border-2 border-orange px-2 py-1 text-sm text-orange">
+              no experience necessary
+            </span>
+          </div>
+          <h1 className="text-[clamp(2.75rem,6vw,4.5rem)] text-foreground">
+            Get in. Get loud.{" "}
+            <span className="text-orange">Get of service.</span>
+          </h1>
+          <p className="mx-auto mt-5.5 mb-6.5 max-w-[44ch] text-lg leading-[1.55] font-medium text-text-soft">
+            Help plan service, outreach, fellowship, and young people AA events
+            across the San Fernando Valley.
+          </p>
+          <a
+            className="inline-flex items-center gap-2 border-b-[3px] border-orange px-0.5 py-1 text-[13px] font-extrabold tracking-[0.08em] text-foreground uppercase transition-colors hover:text-orange"
+            href="#business-meeting"
+          >
+            Business meeting details <ArrowDown className="size-[15px]" />
+          </a>
+        </div>
       </section>
 
-      <section className="px-5 py-12 sm:px-8 lg:px-10" id="business-meeting">
-        <div className="mx-auto grid max-w-6xl gap-0 lg:grid-cols-[1fr_0.58fr] lg:items-center">
-          <div className="relative min-h-[620px] overflow-hidden rounded-[8px] bg-[#f3ead9] lg:min-h-[720px]">
+      {/* 2 — business meeting block */}
+      <section
+        className="mx-auto w-full max-w-7xl scroll-mt-24 px-5 pt-16 sm:px-8 lg:px-10"
+        id="business-meeting"
+      >
+        <div className="grid items-center justify-stretch lg:grid-cols-[minmax(0,440px)_minmax(0,440px)] lg:justify-center">
+          <div className="relative aspect-[3/4] border-[3px] border-border bg-bone-2">
             <Image
               alt="SFVYPAA business meeting flyer"
               className="object-contain"
               fill
               priority
-              sizes="(min-width: 1024px) 58vw, 100vw"
+              sizes="(min-width: 1024px) 440px, 100vw"
               src="/business-meeting.png"
             />
           </div>
-          <Card className="relative z-10 mx-4 -mt-12 rounded-[8px] border-none bg-white p-4 text-[#171310] shadow-2xl ring-0 lg:mx-0 lg:-ml-20 lg:mt-0 lg:p-8">
-            <CardHeader>
-              <Badge className="mb-3 h-7 w-fit rounded-[8px] bg-[#d94b2b] px-3 text-white">
+          <div className="relative z-[2] mx-4 -mt-10 border-[3px] border-border bg-card p-7 text-card-foreground shadow-stamp-lg lg:mx-0 lg:-ml-[90px] lg:mt-0 lg:px-[30px] lg:py-8">
+            <div className="mb-3.5">
+              <span className="border-2 border-primary bg-primary px-2.5 py-0.5 text-xs font-bold tracking-[0.14em] text-primary-foreground uppercase">
                 Committee
-              </Badge>
-              <CardTitle className="text-4xl font-black leading-tight sm:text-5xl">
-                {businessMeeting.title}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="grid gap-5 text-base leading-7 text-[#5e554c]">
-              <p>
-                SFVYPAA meets once per month for committee business, service
-                planning, and upcoming young people events.
-              </p>
-              <Detail icon={CalendarDays} text={businessMeeting.schedule} />
-              <Detail icon={Clock} text={businessMeeting.time} />
-              <Detail icon={MapPin} text={businessMeeting.location} />
-              <Detail icon={MapPin} text={businessMeeting.address} />
-              <Button
-                className="mt-2 h-12 w-fit rounded-[8px] bg-[#171310] px-5 text-white hover:bg-[#2c241d]"
-                nativeButton={false}
-                render={
-                  <a href={site.links.instagram} rel="noreferrer" target="_blank" />
-                }
-              >
-                Follow @sfvypaa
-              </Button>
-            </CardContent>
-          </Card>
+              </span>
+            </div>
+            <h2 className="mb-3.5 text-[clamp(2rem,4vw,3rem)] text-foreground">
+              {businessMeeting.title}
+            </h2>
+            <p className="mb-5.5 text-[15px] leading-relaxed text-text-soft">
+              SFVYPAA meets once per month for committee business, service
+              planning, and upcoming young people events. Walk in — that&apos;s
+              the whole onboarding.
+            </p>
+            <div className="mb-6 flex flex-col gap-2.5 border-t-2 border-border/35 pt-4.5">
+              {meetingDetails.map(({ icon: Icon, text }) => (
+                <div className="flex items-center gap-2.5" key={text}>
+                  <Icon className="size-4 shrink-0 text-orange" />
+                  <span className="font-mono text-[13.5px] font-bold text-foreground">
+                    {text}
+                  </span>
+                </div>
+              ))}
+            </div>
+            <Button
+              nativeButton={false}
+              render={
+                <a
+                  href={site.links.instagram}
+                  rel="noreferrer"
+                  target="_blank"
+                />
+              }
+            >
+              <AtSign data-icon="inline-start" />
+              Follow @sfvypaa
+            </Button>
+          </div>
         </div>
       </section>
 
-      <section className="px-5 py-20 sm:px-8 lg:px-10">
-        <div className="mx-auto grid max-w-6xl gap-4 md:grid-cols-2">
-          {involvement.map((item) => (
+      {/* 3 — where we need hands */}
+      <section className="mx-auto w-full max-w-7xl px-5 pt-[72px] sm:px-8 lg:px-10">
+        <h2 className="mb-6 text-[clamp(2rem,4vw,3rem)] text-foreground">
+          Where we need hands
+        </h2>
+        <div className="grid gap-4.5 md:grid-cols-2">
+          {involvement.map((item, index) => (
             <div
-              className="flex items-center gap-3 rounded-[8px] border border-white/12 bg-white/10 p-5 backdrop-blur"
+              className="flex items-center gap-4.5 border-[3px] border-border bg-card px-5.5 py-4.5 text-card-foreground shadow-stamp"
               key={item}
             >
-              <span className="flex size-9 items-center justify-center rounded-[8px] bg-[#ffcf6b] text-[#191109]">
-                <Sparkles className="size-4" />
+              <span className="font-display flex size-11 shrink-0 items-center justify-center border-[3px] border-border text-[22px] text-orange">
+                {involvementGlyphs[index % involvementGlyphs.length]}
               </span>
-              <span className="font-semibold">{item}</span>
+              <span className="text-base font-extrabold">{item}</span>
             </div>
           ))}
         </div>
       </section>
 
-      <section
-        className="relative overflow-hidden px-5 py-20 sm:px-8 lg:px-10"
-        id="contact"
-      >
-        <Image
-          alt="Anonymous abstract event lights"
-          className="object-cover opacity-28"
-          fill
-          sizes="100vw"
-          src="/community-lights.jpg"
-        />
-        <div className="absolute inset-0 bg-[#171310]/70" />
-        <div className="relative mx-auto max-w-3xl rounded-[8px] border border-white/12 bg-white p-8 text-center text-[#171310] shadow-2xl">
-          <Mail className="mx-auto size-8 text-[#d94b2b]" />
-          <h2 className="mt-4 text-4xl font-black">Contact coming soon</h2>
-          <p className="mt-4 text-base leading-7 text-[#5e554c]">
-            Add the committee-approved email, form, or Instagram link here once
-            SFVYPAA has a confirmed contact flow.
-          </p>
+      {/* 4 — contact */}
+      <section className="mx-auto w-full max-w-7xl px-5 pt-14 sm:px-8 lg:px-10" id="contact">
+        <div className="grain relative border-[3px] border-border bg-ink px-8 py-11 text-center text-bone shadow-stamp-lg">
+          <div className="relative z-[2]">
+            <div className="mb-3.5 flex justify-center">
+              <span className="stamp -rotate-4 border-2 border-pink px-2 py-1 text-sm text-pink">
+                coming soon
+              </span>
+            </div>
+            <h2 className="mb-3.5 text-[clamp(2rem,4vw,3rem)] uppercase">
+              Contact
+            </h2>
+            <p className="mx-auto max-w-[48ch] text-base leading-[1.7] text-[#C9C0AC]">
+              A committee-approved email and contact form land here soon. Until
+              then, the fastest way to reach us is a DM to{" "}
+              <a
+                className="font-bold text-bone underline decoration-orange decoration-2 underline-offset-2"
+                href={site.links.instagram}
+                rel="noreferrer"
+                target="_blank"
+              >
+                @sfvypaa
+              </a>{" "}
+              — or just show up to the business meeting.
+            </p>
+          </div>
         </div>
       </section>
 
       <SiteFooter />
     </main>
-  )
-}
-
-function Detail({
-  icon: Icon,
-  text,
-}: {
-  icon: typeof MapPin
-  text: string
-}) {
-  return (
-    <div className="flex items-start gap-3">
-      <Icon className="mt-1 size-4 shrink-0 text-[#d94b2b]" />
-      <span>{text}</span>
-    </div>
   )
 }

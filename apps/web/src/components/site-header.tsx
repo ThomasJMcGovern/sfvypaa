@@ -1,9 +1,12 @@
-import Link from "next/link"
-import { AtSign } from "lucide-react"
+"use client"
 
-import { MobileNav } from "@/components/mobile-nav"
-import { Button } from "@/components/ui/button"
-import { navItems, site } from "@/lib/site"
+import { useState } from "react"
+import Image from "next/image"
+import Link from "next/link"
+import { ArrowUpRight, Menu, X } from "lucide-react"
+
+import { ThemeToggle } from "@/components/theme-toggle"
+import { navItems } from "@/lib/site"
 import { cn } from "@/lib/utils"
 
 type SiteHeaderProps = {
@@ -11,46 +14,89 @@ type SiteHeaderProps = {
 }
 
 export function SiteHeader({ active }: SiteHeaderProps) {
+  const [open, setOpen] = useState(false)
+
   return (
-    <header className="relative z-20 mx-auto flex w-full max-w-7xl items-center justify-between px-5 py-5 sm:px-8 lg:px-10">
-      <Link className="flex items-center gap-3" href="/" aria-label="SFVYPAA home">
-        <span className="flex size-10 items-center justify-center rounded-[8px] border border-white/20 bg-white/10 text-sm font-black tracking-tight text-white backdrop-blur">
-          SFV
-        </span>
-        <span className="hidden text-sm font-semibold uppercase tracking-[0.22em] text-white/80 sm:block">
-          {site.name}
-        </span>
-      </Link>
-      <nav className="hidden items-center gap-5 md:flex" aria-label="Primary navigation">
-        {navItems.map((item) => (
-          <a
-            className={cn(
-              "border-b border-transparent pb-1 text-sm font-medium text-white/75 transition hover:text-white",
-              active === item.key && "border-white text-white"
-            )}
-            href={item.href}
-            key={item.key}
-            rel={item.external ? "noreferrer" : undefined}
-            target={item.external ? "_blank" : undefined}
-          >
-            {item.label}
-          </a>
-        ))}
-      </nav>
-      <div className="hidden items-center gap-2 md:flex">
-        <Button
-          className="h-10 rounded-[8px] border-white/20 bg-white/10 px-4 text-white hover:bg-white/20"
-          nativeButton={false}
-          render={
-            <a href={site.links.instagram} rel="noreferrer" target="_blank" />
-          }
-          variant="outline"
+    <header className="sticky top-0 z-50 border-b-[3px] border-border bg-background">
+      <div className="mx-auto flex w-full max-w-7xl items-center gap-4 px-5 py-3 sm:px-8 lg:px-10">
+        <Link
+          aria-label="SFVYPAA home"
+          className="flex shrink-0 items-center gap-2.5"
+          href="/"
         >
-          <AtSign />
-          Instagram
-        </Button>
+          <Image
+            alt="Punk Bill"
+            className="h-9 w-9 object-contain dark:invert"
+            height={38}
+            src="/assets/punk-bill-ink.png"
+            width={38}
+          />
+          <span className="font-display text-2xl leading-[0.9] tracking-[0.01em] text-foreground uppercase">
+            SFVYPAA
+          </span>
+        </Link>
+
+        <nav
+          aria-label="Primary navigation"
+          className="ml-auto hidden items-center gap-5 lg:flex"
+        >
+          {navItems.map((item) => (
+            <a
+              className={cn(
+                "inline-flex items-center gap-1 border-b-[3px] border-transparent px-0.5 py-2 text-[13px] font-extrabold tracking-[0.10em] text-foreground uppercase transition-colors hover:text-orange",
+                active === item.key && "border-orange"
+              )}
+              href={item.href}
+              key={item.key}
+              rel={item.external ? "noreferrer" : undefined}
+              target={item.external ? "_blank" : undefined}
+            >
+              {item.label}
+              {item.external ? <ArrowUpRight className="size-3.5" /> : null}
+            </a>
+          ))}
+        </nav>
+
+        <div className="ml-auto lg:ml-1.5">
+          <ThemeToggle />
+        </div>
+
+        <button
+          aria-expanded={open}
+          aria-label="Menu"
+          className="inline-flex border-2 border-border p-2 text-foreground lg:hidden"
+          onClick={() => setOpen((value) => !value)}
+          type="button"
+        >
+          {open ? <X className="size-5" /> : <Menu className="size-5" />}
+        </button>
       </div>
-      <MobileNav />
+
+      {open ? (
+        <nav
+          aria-label="Mobile navigation"
+          className="border-t-2 border-border bg-background lg:hidden"
+        >
+          <div className="mx-auto flex w-full max-w-7xl flex-col px-5 pt-2 pb-4 sm:px-8">
+            {navItems.map((item) => (
+              <a
+                className={cn(
+                  "inline-flex items-center gap-1.5 border-b border-border/35 py-3.5 text-[15px] font-extrabold tracking-[0.08em] uppercase",
+                  active === item.key ? "text-orange" : "text-foreground"
+                )}
+                href={item.href}
+                key={item.key}
+                onClick={() => setOpen(false)}
+                rel={item.external ? "noreferrer" : undefined}
+                target={item.external ? "_blank" : undefined}
+              >
+                {item.label}
+                {item.external ? <ArrowUpRight className="size-3.5" /> : null}
+              </a>
+            ))}
+          </div>
+        </nav>
+      ) : null}
     </header>
   )
 }
