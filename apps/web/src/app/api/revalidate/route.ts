@@ -1,7 +1,22 @@
+import { createHash, timingSafeEqual } from "node:crypto";
+
 import { revalidatePath } from "next/cache";
 import { NextResponse, type NextRequest } from "next/server";
 
 const secretHeader = "x-sfvypaa-revalidate-secret";
+
+// Constant-time secret comparison. Hashing both sides to a fixed-length digest
+// means timingSafeEqual never throws on length mismatch and leaks no length info.
+function secretsMatch(provided: string | null, configured: string) {
+  if (!provided) {
+    return false;
+  }
+
+  const providedDigest = createHash("sha256").update(provided).digest();
+  const configuredDigest = createHash("sha256").update(configured).digest();
+
+  return timingSafeEqual(providedDigest, configuredDigest);
+}
 const newsletterSlugPathPattern = /^\/newsletters\/[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 type RevalidateBody = {
@@ -35,7 +50,7 @@ export async function POST(request: NextRequest) {
   const configuredSecret = process.env.SFVYPAA_REVALIDATE_SECRET;
   const providedSecret = request.headers.get(secretHeader);
 
-  if (!configuredSecret || providedSecret !== configuredSecret) {
+  if (!configuredSecret || !secretsMatch(providedSecret, configuredSecret)) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
