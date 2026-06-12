@@ -2,7 +2,11 @@ import { randomUUID } from "node:crypto";
 
 import { getDownloadURL } from "firebase-admin/storage";
 
-import { getAdminBucket, getStorageBucketName } from "./firebase";
+import {
+  getAdminBucket,
+  getStorageBucketName,
+  isUsingEmulator,
+} from "./firebase";
 import { slugify } from "./store";
 
 export type UploadableImage = {
@@ -41,7 +45,10 @@ async function uploadImage(
   const token = randomUUID();
   const filename = `${slugify(title) || fallbackName}-${randomUUID()}.${extension}`;
   const bucket = getAdminBucket();
-  const [bucketExists] = await bucket.exists();
+  // the storage emulator auto-creates buckets, so only verify in the cloud
+  const [bucketExists] = isUsingEmulator()
+    ? [true]
+    : await bucket.exists();
 
   if (!bucketExists) {
     throw new Error(
@@ -49,7 +56,8 @@ async function uploadImage(
     );
   }
 
-  const file = bucket.file(`${folder}/${filename}`);
+  const path = `${folder}/${filename}`;
+  const file = bucket.file(path);
 
   await file.save(bytes, {
     metadata: {
@@ -60,6 +68,17 @@ async function uploadImage(
       },
     },
   });
+
+  // getDownloadURL builds production firebasestorage.googleapis.com URLs;
+  // against the emulator we build the local equivalent ourselves.
+  if (isUsingEmulator() && process.env.FIREBASE_STORAGE_EMULATOR_HOST) {
+    const host = process.env.FIREBASE_STORAGE_EMULATOR_HOST.replace(
+      /^https?:\/\//,
+      "",
+    );
+
+    return `http://${host}/v0/b/${bucket.name}/o/${encodeURIComponent(path)}?alt=media&token=${token}`;
+  }
 
   return getDownloadURL(file);
 }

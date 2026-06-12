@@ -42,3 +42,15 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 **/next-env.d.ts
+
+# firebase emulator
+.firebase/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+
+# local agent tooling
+.claude/
+**/.claude/
+logs/
+**/logs/

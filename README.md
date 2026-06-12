@@ -52,6 +52,41 @@ bun run build:web
 bun run build:admin
 ```
 
+## Environments (dev emulator vs prod)
+
+There are two content environments:
+
+- **dev** — the local Firebase emulator suite (Firestore `127.0.0.1:8085`, Storage
+  `127.0.0.1:9199`, UI at `http://localhost:4040`). It uses the offline `demo-sfvypaa`
+  project, needs no credentials, and cannot touch the cloud. Data persists between runs
+  in `.firebase/emulator-data/`.
+- **prod** — the live `sfvypaa-5a987` Firebase project via service-account env vars.
+
+```bash
+bun run emulators        # start the emulator suite (needs JDK 21+, e.g. brew install openjdk)
+bun run dev:web:emu      # public site against the emulator
+bun run dev:admin:emu    # admin against the emulator (also set SFVYPAA_ADMIN_PASSWORD)
+```
+
+Plain `dev:web` / `dev:admin` use whatever Firebase env vars are set (i.e. prod creds
+from `.env.local`, or nothing).
+
+### Content CLI
+
+Create and inspect content from the terminal in either environment:
+
+```bash
+bun run content seed --env dev          # sample punk content into the emulator
+bun run content list --env dev
+bun run content create-event --env dev \
+  --title "Newcomer Night" --date 2026-06-25 --time "7:00 pm" \
+  --location "Canoga Park Alano Club" --summary "First time? This one's for you." \
+  --publish                              # omit --publish to save a draft
+```
+
+`--env prod` reads credentials from `apps/admin/.env.local`; **writes additionally
+require `--force`**, and `seed` is blocked in prod entirely.
+
 ## Firebase
 
 The shared content package reads and writes Firestore and Storage through Firebase Admin SDK.

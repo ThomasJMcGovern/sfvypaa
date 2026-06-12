@@ -22,8 +22,10 @@ export {
   slugify,
 } from "./store";
 export {
+  getFirebaseProjectId,
   isFirebaseConfigured,
   isFirebaseStorageConfigured,
+  isUsingEmulator,
 } from "./firebase";
 export {
   contentStatusSchema,

@@ -1,0 +1,11 @@
+rules_version = '2';
+
+// All uploads go through the Admin SDK (which bypasses rules), and event
+// flyer URLs are token-based download URLs — client access stays locked down.
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

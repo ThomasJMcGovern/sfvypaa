@@ -7,7 +7,13 @@ import { getStorage } from "firebase-admin/storage";
 
 let adminDb: Firestore | undefined;
 
-export function isFirebaseConfigured() {
+const emulatorProjectId = "demo-sfvypaa";
+
+export function isUsingEmulator() {
+  return Boolean(process.env.FIRESTORE_EMULATOR_HOST);
+}
+
+function hasServiceAccount() {
   return Boolean(
     process.env.FIREBASE_PROJECT_ID &&
       process.env.FIREBASE_CLIENT_EMAIL &&
@@ -15,15 +21,30 @@ export function isFirebaseConfigured() {
   );
 }
 
+export function isFirebaseConfigured() {
+  return isUsingEmulator() || hasServiceAccount();
+}
+
+export function getFirebaseProjectId() {
+  return (
+    process.env.FIREBASE_PROJECT_ID ||
+    (isUsingEmulator() ? emulatorProjectId : "")
+  );
+}
+
 export function getStorageBucketName() {
   return (
     process.env.FIREBASE_STORAGE_BUCKET ||
     process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET ||
-    ""
+    (isUsingEmulator() ? `${getFirebaseProjectId()}.appspot.com` : "")
   );
 }
 
 export function isFirebaseStorageConfigured() {
+  if (isUsingEmulator()) {
+    return Boolean(process.env.FIREBASE_STORAGE_EMULATOR_HOST);
+  }
+
   return Boolean(isFirebaseConfigured() && getStorageBucketName());
 }
 
@@ -32,18 +53,30 @@ export function getAdminApp(): App {
     throw new Error("Firebase Admin env vars are not configured.");
   }
 
-  return (
-    getApps()[0] ??
-    initializeApp({
-      credential: cert({
-        projectId: process.env.FIREBASE_PROJECT_ID,
-        clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-        privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
-      }),
-      projectId: process.env.FIREBASE_PROJECT_ID,
+  const existing = getApps()[0];
+
+  if (existing) {
+    return existing;
+  }
+
+  // Against the emulators (demo-* project) no credentials are needed —
+  // the Admin SDK targets FIRESTORE_EMULATOR_HOST / FIREBASE_STORAGE_EMULATOR_HOST.
+  if (isUsingEmulator() && !hasServiceAccount()) {
+    return initializeApp({
+      projectId: getFirebaseProjectId(),
       storageBucket: getStorageBucketName() || undefined,
-    })
-  );
+    });
+  }
+
+  return initializeApp({
+    credential: cert({
+      projectId: process.env.FIREBASE_PROJECT_ID,
+      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+      privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
+    }),
+    projectId: process.env.FIREBASE_PROJECT_ID,
+    storageBucket: getStorageBucketName() || undefined,
+  });
 }
 
 export function getAdminDb() {
