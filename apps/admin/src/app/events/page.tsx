@@ -14,6 +14,7 @@ import {
 import { toggleEventStatusAction } from "@/app/actions";
 import { ListEmpty, ListFilters, ListRow } from "@/components/admin-list";
 import { AdminPageHead, AdminShell } from "@/components/admin-shell";
+import { requireAdmin } from "@/lib/admin-session";
 import { ContentStatusBadge } from "@/components/content-status-badge";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -78,6 +79,7 @@ export default async function EventsPage({
   searchParams: EventsSearchParams;
 }) {
   const params = await searchParams;
+  const admin = await requireAdmin();
   const query = params.q?.trim() ?? "";
   const status = cleanStatus(params.status);
   const events = await listEvents();
@@ -86,7 +88,7 @@ export default async function EventsPage({
   );
 
   return (
-    <AdminShell active="events" publicSiteUrl={publicSiteUrl()}>
+    <AdminShell active="events" admin={admin} publicSiteUrl={publicSiteUrl()}>
       <div className="mx-auto max-w-[920px]">
         <AdminPageHead
           action={

@@ -9,11 +9,23 @@ import { logoutAdminAction } from "@/app/actions";
 import { cn } from "@/lib/utils";
 
 const navItems = [
-  { href: "/", label: "Dashboard", key: "dashboard" },
-  { href: "/events", label: "Events", key: "events" },
-  { href: "/newsletters", label: "Newsletters", key: "newsletters" },
-  { href: "/social-posts", label: "Social Posts", key: "social-posts" },
-  { href: "/settings", label: "Settings", key: "settings" },
+  { href: "/", label: "Dashboard", key: "dashboard", ownerOnly: false },
+  { href: "/events", label: "Events", key: "events", ownerOnly: false },
+  {
+    href: "/newsletters",
+    label: "Newsletters",
+    key: "newsletters",
+    ownerOnly: false,
+  },
+  {
+    href: "/social-posts",
+    label: "Social Posts",
+    key: "social-posts",
+    ownerOnly: false,
+  },
+  { href: "/settings", label: "Settings", key: "settings", ownerOnly: false },
+  { href: "/audit", label: "Audit", key: "audit", ownerOnly: false },
+  { href: "/team", label: "Team", key: "team", ownerOnly: true },
 ];
 
 type AdminSection =
@@ -21,18 +33,27 @@ type AdminSection =
   | "events"
   | "newsletters"
   | "social-posts"
-  | "settings";
+  | "settings"
+  | "audit"
+  | "team";
+
+export type ShellAdmin = { name: string; role: "owner" | "admin" };
 
 export function AdminShell({
   active = "dashboard",
+  admin,
   publicSiteUrl,
   children,
 }: {
   active?: AdminSection;
+  admin: ShellAdmin;
   publicSiteUrl: string;
   children: React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);
+  const items = navItems.filter(
+    (item) => !item.ownerOnly || admin.role === "owner",
+  );
 
   return (
     <main className="min-h-screen bg-background text-foreground">
@@ -62,7 +83,7 @@ export function AdminShell({
             aria-label="Admin navigation"
             className="ml-3 hidden items-center gap-5 xl:flex"
           >
-            {navItems.map((item) => (
+            {items.map((item) => (
               <Link
                 className={cn(
                   "border-b-[3px] border-transparent px-0.5 py-2 text-[13px] font-extrabold tracking-[0.10em] uppercase transition-colors hover:text-foreground",
@@ -79,6 +100,15 @@ export function AdminShell({
           </nav>
 
           <div className="ml-auto hidden items-center gap-2 xl:flex">
+            <span
+              className="mr-1 font-mono text-xs text-text-soft"
+              title={`Signed in as ${admin.name}`}
+            >
+              {admin.name} ·{" "}
+              <span className="font-bold text-orange uppercase">
+                {admin.role}
+              </span>
+            </span>
             <a
               className="inline-flex items-center gap-1.5 border-2 border-border px-2.5 py-1.5 font-mono text-xs font-bold tracking-wider text-foreground uppercase transition-colors hover:bg-foreground/10"
               href={publicSiteUrl}
@@ -114,7 +144,13 @@ export function AdminShell({
             className="border-t-2 border-border bg-background xl:hidden"
           >
             <div className="mx-auto flex w-full max-w-7xl flex-col px-5 pt-2 pb-4 sm:px-8">
-              {navItems.map((item) => (
+              <p className="border-b border-border/35 py-3 font-mono text-xs text-text-soft">
+                {admin.name} ·{" "}
+                <span className="font-bold text-orange uppercase">
+                  {admin.role}
+                </span>
+              </p>
+              {items.map((item) => (
                 <Link
                   className={cn(
                     "border-b border-border/35 py-3.5 text-[15px] font-extrabold tracking-[0.08em] uppercase",

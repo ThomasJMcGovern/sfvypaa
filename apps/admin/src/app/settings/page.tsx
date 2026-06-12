@@ -2,6 +2,7 @@ import { getSiteSettings } from "@sfvypaa/content";
 import { ExternalLink } from "lucide-react";
 
 import { AdminPageHead, AdminShell } from "@/components/admin-shell";
+import { requireAdmin } from "@/lib/admin-session";
 import { SiteSettingsForm } from "@/components/site-settings-form";
 import { Button } from "@/components/ui/button";
 
@@ -15,10 +16,11 @@ function publicSiteUrl() {
 }
 
 export default async function SettingsPage() {
+  const admin = await requireAdmin();
   const settings = await getSiteSettings();
 
   return (
-    <AdminShell active="settings" publicSiteUrl={publicSiteUrl()}>
+    <AdminShell active="settings" admin={admin} publicSiteUrl={publicSiteUrl()}>
       <div className="mx-auto max-w-[840px]">
         <AdminPageHead
           action={

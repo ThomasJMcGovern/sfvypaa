@@ -4,6 +4,7 @@ import { emptySocialPost, getSocialPost } from "@sfvypaa/content";
 import { ArrowLeft } from "lucide-react";
 
 import { AdminShell } from "@/components/admin-shell";
+import { requireAdmin } from "@/lib/admin-session";
 import { ContentStatusBadge } from "@/components/content-status-badge";
 import {
   DeleteSocialPostForm,
@@ -25,6 +26,7 @@ export default async function SocialPostEditPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+  const admin = await requireAdmin();
   const isNew = id === "new";
   const post = isNew ? emptySocialPost : await getSocialPost(id);
 
@@ -33,7 +35,7 @@ export default async function SocialPostEditPage({
   }
 
   return (
-    <AdminShell active="social-posts" publicSiteUrl={publicSiteUrl()}>
+    <AdminShell active="social-posts" admin={admin} publicSiteUrl={publicSiteUrl()}>
       <div className="mx-auto max-w-[840px]">
         <Link
           className="mb-5 inline-flex items-center gap-2 text-[13px] font-extrabold tracking-[0.08em] text-orange uppercase transition-colors hover:text-foreground"

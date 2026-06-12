@@ -1,6 +1,6 @@
 ---
 name: sfvypaa-ops
-description: Use when working on the SFVYPAA monorepo — running dev servers or the Firestore emulator, creating/seeding content via the CLI, deploying web or admin to Vercel, pushing to GitHub, or styling anything (the punk design system rules). Covers environments, guardrails, and known gotchas.
+description: Use when working on the SFVYPAA monorepo — running dev servers or the Firestore/Auth emulator, creating/seeding content via the CLI, managing admin access/audit, deploying web or admin to Vercel, pushing to GitHub, or styling anything (the punk design system rules). Covers environments, security model, guardrails, and known gotchas.
 user-invocable: true
 ---
 
@@ -20,9 +20,12 @@ Tailwind 4. All commands run from the repo root.
 | Selected by | `FIRESTORE_EMULATOR_HOST` env var being set | service-account env vars |
 
 Emulator ports are non-default because this machine is busy (Docker holds 8080,
-gist-geo holds 4000/4400/4500): **Firestore 8085, Storage 9199, UI
+gist-geo holds 4000/4400/4500/9099): **Firestore 8085, Storage 9199, Auth 9100, UI
 http://localhost:4040**. Emulator data persists in `.firebase/emulator-data/`.
-The `demo-*` project ID is fully offline — emulator work cannot touch the cloud.
+The `demo-sfvypaa` project ID is fully offline — emulator work cannot touch the
+cloud. Emulator mode is **authoritative**: `getAdminApp()`/`getFirebaseProjectId()`
+force `demo-sfvypaa` and ignore any real service-account creds present in the env
+(needed so emulator-issued auth token audiences match).
 
 ```bash
 bun run emulators        # start emulator suite (JDK 21+ via brew openjdk, wired into the script's PATH)
@@ -42,22 +45,57 @@ bun run content list --env dev|prod
 bun run content create-event --env dev --title "..." --date YYYY-MM-DD \
   --time "7:00 pm" --location "..." --summary "..." \
   [--cohosted] [--rsvp <url>] [--image <url>] [--publish]
+bun run content list-admins --env dev|prod
+bun run content add-owner --email you@gmail.com [--name "..."] --env dev|prod
+bun run content remove-admin --email old@gmail.com --env dev|prod
 ```
 
 Guardrails — do not bypass:
 - `--env prod` **writes require `--force`** and an explicit user request naming prod.
-- Never seed prod. Never run prod reads/writes unless the user asked for prod.
+- Never seed/clear-events in prod (blocked). Never run prod reads/writes unless asked.
 - Event date label is derived from `--date`; status is draft unless `--publish`.
+- Every write is auto-tagged with CLI provenance + audited — don't try to suppress it.
+
+## Admin access, roles & audit (security model)
+
+- **Per-person Google sign-in** (Firebase Auth) — NOT a shared password. Flow:
+  Google → verify ID token (Admin SDK) → check email against the `admins`
+  Firestore allowlist → mint a Firebase **session cookie**. Helpers live in
+  `apps/admin/src/lib/admin-session.ts` (`requireAdmin`, `requireOwner`,
+  `getCurrentAdmin`, `createAdminSession`, `clearAdminSession`). Every page and
+  server action calls `requireAdmin()` — `proxy.ts` is only a lightweight cookie-
+  presence redirect, not the authoritative gate (CVE-29927-proof).
+- **Two roles:** `admin` (content CRUD/publish), `owner` (+ manage the allowlist
+  on `/team`). `removeAdmin` revokes the user's refresh tokens immediately — the
+  disgruntled-admin kill switch. Can't remove the last owner.
+- **Audit:** every content + team mutation calls `recordAudit()` in
+  `packages/content/src/audit.ts` → Firestore `audit_log` + an append-only sink
+  (`SFVYPAA_AUDIT_WEBHOOK_URL`, Slack/Discord webhook) + a `[audit]` log line.
+  Store writes also stamp `createdBy`/`updatedBy`/`updatedFrom`. Viewable at
+  `/audit`. CLI writes carry `source: "cli"` + `cli:<user>@<host>` + git email.
+- **Service-account key = the master key.** Whoever holds `FIREBASE_PRIVATE_KEY`
+  can write prod directly (CLI), bypassing the gate. Key hygiene: keep it only in
+  Vercel + trusted machines, never commit. **Rotate** in Firebase console →
+  Project settings → Service accounts → generate new key, update Vercel env for
+  both projects, delete the old key. `apps/admin/.env.local` (prod creds, pulled
+  via `vercel env pull`) is gitignored — delete it from dev machines when idle.
+- **Bootstrap / lockout escape hatch:** seed the first owner with
+  `bun run content add-owner --email you@gmail.com --env prod --force`. Firebase
+  console manual steps before first deploy: enable Google provider; add
+  `admin.sfvypaa.org` + `localhost` to Authorized Domains; set
+  `NEXT_PUBLIC_FIREBASE_*` envs.
 
 ## Dev server gotchas
 
 - Ports 3000/3001 are usually held by gist-geo; use `-p 3002` (web) and
   `-p 3003` (admin): `cd apps/<app> && bunx next dev -p <port>` (add the
-  emulator + password env vars as needed).
-- Admin requires `SFVYPAA_ADMIN_PASSWORD` (no default — unset means every
-  login fails). The public site has **no** password gate.
+  emulator + auth env vars as needed). For the admin against emulators, the
+  `dev:admin:emu` script sets `FIREBASE_AUTH_EMULATOR_HOST` +
+  `NEXT_PUBLIC_FIREBASE_AUTH_EMULATOR_HOST` + `NEXT_PUBLIC_FIREBASE_PROJECT_ID=demo-sfvypaa`.
+- The public site has **no** password gate.
 - If pages render unstyled (Times serif, no orange): stale Turbopack cache —
-  `rm -rf apps/<app>/.next` and restart.
+  `rm -rf apps/<app>/.next` and restart. The Admin SDK app is a singleton, so
+  changes to `firebase.ts` need a full dev-server restart, not just HMR.
 
 ## Design system (punk zine)
 
@@ -110,7 +148,9 @@ bun run build:admin
 `events` (title, eventDate ISO, date label, time, location, tone=summary,
 host: "Hosted by SFVYPAA" | "Co-hosted by SFVYPAA", status, rsvpUrl?,
 imageUrl?), `newsletters` (title, slug, excerpt, body plain-text, publishDate,
-status), `social-posts` (title, caption, instagramUrl, imageUrl?, postDate,
-status), `settings` (showInstagramSocials). All writes go through
-`packages/content/src/store.ts` via the Admin SDK; Firestore/Storage rules
-deny all client access by design.
+status), `socialPosts` (title, caption, instagramUrl, imageUrl?, postDate,
+status), `settings/site` (showInstagramSocials). All content writes also stamp
+`createdBy`/`updatedBy`/`updatedFrom`. Plus `admins` (allowlist: email doc-id,
+name, role, addedBy/addedAt — via `admins.ts`) and `audit_log` (append-only
+change history — via `audit.ts`). All writes go through `packages/content/src`
+via the Admin SDK; Firestore/Storage rules deny all client access by design.

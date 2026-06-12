@@ -22,11 +22,31 @@ export {
   slugify,
 } from "./store";
 export {
+  getAdminAuth,
   getFirebaseProjectId,
   isFirebaseConfigured,
   isFirebaseStorageConfigured,
   isUsingEmulator,
 } from "./firebase";
+export {
+  listAuditLog,
+  recordAudit,
+  systemActor,
+  type Actor,
+  type AuditEntry,
+  type AuditLogRecord,
+  type AuditSource,
+} from "./audit";
+export {
+  countOwners,
+  getAdmin,
+  listAdmins,
+  normalizeEmail,
+  removeAdmin,
+  setAdmin,
+  type AdminRecord,
+  type AdminRole,
+} from "./admins";
 export {
   contentStatusSchema,
   defaultSiteSettings,

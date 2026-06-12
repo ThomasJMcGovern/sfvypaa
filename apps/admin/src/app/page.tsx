@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 
 import { AdminPageHead, AdminShell } from "@/components/admin-shell";
+import { requireAdmin } from "@/lib/admin-session";
 import { Button } from "@/components/ui/button";
 
 export const dynamic = "force-dynamic";
@@ -35,6 +36,7 @@ function publicSiteUrl() {
 }
 
 export default async function AdminHomePage() {
+  const admin = await requireAdmin();
   const [events, newsletters, socialPosts, siteSettings] = await Promise.all([
     listEvents(),
     listNewsletters(),
@@ -83,7 +85,7 @@ export default async function AdminHomePage() {
   ];
 
   return (
-    <AdminShell active="dashboard" publicSiteUrl={publicSiteUrl()}>
+    <AdminShell active="dashboard" admin={admin} publicSiteUrl={publicSiteUrl()}>
       <AdminPageHead
         action={
           <span className="stamp -rotate-4 border-2 border-orange px-2 py-1 text-sm text-orange">

@@ -1,61 +1,32 @@
+import type { Metadata } from "next";
 import Image from "next/image";
-import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { ArrowRight } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { GoogleSignIn } from "@/components/google-signin";
 import {
-  adminAccessPath,
-  adminCookieName,
-  createAdminToken,
-  getAdminPassword,
+  getCurrentAdmin,
   getSafeReturnPath,
-  shouldUseSecureAdminCookie,
-} from "@/lib/admin-gate";
+} from "@/lib/admin-session";
 
-async function unlockAdmin(formData: FormData) {
-  "use server";
+export const dynamic = "force-dynamic";
 
-  const submittedPassword = formData.get("password");
-  const nextPath = getSafeReturnPath(formData.get("next"));
-  const configuredPassword = getAdminPassword();
-
-  if (
-    !configuredPassword ||
-    typeof submittedPassword !== "string" ||
-    submittedPassword !== configuredPassword
-  ) {
-    const params = new URLSearchParams({ error: "1", next: nextPath });
-    redirect(`${adminAccessPath}?${params.toString()}`);
-  }
-
-  const token = await createAdminToken(configuredPassword);
-  const requestHeaders = await headers();
-  const cookieStore = await cookies();
-
-  cookieStore.set(adminCookieName, token, {
-    httpOnly: true,
-    maxAge: 60 * 60 * 24 * 14,
-    path: "/",
-    sameSite: "lax",
-    secure: shouldUseSecureAdminCookie(
-      requestHeaders.get("host"),
-      requestHeaders.get("x-forwarded-proto"),
-    ),
-  });
-
-  redirect(nextPath);
-}
+export const metadata: Metadata = {
+  title: "Sign in | SFVYPAA Admin",
+  robots: { index: false, follow: false },
+};
 
 export default async function AdminAccessPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string; next?: string }>;
+  searchParams: Promise<{ next?: string }>;
 }) {
   const params = await searchParams;
-  const hasError = params.error === "1";
   const nextPath = getSafeReturnPath(params.next);
+
+  // Already signed in → straight to the console.
+  if (await getCurrentAdmin()) {
+    redirect(nextPath);
+  }
 
   return (
     <main className="grain flex min-h-screen items-center justify-center bg-ink p-5 text-bone">
@@ -75,43 +46,23 @@ export default async function AdminAccessPage({
           </p>
         </div>
 
-        <form
-          action={unlockAdmin}
-          className="flex flex-col gap-4.5 border-[5px] border-orange bg-paper p-7 text-ink shadow-stamp-lg"
-        >
-          <input type="hidden" name="next" value={nextPath} />
+        <div className="flex flex-col gap-4.5 border-[5px] border-orange bg-paper p-7 text-ink shadow-stamp-lg">
           <span className="self-start border-2 border-ink bg-orange px-2.5 py-0.5 text-xs font-bold tracking-[0.14em] text-ink uppercase">
             Members only
           </span>
-          <div className="grid gap-2">
-            <label className="label-stamp text-ink" htmlFor="password">
-              Password
-            </label>
-            <Input
-              id="password"
-              name="password"
-              type="password"
-              autoComplete="current-password"
-              autoFocus
-              required
-              aria-invalid={hasError}
-              className="h-12 border-ink bg-white font-mono text-ink"
-            />
-            {hasError ? (
-              <p className="text-sm font-bold text-stop">
-                That password did not work. Try again.
-              </p>
-            ) : null}
+          <div>
+            <p className="label-stamp text-orange">★ Sign in</p>
+            <p className="mt-2 text-sm leading-6 text-ink-2">
+              Use your committee Google account. Access is per-person and
+              every change is logged.
+            </p>
           </div>
-          <Button className="w-full" size="lg" type="submit">
-            Sign in
-            <ArrowRight data-icon="inline-end" aria-hidden="true" />
-          </Button>
+          <GoogleSignIn next={nextPath} />
           <p className="text-center text-[13px] leading-normal text-ink-2">
-            Access is committee-approved. Trouble getting in? Ask at the
-            business meeting.
+            Access is committee-approved. Trouble getting in? Ask an owner at
+            the business meeting.
           </p>
-        </form>
+        </div>
 
         <p className="mt-4.5 text-center font-mono text-xs text-[#6E685B]">
           The newcomer is still the most important person in the room →

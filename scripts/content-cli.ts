@@ -7,9 +7,16 @@
  * Commands:
  *   list                       List all events with status
  *   seed                       Seed sample content (dev/emulator only)
+ *   clear-events               Delete all events (dev/emulator only)
  *   create-event               Create an event
  *     --title <t> --date <YYYY-MM-DD> --time <t> --location <l> --summary <s>
  *     [--cohosted] [--rsvp <url>] [--image <url>] [--publish]
+ *   list-admins                List the admin allowlist
+ *   add-owner --email <e> [--name <n>]    Add/promote an owner (bootstrap)
+ *   remove-admin --email <e>              Remove an admin from the allowlist
+ *
+ * Every write is tagged with CLI provenance (os user @ host + git email) and
+ * recorded in the audit log, so scripted changes are traceable.
  *
  * Environments:
  *   --env dev    Local Firestore emulator (run `bun run emulators` first).
@@ -18,7 +25,9 @@
  *                Writes additionally require --force.
  */
 
+import { execSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
+import { hostname, userInfo } from "node:os";
 import { join } from "node:path";
 import { parseArgs } from "node:util";
 
@@ -33,11 +42,24 @@ const { values: args, positionals } = parseArgs({
     summary: { type: "string" },
     rsvp: { type: "string", default: "" },
     image: { type: "string", default: "" },
+    email: { type: "string" },
+    name: { type: "string", default: "" },
     cohosted: { type: "boolean", default: false },
     publish: { type: "boolean", default: false },
     force: { type: "boolean", default: false },
   },
 });
+
+const readCommands = ["list", "list-admins"];
+const allCommands = [
+  "list",
+  "seed",
+  "clear-events",
+  "create-event",
+  "list-admins",
+  "add-owner",
+  "remove-admin",
+];
 
 const command = positionals[0];
 const env = args.env;
@@ -47,20 +69,15 @@ function fail(message: string): never {
   process.exit(1);
 }
 
-if (
-  !command ||
-  !["list", "seed", "create-event", "clear-events"].includes(command)
-) {
-  fail(
-    "Usage: bun run content <list|seed|create-event|clear-events> --env dev|prod [options]",
-  );
+if (!command || !allCommands.includes(command)) {
+  fail(`Usage: bun run content <${allCommands.join("|")}> --env dev|prod [options]`);
 }
 
 if (env !== "dev" && env !== "prod") {
   fail("Pass --env dev (emulator) or --env prod (live Firestore).");
 }
 
-const isWrite = command !== "list";
+const isWrite = !readCommands.includes(command);
 
 /* ---- environment wiring (must happen before importing the content pkg) ---- */
 
@@ -137,11 +154,27 @@ function loadProdEnv() {
 
 const content = await import("../packages/content/src/index.ts");
 
+function gitEmail() {
+  try {
+    return execSync("git config user.email", { encoding: "utf8" }).trim();
+  } catch {
+    return undefined;
+  }
+}
+
+// CLI provenance — traceable to the OS user, host, and git identity that ran it.
+const cliActor = {
+  id: `cli:${userInfo().username}@${hostname()}`,
+  source: "cli" as const,
+  gitEmail: gitEmail(),
+};
+
 const banner =
   env === "dev"
     ? "env: dev (emulator · demo-sfvypaa)"
     : `env: PROD (${process.env.FIREBASE_PROJECT_ID})`;
 console.log(`★ SFVYPAA content CLI — ${banner}`);
+console.log(`  actor: ${cliActor.id}${cliActor.gitEmail ? ` (git ${cliActor.gitEmail})` : ""}`);
 
 function dateLabel(iso: string) {
   const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);
@@ -169,19 +202,22 @@ async function createEvent(input: {
   cohosted?: boolean;
   publish?: boolean;
 }) {
-  const id = await content.saveEvent({
-    title: input.title,
-    eventDate: input.date,
-    date: dateLabel(input.date),
-    time: input.time,
-    location: input.location,
-    tone: input.summary,
-    host: input.cohosted ? "Co-hosted by SFVYPAA" : "Hosted by SFVYPAA",
-    status: input.publish ? "published" : "draft",
-    sortDate: "",
-    rsvpUrl: input.rsvp ?? "",
-    imageUrl: input.image ?? "",
-  });
+  const id = await content.saveEvent(
+    {
+      title: input.title,
+      eventDate: input.date,
+      date: dateLabel(input.date),
+      time: input.time,
+      location: input.location,
+      tone: input.summary,
+      host: input.cohosted ? "Co-hosted by SFVYPAA" : "Hosted by SFVYPAA",
+      status: input.publish ? "published" : "draft",
+      sortDate: "",
+      rsvpUrl: input.rsvp ?? "",
+      imageUrl: input.image ?? "",
+    },
+    cliActor,
+  );
 
   console.log(
     `✓ ${input.publish ? "Published" : "Drafted"} event "${input.title}" (${id})`,
@@ -205,7 +241,7 @@ if (command === "list") {
   const events = await content.listEvents();
 
   for (const event of events) {
-    await content.deleteEvent(event.id);
+    await content.deleteEvent(event.id, cliActor);
     console.log(`✕ Deleted "${event.title}" (${event.id})`);
   }
 
@@ -275,31 +311,64 @@ if (command === "list") {
     cohosted: true,
   });
 
-  const newsletterId = await content.saveNewsletter({
-    title: "Summer Is For Service",
-    slug: "summer-is-for-service",
-    excerpt:
-      "BBQ logistics, two new service positions open, and why the back row is the most important seat in the house.",
-    body: "We pulled the permit. The Backyard BBQ + Speaker Jam is on for Saturday, June 21st, and it is going to be loud in the best possible way.\n\nService is how this thing stays free, stays anonymous, and stays here. If you've got thirty days and a willingness, we have a job with your name on it.\n\nIf you're new, or coming back after a rough stretch, the back row is the most important seat in the house. Come early, get a coffee, sit wherever you want. We'll be glad you came.",
-    publishDate: "2026-06-05",
-    status: "published",
-  });
+  const newsletterId = await content.saveNewsletter(
+    {
+      title: "Summer Is For Service",
+      slug: "summer-is-for-service",
+      excerpt:
+        "BBQ logistics, two new service positions open, and why the back row is the most important seat in the house.",
+      body: "We pulled the permit. The Backyard BBQ + Speaker Jam is on for Saturday, June 21st, and it is going to be loud in the best possible way.\n\nService is how this thing stays free, stays anonymous, and stays here. If you've got thirty days and a willingness, we have a job with your name on it.\n\nIf you're new, or coming back after a rough stretch, the back row is the most important seat in the house. Come early, get a coffee, sit wherever you want. We'll be glad you came.",
+      publishDate: "2026-06-05",
+      status: "published",
+    },
+    cliActor,
+  );
   console.log(`✓ Published newsletter "Summer Is For Service" (${newsletterId})`);
 
-  const socialId = await content.saveSocialPost({
-    title: "New here? Start here.",
-    caption:
-      "You don't have to talk. You don't have to call yourself anything. Come early, grab a coffee, sit in the back. We saved you a seat.",
-    instagramUrl: "https://www.instagram.com/sfvypaa/",
-    imageUrl: "",
-    postDate: "2026-05-28",
-    status: "published",
-  });
+  const socialId = await content.saveSocialPost(
+    {
+      title: "New here? Start here.",
+      caption:
+        "You don't have to talk. You don't have to call yourself anything. Come early, grab a coffee, sit in the back. We saved you a seat.",
+      instagramUrl: "https://www.instagram.com/sfvypaa/",
+      imageUrl: "",
+      postDate: "2026-05-28",
+      status: "published",
+    },
+    cliActor,
+  );
   console.log(`✓ Published social post "New here? Start here." (${socialId})`);
 
-  await content.saveSiteSettings({ showInstagramSocials: true });
+  await content.saveSiteSettings({ showInstagramSocials: true }, cliActor);
   console.log("✓ Site settings: Instagram socials shown");
   console.log("\nDone. Browse it at http://localhost:4040 (Emulator UI).");
+} else if (command === "list-admins") {
+  const admins = await content.listAdmins();
+
+  if (admins.length === 0) {
+    console.log("No admins on the allowlist. Bootstrap one with: add-owner --email …");
+  }
+
+  for (const admin of admins) {
+    console.log(`${admin.role === "owner" ? "★" : "·"} [${admin.role}] ${admin.name} · ${admin.email}`);
+  }
+} else if (command === "add-owner") {
+  if (!args.email) {
+    fail("--email is required for add-owner");
+  }
+
+  const record = await content.setAdmin(
+    { email: args.email!, name: args.name || args.email!, role: "owner" },
+    cliActor,
+  );
+  console.log(`✓ ${record.email} is now an owner.`);
+} else if (command === "remove-admin") {
+  if (!args.email) {
+    fail("--email is required for remove-admin");
+  }
+
+  await content.removeAdmin(args.email!, cliActor);
+  console.log(`✓ Removed ${content.normalizeEmail(args.email!)} from the allowlist.`);
 }
 
 process.exit(0);

@@ -11,7 +11,7 @@
     "dev:web": "bun run --filter @sfvypaa/web dev",
     "dev:admin": "bun run --filter @sfvypaa/admin dev",
     "dev:web:emu": "FIRESTORE_EMULATOR_HOST=127.0.0.1:8085 FIREBASE_STORAGE_EMULATOR_HOST=127.0.0.1:9199 bun run --filter @sfvypaa/web dev",
-    "dev:admin:emu": "FIRESTORE_EMULATOR_HOST=127.0.0.1:8085 FIREBASE_STORAGE_EMULATOR_HOST=127.0.0.1:9199 bun run --filter @sfvypaa/admin dev",
+    "dev:admin:emu": "FIRESTORE_EMULATOR_HOST=127.0.0.1:8085 FIREBASE_STORAGE_EMULATOR_HOST=127.0.0.1:9199 FIREBASE_AUTH_EMULATOR_HOST=127.0.0.1:9100 NEXT_PUBLIC_FIREBASE_PROJECT_ID=demo-sfvypaa NEXT_PUBLIC_FIREBASE_AUTH_EMULATOR_HOST=127.0.0.1:9100 bun run --filter @sfvypaa/admin dev",
     "emulators": "PATH=\"/usr/local/opt/openjdk/bin:/opt/homebrew/opt/openjdk/bin:$PATH\" firebase emulators:start --project demo-sfvypaa $([ -d .firebase/emulator-data ] && echo --import=.firebase/emulator-data) --export-on-exit=.firebase/emulator-data",
     "content": "bun scripts/content-cli.ts",
     "build": "bun run --filter @sfvypaa/content build && bun run --filter @sfvypaa/web build && bun run --filter @sfvypaa/admin build",

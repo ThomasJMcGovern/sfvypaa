@@ -2,26 +2,27 @@ import { NextRequest, NextResponse } from "next/server";
 
 import {
   adminAccessPath,
-  adminCookieName,
+  adminSessionCookieName,
   getSafeReturnPath,
-  isAdminCookieValid,
-} from "@/lib/admin-gate";
+} from "@/lib/admin-session";
 
+// Lightweight UX gate: bounce to the sign-in door when no session cookie is
+// present. The authoritative check (verify cookie + allowlist + revocation)
+// runs in every page and server action via requireAdmin(), so this is not the
+// sole auth layer.
 export async function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
-  const accessCookie = request.cookies.get(adminCookieName)?.value;
-  const hasAccess = await isAdminCookieValid(accessCookie);
 
-  if (pathname === adminAccessPath) {
-    if (!hasAccess) {
-      return NextResponse.next();
-    }
-
-    const nextPath = getSafeReturnPath(request.nextUrl.searchParams.get("next"));
-    return NextResponse.redirect(new URL(nextPath, request.url));
+  // The sign-in door and the session endpoint must be reachable signed-out.
+  if (pathname === adminAccessPath || pathname.startsWith("/api/session")) {
+    return NextResponse.next();
   }
 
-  if (hasAccess) {
+  const hasSessionCookie = Boolean(
+    request.cookies.get(adminSessionCookieName)?.value,
+  );
+
+  if (hasSessionCookie) {
     return NextResponse.next();
   }
 

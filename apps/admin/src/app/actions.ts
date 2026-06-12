@@ -19,6 +19,7 @@ import {
   socialPostInputSchema,
   uploadEventImage,
   uploadSocialPostImage,
+  type Actor,
   type EventHost,
   type EventInput,
   type ContentStatus,
@@ -28,14 +29,14 @@ import {
 } from "@sfvypaa/content";
 import { format } from "date-fns";
 import { revalidatePath } from "next/cache";
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 import {
   adminAccessPath,
-  adminCookieName,
-  isAdminCookieValid,
-} from "@/lib/admin-gate";
+  adminToActor,
+  clearAdminSession,
+  getCurrentAdmin,
+} from "@/lib/admin-session";
 
 export type AdminActionState = {
   message?: string;
@@ -116,17 +117,24 @@ function validationState(error: {
   };
 }
 
+// Only messages we author and know are safe to surface go to the client.
+// Image-validation messages are intentionally user-facing; everything else
+// (config/internal errors that could name env vars or internals) is logged
+// server-side and replaced with a generic message.
+function isSafeClientMessage(message: string) {
+  return message.startsWith("Upload a ") || message.startsWith("Image must be ");
+}
+
 function saveErrorMessage(error: unknown) {
-  if (
-    error instanceof Error &&
-    error.message === "Firebase Admin env vars are not configured."
-  ) {
-    return "Firebase is not configured locally. Set FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, and FIREBASE_PRIVATE_KEY, then restart the admin server.";
+  if (error instanceof Error && isSafeClientMessage(error.message)) {
+    return error.message;
   }
 
-  return error instanceof Error
-    ? error.message
-    : "Unable to save. Check the form fields and try again.";
+  console.error("[admin] save failed", {
+    message: error instanceof Error ? error.message : String(error),
+  });
+
+  return "Publishing is temporarily unavailable. Try again, or contact an owner.";
 }
 
 function errorState(error: unknown, fieldName?: string): AdminActionState {
@@ -155,30 +163,27 @@ function isImageUploadError(error: unknown) {
   );
 }
 
-async function hasAdminAccess() {
-  const cookieStore = await cookies();
-  const accessCookie = cookieStore.get(adminCookieName)?.value;
+const sessionExpiredState: AdminActionState = {
+  message: "Your admin session expired. Reload and sign in again.",
+};
 
-  return isAdminCookieValid(accessCookie);
+// For save actions (return an error state). Returns the acting admin's Actor,
+// or null when the session is gone.
+async function actionActor(): Promise<Actor | null> {
+  const admin = await getCurrentAdmin();
+  return admin ? adminToActor(admin) : null;
 }
 
-async function adminSessionError() {
-  const hasAccess = await hasAdminAccess();
+// For redirect-style actions (delete/toggle). Returns the Actor or bounces to
+// the sign-in door.
+async function requireActionActor(): Promise<Actor> {
+  const actor = await actionActor();
 
-  return hasAccess
-    ? null
-    : {
-        message: "Your admin session expired. Reload and sign in again.",
-      };
-}
-
-async function requireAdminOrRedirect(nextPath: string) {
-  if (await hasAdminAccess()) {
-    return;
+  if (!actor) {
+    redirect(adminAccessPath);
   }
 
-  const params = new URLSearchParams({ next: nextPath });
-  redirect(`${adminAccessPath}?${params.toString()}`);
+  return actor;
 }
 
 function eventInput(formData: FormData): EventInput {
@@ -273,7 +278,9 @@ async function revalidatePublicSite(paths: string[]) {
       );
     }
   } catch (error) {
-    console.error("Public site revalidation failed.", error);
+    console.error("Public site revalidation failed.", {
+      message: error instanceof Error ? error.message : String(error),
+    });
   }
 }
 
@@ -281,10 +288,10 @@ export async function saveEventAction(
   _previousState: AdminActionState,
   formData: FormData,
 ): Promise<AdminActionState> {
-  const sessionError = await adminSessionError();
+  const actor = await actionActor();
 
-  if (sessionError) {
-    return sessionError;
+  if (!actor) {
+    return sessionExpiredState;
   }
 
   const parsed = eventInputSchema.safeParse(eventInput(formData));
@@ -304,7 +311,7 @@ export async function saveEventAction(
         }
       : parsed.data;
 
-    id = await saveEvent(data);
+    id = await saveEvent(data, actor);
   } catch (error) {
     return isImageUploadError(error)
       ? errorState(error, "imageFile")
@@ -317,12 +324,12 @@ export async function saveEventAction(
 }
 
 export async function deleteEventAction(formData: FormData) {
-  await requireAdminOrRedirect("/events");
+  const actor = await requireActionActor();
 
   const id = field(formData, "id");
 
   if (id) {
-    await deleteEvent(id);
+    await deleteEvent(id, actor);
   }
 
   revalidatePath("/events");
@@ -334,10 +341,10 @@ export async function saveNewsletterAction(
   _previousState: AdminActionState,
   formData: FormData,
 ): Promise<AdminActionState> {
-  const sessionError = await adminSessionError();
+  const actor = await actionActor();
 
-  if (sessionError) {
-    return sessionError;
+  if (!actor) {
+    return sessionExpiredState;
   }
 
   const parsed = newsletterInputSchema.safeParse(newsletterInput(formData));
@@ -365,7 +372,7 @@ export async function saveNewsletterAction(
       return slugError("That URL slug is already used by another newsletter.");
     }
 
-    id = await saveNewsletter(parsed.data);
+    id = await saveNewsletter(parsed.data, actor);
     publicPaths = publicNewsletterPaths(slug, existingNewsletter?.slug);
   } catch (error) {
     return errorState(error);
@@ -377,7 +384,7 @@ export async function saveNewsletterAction(
 }
 
 export async function deleteNewsletterAction(formData: FormData) {
-  await requireAdminOrRedirect("/newsletters");
+  const actor = await requireActionActor();
 
   const id = field(formData, "id");
   let publicPaths = publicNewsletterPaths();
@@ -385,7 +392,7 @@ export async function deleteNewsletterAction(formData: FormData) {
   if (id) {
     const existingNewsletter = await getNewsletter(id);
 
-    await deleteNewsletter(id);
+    await deleteNewsletter(id, actor);
     publicPaths = publicNewsletterPaths(existingNewsletter?.slug);
   }
 
@@ -398,10 +405,10 @@ export async function saveSocialPostAction(
   _previousState: AdminActionState,
   formData: FormData,
 ): Promise<AdminActionState> {
-  const sessionError = await adminSessionError();
+  const actor = await actionActor();
 
-  if (sessionError) {
-    return sessionError;
+  if (!actor) {
+    return sessionExpiredState;
   }
 
   const parsed = socialPostInputSchema.safeParse(socialPostInput(formData));
@@ -430,7 +437,7 @@ export async function saveSocialPostAction(
       };
     }
 
-    id = await saveSocialPost(data);
+    id = await saveSocialPost(data, actor);
   } catch (error) {
     return isImageUploadError(error)
       ? errorState(error, "imageFile")
@@ -444,12 +451,12 @@ export async function saveSocialPostAction(
 }
 
 export async function deleteSocialPostAction(formData: FormData) {
-  await requireAdminOrRedirect("/social-posts");
+  const actor = await requireActionActor();
 
   const id = field(formData, "id");
 
   if (id) {
-    await deleteSocialPost(id);
+    await deleteSocialPost(id, actor);
   }
 
   revalidatePath("/");
@@ -462,10 +469,10 @@ export async function saveSiteSettingsAction(
   _previousState: AdminActionState,
   formData: FormData,
 ): Promise<AdminActionState> {
-  const sessionError = await adminSessionError();
+  const actor = await actionActor();
 
-  if (sessionError) {
-    return sessionError;
+  if (!actor) {
+    return sessionExpiredState;
   }
 
   const parsed = siteSettingsInputSchema.safeParse(siteSettingsInput(formData));
@@ -475,7 +482,7 @@ export async function saveSiteSettingsAction(
   }
 
   try {
-    await saveSiteSettings(parsed.data);
+    await saveSiteSettings(parsed.data, actor);
   } catch (error) {
     return errorState(error);
   }
@@ -494,13 +501,13 @@ function nextStatus(formData: FormData): ContentStatus {
 }
 
 export async function toggleEventStatusAction(formData: FormData) {
-  await requireAdminOrRedirect("/events");
+  const actor = await requireActionActor();
 
   const id = field(formData, "id");
   const event = id ? await getEvent(id) : null;
 
   if (event) {
-    await saveEvent({ ...event, status: nextStatus(formData) });
+    await saveEvent({ ...event, status: nextStatus(formData) }, actor);
     revalidatePath("/events");
     revalidatePath("/upcoming-events");
   }
@@ -509,13 +516,13 @@ export async function toggleEventStatusAction(formData: FormData) {
 }
 
 export async function toggleNewsletterStatusAction(formData: FormData) {
-  await requireAdminOrRedirect("/newsletters");
+  const actor = await requireActionActor();
 
   const id = field(formData, "id");
   const newsletter = id ? await getNewsletter(id) : null;
 
   if (newsletter) {
-    await saveNewsletter({ ...newsletter, status: nextStatus(formData) });
+    await saveNewsletter({ ...newsletter, status: nextStatus(formData) }, actor);
     revalidatePath("/newsletters");
     await revalidatePublicSite(publicNewsletterPaths(newsletter.slug));
   }
@@ -524,7 +531,7 @@ export async function toggleNewsletterStatusAction(formData: FormData) {
 }
 
 export async function toggleSocialPostStatusAction(formData: FormData) {
-  await requireAdminOrRedirect("/social-posts");
+  const actor = await requireActionActor();
 
   const id = field(formData, "id");
   const post = id ? await getSocialPost(id) : null;
@@ -532,7 +539,7 @@ export async function toggleSocialPostStatusAction(formData: FormData) {
 
   // publishing a social post without an image is blocked in the editor too
   if (post && !(target === "published" && !post.imageUrl)) {
-    await saveSocialPost({ ...post, status: target });
+    await saveSocialPost({ ...post, status: target }, actor);
     revalidatePath("/");
     revalidatePath("/social-posts");
     await revalidatePublicSite(["/"]);
@@ -542,12 +549,6 @@ export async function toggleSocialPostStatusAction(formData: FormData) {
 }
 
 export async function logoutAdminAction() {
-  const cookieStore = await cookies();
-
-  cookieStore.set(adminCookieName, "", {
-    maxAge: 0,
-    path: "/",
-  });
-
+  await clearAdminSession();
   redirect(adminAccessPath);
 }

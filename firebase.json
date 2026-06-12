@@ -7,6 +7,10 @@
     "rules": "storage.rules"
   },
   "emulators": {
+    "auth": {
+      "port": 9100,
+      "host": "127.0.0.1"
+    },
     "firestore": {
       "port": 8085,
       "host": "127.0.0.1"

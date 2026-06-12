@@ -23,7 +23,28 @@ Punk Bill mascot knockouts live in `apps/web/public/assets/`.
 
 Rules of the brand: headlines are ALL CAPS; meeting/event times, dates, and addresses
 stay sentence-cased, high contrast, and often mono — never sacrifice legibility for
-style. The admin portal intentionally stays utilitarian.
+style. Both apps share the treatment; the admin keeps data calm and mono.
+
+## Admin access & audit
+
+The admin console is gated by **per-person Google sign-in** (Firebase Auth), not a
+shared password. Sign-in flow: Google → verify the account against the `admins`
+allowlist in Firestore → mint a session cookie. Two roles: `admin` (full content
+CRUD/publish) and `owner` (that, plus managing the allowlist on the **Team** page).
+Removing someone revokes their session immediately.
+
+Every content and team change is recorded in the `audit_log` Firestore collection and
+mirrored to an append-only external sink (`SFVYPAA_AUDIT_WEBHOOK_URL`, a Slack/Discord
+incoming webhook) plus a structured `[audit]` runtime-log line. The **Audit** page shows
+the latest 100. CLI/Claude-Code writes are tagged with provenance
+(`cli:<os-user>@<host>` + git email) so scripted changes are traceable and visibly
+distinct from admin-UI changes.
+
+> **Service-account key is the master key.** Whoever holds `FIREBASE_PRIVATE_KEY` can
+> write prod directly via the CLI, bypassing the admin gate. Keep it only in Vercel and
+> on trusted machines; never commit it. **Rotate it** in the Firebase console
+> (Project settings → Service accounts → generate new key) if it has been exposed, then
+> update the Vercel env for both projects and delete the old key.
 
 ## Run Locally
 
@@ -34,14 +55,18 @@ bun run dev:web
 
 Open `http://localhost:3000`.
 
-For the admin portal:
+For the admin portal (needs the Firebase Auth emulator + an owner seeded):
 
 ```bash
-export SFVYPAA_ADMIN_PASSWORD="your-password"
-bun run dev:admin
+bun run emulators                                  # includes the Auth emulator
+bun run content add-owner --email you@gmail.com --env dev
+bun run dev:admin:emu                              # admin against the emulators
 ```
 
-Open `http://localhost:3001`.
+Open `http://localhost:3001` and sign in with Google (the Auth emulator lets you add a
+test account; use the email you seeded). Plain `bun run dev:admin` points at whatever
+Firebase env vars are set — i.e. **production** if `apps/admin/.env.local` holds prod
+creds — so use `dev:admin:emu` for safe local work.
 
 ## Useful Commands
 
@@ -62,18 +87,22 @@ There are two content environments:
   in `.firebase/emulator-data/`.
 - **prod** — the live `sfvypaa-5a987` Firebase project via service-account env vars.
 
+The emulator suite (Firestore 8085, Storage 9199, Auth 9100, UI 4040) runs on the
+offline `demo-sfvypaa` project and cannot touch the cloud.
+
 ```bash
 bun run emulators        # start the emulator suite (needs JDK 21+, e.g. brew install openjdk)
-bun run dev:web:emu      # public site against the emulator
-bun run dev:admin:emu    # admin against the emulator (also set SFVYPAA_ADMIN_PASSWORD)
+bun run dev:web:emu      # public site against the emulators
+bun run dev:admin:emu    # admin against the emulators (incl. the Auth emulator)
 ```
 
 Plain `dev:web` / `dev:admin` use whatever Firebase env vars are set (i.e. prod creds
-from `.env.local`, or nothing).
+from `.env.local`, or nothing). Emulator mode is authoritative — it ignores any real
+service-account creds that happen to be present and stays on `demo-sfvypaa`.
 
-### Content CLI
+### Content & admin CLI
 
-Create and inspect content from the terminal in either environment:
+Create and inspect content, and bootstrap the admin allowlist, from the terminal:
 
 ```bash
 bun run content seed --env dev          # sample punk content into the emulator
@@ -83,10 +112,17 @@ bun run content create-event --env dev \
   --title "Newcomer Night" --date 2026-06-25 --time "7:00 pm" \
   --location "Canoga Park Alano Club" --summary "First time? This one's for you." \
   --publish                              # omit --publish to save a draft
+
+bun run content add-owner --email you@gmail.com --env dev    # seed/restore an owner
+bun run content list-admins --env dev
+bun run content remove-admin --email old@gmail.com --env dev
 ```
 
 `--env prod` reads credentials from `apps/admin/.env.local`; **writes additionally
-require `--force`**, and `seed` is blocked in prod entirely.
+require `--force`**, and `seed`/`clear-events` are blocked in prod entirely. The first
+production owner is bootstrapped with
+`bun run content add-owner --email you@gmail.com --env prod --force` — this is also the
+lockout escape hatch. Every CLI write is tagged with CLI provenance and audited.
 
 ## Firebase
 
@@ -104,15 +140,23 @@ The public app also uses:
 
 The admin app also uses:
 
-- `SFVYPAA_ADMIN_PASSWORD`
 - `SFVYPAA_REVALIDATE_SECRET`
 - `SFVYPAA_PUBLIC_SITE_URL` (optional; defaults to `https://sfvypaa.org`)
+- `SFVYPAA_AUDIT_WEBHOOK_URL` (optional; Slack/Discord incoming webhook for the
+  append-only audit copy)
+- `NEXT_PUBLIC_FIREBASE_API_KEY`, `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN`,
+  `NEXT_PUBLIC_FIREBASE_PROJECT_ID` — client config for Google sign-in (public values)
+
+Before the admin can accept sign-ins, enable **Google** as a provider in the Firebase
+console (Authentication → Sign-in method) and add `admin.sfvypaa.org` + `localhost` to
+the Authorized Domains list.
 
 The Storage bucket is used by the admin app for event image uploads.
 The shared revalidation secret lets admin refresh public newsletter pages after publishing.
 
-Firestore rules live in `firestore.rules` and currently deny client reads/writes.
-Storage rules can stay locked down because admin uploads use the Admin SDK.
+Firestore and Storage rules (`firestore.rules`, `storage.rules`) deny all client
+access — the `admins`, `audit_log`, and content collections are written only through the
+Admin SDK behind the per-person admin gate.
 
 ## Launch Content
 

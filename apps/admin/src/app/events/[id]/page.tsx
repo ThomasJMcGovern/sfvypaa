@@ -4,6 +4,7 @@ import { emptyEvent, getEvent, listEventLocations } from "@sfvypaa/content";
 import { ArrowLeft } from "lucide-react";
 
 import { AdminShell } from "@/components/admin-shell";
+import { requireAdmin } from "@/lib/admin-session";
 import { ContentStatusBadge } from "@/components/content-status-badge";
 import { DeleteEventForm, EventForm } from "@/components/event-form";
 
@@ -28,6 +29,7 @@ export default async function EventEditPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+  const admin = await requireAdmin();
   const isNew = id === "new";
   const [event, savedLocations] = await Promise.all([
     isNew ? Promise.resolve(emptyEvent) : getEvent(id),
@@ -43,7 +45,7 @@ export default async function EventEditPage({
   ];
 
   return (
-    <AdminShell active="events" publicSiteUrl={publicSiteUrl()}>
+    <AdminShell active="events" admin={admin} publicSiteUrl={publicSiteUrl()}>
       <div className="mx-auto max-w-[840px]">
         <Link
           className="mb-5 inline-flex items-center gap-2 text-[13px] font-extrabold tracking-[0.08em] text-orange uppercase transition-colors hover:text-foreground"

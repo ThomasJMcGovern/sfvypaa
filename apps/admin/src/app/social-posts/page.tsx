@@ -13,6 +13,7 @@ import {
 import { toggleSocialPostStatusAction } from "@/app/actions";
 import { ListEmpty, ListFilters, ListRow } from "@/components/admin-list";
 import { AdminPageHead, AdminShell } from "@/components/admin-shell";
+import { requireAdmin } from "@/lib/admin-session";
 import { ContentStatusBadge } from "@/components/content-status-badge";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -80,6 +81,7 @@ export default async function SocialPostsPage({
   searchParams: SocialPostsSearchParams;
 }) {
   const params = await searchParams;
+  const admin = await requireAdmin();
   const query = params.q?.trim() ?? "";
   const status = cleanStatus(params.status);
   const posts = await listSocialPosts();
@@ -88,7 +90,7 @@ export default async function SocialPostsPage({
   );
 
   return (
-    <AdminShell active="social-posts" publicSiteUrl={publicSiteUrl()}>
+    <AdminShell active="social-posts" admin={admin} publicSiteUrl={publicSiteUrl()}>
       <div className="mx-auto max-w-[920px]">
         <AdminPageHead
           action={

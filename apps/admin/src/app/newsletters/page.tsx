@@ -13,6 +13,7 @@ import {
 import { toggleNewsletterStatusAction } from "@/app/actions";
 import { ListEmpty, ListFilters, ListRow } from "@/components/admin-list";
 import { AdminPageHead, AdminShell } from "@/components/admin-shell";
+import { requireAdmin } from "@/lib/admin-session";
 import { ContentStatusBadge } from "@/components/content-status-badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { DeleteNewsletterForm } from "@/components/newsletter-form";
@@ -79,6 +80,7 @@ export default async function NewslettersPage({
   searchParams: NewslettersSearchParams;
 }) {
   const params = await searchParams;
+  const admin = await requireAdmin();
   const query = params.q?.trim() ?? "";
   const status = cleanStatus(params.status);
   const newsletters = await listNewsletters();
@@ -87,7 +89,7 @@ export default async function NewslettersPage({
   );
 
   return (
-    <AdminShell active="newsletters" publicSiteUrl={publicSiteUrl()}>
+    <AdminShell active="newsletters" admin={admin} publicSiteUrl={publicSiteUrl()}>
       <div className="mx-auto max-w-[920px]">
         <AdminPageHead
           action={

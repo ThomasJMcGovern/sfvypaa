@@ -4,6 +4,7 @@ import {
   type QueryDocumentSnapshot,
 } from "firebase-admin/firestore";
 
+import { recordAudit, systemActor, type Actor } from "./audit";
 import { getAdminDb, isFirebaseConfigured } from "./firebase";
 import {
   defaultSiteSettings,
@@ -212,7 +213,24 @@ export async function getEvent(id: string) {
     : null;
 }
 
-export async function saveEvent(input: EventInput) {
+function statusChangeAction(
+  type: string,
+  isNew: boolean,
+  previousStatus: unknown,
+  nextStatus: string,
+) {
+  if (isNew) {
+    return `${type}.create`;
+  }
+
+  if (previousStatus !== nextStatus) {
+    return nextStatus === "published" ? `${type}.publish` : `${type}.unpublish`;
+  }
+
+  return `${type}.update`;
+}
+
+export async function saveEvent(input: EventInput, actor: Actor = systemActor) {
   const parsed = eventInputSchema.parse(input);
   const db = getAdminDb();
   const ref = parsed.id
@@ -236,7 +254,10 @@ export async function saveEvent(input: EventInput) {
     createdAt: existing.exists
       ? existingData?.createdAt
       : FieldValue.serverTimestamp(),
+    createdBy: existing.exists ? (existingData?.createdBy ?? null) : actor.id,
     updatedAt: FieldValue.serverTimestamp(),
+    updatedBy: actor.id,
+    updatedFrom: actor.source,
     publishedAt:
       parsed.status === "published"
         ? existingData?.publishedAt ?? FieldValue.serverTimestamp()
@@ -245,11 +266,36 @@ export async function saveEvent(input: EventInput) {
 
   await ref.set(data, { merge: true });
 
+  await recordAudit({
+    actor,
+    action: statusChangeAction(
+      "event",
+      !existing.exists,
+      existingData?.status,
+      parsed.status,
+    ),
+    targetType: "event",
+    targetId: ref.id,
+    targetTitle: parsed.title,
+    summary: `${parsed.status} · ${parsed.date || parsed.eventDate}`,
+  });
+
   return ref.id;
 }
 
-export async function deleteEvent(id: string) {
-  await getAdminDb().collection(eventsCollection).doc(id).delete();
+export async function deleteEvent(id: string, actor: Actor = systemActor) {
+  const ref = getAdminDb().collection(eventsCollection).doc(id);
+  const existing = await ref.get();
+
+  await ref.delete();
+
+  await recordAudit({
+    actor,
+    action: "event.delete",
+    targetType: "event",
+    targetId: id,
+    targetTitle: existing.data()?.title,
+  });
 }
 
 export async function listNewsletters() {
@@ -323,7 +369,10 @@ export async function getNewsletterBySlug(slug: string) {
   return snapshot.empty ? null : newsletterFromDoc(snapshot.docs[0]!);
 }
 
-export async function saveNewsletter(input: NewsletterInput) {
+export async function saveNewsletter(
+  input: NewsletterInput,
+  actor: Actor = systemActor,
+) {
   const parsed = newsletterInputSchema.parse(input);
   const slug = slugify(parsed.slug || parsed.title);
 
@@ -347,7 +396,10 @@ export async function saveNewsletter(input: NewsletterInput) {
     createdAt: existing.exists
       ? existingData?.createdAt
       : FieldValue.serverTimestamp(),
+    createdBy: existing.exists ? (existingData?.createdBy ?? null) : actor.id,
     updatedAt: FieldValue.serverTimestamp(),
+    updatedBy: actor.id,
+    updatedFrom: actor.source,
     publishedAt:
       parsed.status === "published"
         ? existingData?.publishedAt ?? FieldValue.serverTimestamp()
@@ -356,11 +408,36 @@ export async function saveNewsletter(input: NewsletterInput) {
 
   await ref.set(data, { merge: true });
 
+  await recordAudit({
+    actor,
+    action: statusChangeAction(
+      "newsletter",
+      !existing.exists,
+      existingData?.status,
+      parsed.status,
+    ),
+    targetType: "newsletter",
+    targetId: ref.id,
+    targetTitle: parsed.title,
+    summary: `${parsed.status} · ${slug}`,
+  });
+
   return ref.id;
 }
 
-export async function deleteNewsletter(id: string) {
-  await getAdminDb().collection(newslettersCollection).doc(id).delete();
+export async function deleteNewsletter(id: string, actor: Actor = systemActor) {
+  const ref = getAdminDb().collection(newslettersCollection).doc(id);
+  const existing = await ref.get();
+
+  await ref.delete();
+
+  await recordAudit({
+    actor,
+    action: "newsletter.delete",
+    targetType: "newsletter",
+    targetId: id,
+    targetTitle: existing.data()?.title,
+  });
 }
 
 export async function listSocialPosts() {
@@ -401,7 +478,10 @@ export async function getSocialPost(id: string) {
     : null;
 }
 
-export async function saveSocialPost(input: SocialPostInput) {
+export async function saveSocialPost(
+  input: SocialPostInput,
+  actor: Actor = systemActor,
+) {
   const parsed = socialPostInputSchema.parse(input);
   const db = getAdminDb();
   const ref = parsed.id
@@ -419,7 +499,10 @@ export async function saveSocialPost(input: SocialPostInput) {
     createdAt: existing.exists
       ? existingData?.createdAt
       : FieldValue.serverTimestamp(),
+    createdBy: existing.exists ? (existingData?.createdBy ?? null) : actor.id,
     updatedAt: FieldValue.serverTimestamp(),
+    updatedBy: actor.id,
+    updatedFrom: actor.source,
     publishedAt:
       parsed.status === "published"
         ? existingData?.publishedAt ?? FieldValue.serverTimestamp()
@@ -428,11 +511,36 @@ export async function saveSocialPost(input: SocialPostInput) {
 
   await ref.set(data, { merge: true });
 
+  await recordAudit({
+    actor,
+    action: statusChangeAction(
+      "social",
+      !existing.exists,
+      existingData?.status,
+      parsed.status,
+    ),
+    targetType: "social",
+    targetId: ref.id,
+    targetTitle: parsed.title,
+    summary: `${parsed.status} · ${parsed.postDate}`,
+  });
+
   return ref.id;
 }
 
-export async function deleteSocialPost(id: string) {
-  await getAdminDb().collection(socialPostsCollection).doc(id).delete();
+export async function deleteSocialPost(id: string, actor: Actor = systemActor) {
+  const ref = getAdminDb().collection(socialPostsCollection).doc(id);
+  const existing = await ref.get();
+
+  await ref.delete();
+
+  await recordAudit({
+    actor,
+    action: "social.delete",
+    targetType: "social",
+    targetId: id,
+    targetTitle: existing.data()?.title,
+  });
 }
 
 export async function getSiteSettings() {
@@ -452,7 +560,10 @@ export async function getSiteSettings() {
   }
 }
 
-export async function saveSiteSettings(input: SiteSettingsInput) {
+export async function saveSiteSettings(
+  input: SiteSettingsInput,
+  actor: Actor = systemActor,
+) {
   const parsed = siteSettingsInputSchema.parse(input);
   const ref = getAdminDb()
     .collection(settingsCollection)
@@ -462,9 +573,19 @@ export async function saveSiteSettings(input: SiteSettingsInput) {
     {
       showInstagramSocials: parsed.showInstagramSocials,
       updatedAt: FieldValue.serverTimestamp(),
+      updatedBy: actor.id,
+      updatedFrom: actor.source,
     },
     { merge: true },
   );
+
+  await recordAudit({
+    actor,
+    action: "settings.update",
+    targetType: "settings",
+    targetId: siteSettingsDocument,
+    summary: `Instagram socials ${parsed.showInstagramSocials ? "shown" : "hidden"}`,
+  });
 
   return siteSettingsDocument;
 }
