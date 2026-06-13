@@ -133,14 +133,23 @@ bun run build:admin
   `git -c credential.helper= -c credential.helper='!f() { echo "username=x-access-token"; echo "password=$(gh auth token -u ThomasJMcGovern)"; }; f' push origin main`
 - **Public site** (`sfvypaa` Vercel project): deploys automatically on push
   to `main`.
-- **Admin** (`sfvypaa-admin` project): manual CLI deploy from repo root —
-  requires the user explicitly authorizing a production deploy:
+- **Admin** (`sfvypaa-admin` project): **does NOT auto-deploy on git push** —
+  its Ignored Build Step is set to `exit 0` so git-triggered builds are skipped.
+  This is deliberate: both projects share the repo-root `vercel.json` (which
+  builds the *web* app), so a git auto-deploy of admin would wrongly rebuild it
+  as a web clone. Admin deploys ONLY via the manual prebuilt flow below (prebuilt
+  deploys bypass the build step, so the Ignored Build Step doesn't affect them).
+  **After any code change that affects admin, you must manually redeploy it** —
+  pushing to main updates web but not admin. Requires the user explicitly
+  authorizing a production deploy:
   ```bash
   vercel link --yes --project sfvypaa-admin --scope tj-mcgoverns-projects
   vercel pull --yes --environment=production --scope tj-mcgoverns-projects
   vercel build --prod --scope tj-mcgoverns-projects --local-config vercel.admin.json
   vercel deploy --prebuilt --prod --scope tj-mcgoverns-projects --local-config vercel.admin.json
   ```
+  (To re-enable git auto-deploy you'd clear `commandForIgnoringBuildStep` AND
+  fix the build config so it builds `apps/admin`, not the root `vercel.json`.)
 - Commit style: short imperative subject, body explaining what/why, trailer
   `Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>`. Never commit
   `.env*`, `.firebase/`, or `apps/*/.claude/`.
