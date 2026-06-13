@@ -113,6 +113,11 @@ bun run content create-event --env dev \
   --location "Canoga Park Alano Club" --summary "First time? This one's for you." \
   --publish                              # omit --publish to save a draft
 
+bun run content create-social-post --env dev \
+  --title "Beach bonfire" --caption "Sundown speaker, s'mores, the one LA beach where fires are legal." \
+  --date 2026-06-08 --image "https://images.unsplash.com/photo-..." --publish
+  # --image is required to publish; --instagram defaults to the @sfvypaa profile
+
 bun run content add-owner --email you@gmail.com --env dev    # seed/restore an owner
 bun run content list-admins --env dev
 bun run content remove-admin --email old@gmail.com --env dev

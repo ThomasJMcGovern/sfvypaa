@@ -11,6 +11,9 @@
  *   create-event               Create an event
  *     --title <t> --date <YYYY-MM-DD> --time <t> --location <l> --summary <s>
  *     [--cohosted] [--rsvp <url>] [--image <url>] [--publish]
+ *   create-social-post         Create a homepage social post
+ *     --title <t> --caption <c> --date <YYYY-MM-DD>
+ *     [--image <url>] [--instagram <url>] [--publish]   (image required to publish)
  *   list-admins                List the admin allowlist
  *   add-owner --email <e> [--name <n>]    Add/promote an owner (bootstrap)
  *   remove-admin --email <e>              Remove an admin from the allowlist
@@ -40,6 +43,8 @@ const { values: args, positionals } = parseArgs({
     time: { type: "string" },
     location: { type: "string" },
     summary: { type: "string" },
+    caption: { type: "string" },
+    instagram: { type: "string", default: "https://www.instagram.com/sfvypaa/" },
     rsvp: { type: "string", default: "" },
     image: { type: "string", default: "" },
     email: { type: "string" },
@@ -56,6 +61,7 @@ const allCommands = [
   "seed",
   "clear-events",
   "create-event",
+  "create-social-post",
   "list-admins",
   "add-owner",
   "remove-admin",
@@ -268,6 +274,32 @@ if (command === "list") {
     cohosted: args.cohosted,
     publish: args.publish,
   });
+} else if (command === "create-social-post") {
+  for (const key of ["title", "caption", "date"] as const) {
+    if (!args[key]) {
+      fail(`--${key} is required for create-social-post`);
+    }
+  }
+
+  if (args.publish && !args.image) {
+    fail("--image is required to publish a social post (omit --publish to draft).");
+  }
+
+  const id = await content.saveSocialPost(
+    {
+      title: args.title!,
+      caption: args.caption!,
+      instagramUrl: args.instagram!,
+      imageUrl: args.image || "",
+      postDate: args.date!,
+      status: args.publish ? "published" : "draft",
+    },
+    cliActor,
+  );
+
+  console.log(
+    `✓ ${args.publish ? "Published" : "Drafted"} social post "${args.title}" (${id})`,
+  );
 } else if (command === "seed") {
   console.log("Seeding sample content into the emulator…");
 

@@ -45,6 +45,8 @@ bun run content list --env dev|prod
 bun run content create-event --env dev --title "..." --date YYYY-MM-DD \
   --time "7:00 pm" --location "..." --summary "..." \
   [--cohosted] [--rsvp <url>] [--image <url>] [--publish]
+bun run content create-social-post --env dev --title "..." --caption "..." \
+  --date YYYY-MM-DD [--image <url>] [--instagram <url>] [--publish]
 bun run content list-admins --env dev|prod
 bun run content add-owner --email you@gmail.com [--name "..."] --env dev|prod
 bun run content remove-admin --email old@gmail.com --env dev|prod
