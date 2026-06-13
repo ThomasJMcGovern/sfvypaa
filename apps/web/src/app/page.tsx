@@ -1,14 +1,11 @@
 import Image from "next/image"
-import {
-  getSiteSettings,
-  listPublishedSocialPosts,
-  type SocialPostRecord,
-} from "@sfvypaa/content"
-import { ArrowRight, AtSign } from "lucide-react"
+import { getSiteSettings, listPublishedSocialPosts } from "@sfvypaa/content"
+import { ArrowRight } from "lucide-react"
 
 import { LinkRow } from "@/components/link-row"
 import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
+import { SocialCarousel } from "@/components/social-carousel"
 import { Button } from "@/components/ui/button"
 import { businessMeeting, site } from "@/lib/site"
 
@@ -54,7 +51,14 @@ function formatSocialDate(value: string) {
 export default async function Home() {
   const settings = await getSiteSettings()
   const socialPosts = settings.showInstagramSocials
-    ? (await listPublishedSocialPosts()).slice(0, 3)
+    ? (await listPublishedSocialPosts()).slice(0, 12).map((post) => ({
+        id: post.id,
+        title: post.title,
+        caption: post.caption,
+        instagramUrl: post.instagramUrl,
+        imageUrl: post.imageUrl ?? "",
+        dateLabel: formatSocialDate(post.postDate),
+      }))
     : []
 
   return (
@@ -174,7 +178,7 @@ export default async function Home() {
       </section>
 
       {settings.showInstagramSocials ? (
-        <SocialSection posts={socialPosts} />
+        <SocialCarousel instagramUrl={site.links.instagram} posts={socialPosts} />
       ) : null}
 
       {/* 5 — alternating link rows */}
@@ -284,103 +288,5 @@ export default async function Home() {
 
       <SiteFooter />
     </main>
-  )
-}
-
-function SocialSection({ posts }: { posts: SocialPostRecord[] }) {
-  return (
-    <section
-      className="mx-auto w-full max-w-7xl px-5 pt-[72px] sm:px-8 lg:px-10"
-      id="socials"
-    >
-      <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <p className="label-stamp mb-2 flex items-center gap-2 text-orange">
-            <AtSign className="size-[15px]" /> Instagram
-          </p>
-          <h2 className="text-[clamp(2rem,4vw,3rem)] text-foreground">
-            Socials
-          </h2>
-        </div>
-        <Button
-          nativeButton={false}
-          render={
-            <a href={site.links.instagram} rel="noreferrer" target="_blank" />
-          }
-          variant="outline"
-        >
-          <AtSign data-icon="inline-start" />
-          @sfvypaa
-        </Button>
-      </div>
-
-      {posts.length > 0 ? (
-        <div className="grid gap-5 md:grid-cols-3">
-          {posts.map((post) => (
-            <article
-              className="flex flex-col border-[3px] border-border bg-card text-card-foreground shadow-stamp-lg"
-              key={post.id}
-            >
-              <a
-                className="group block"
-                href={post.instagramUrl}
-                rel="noreferrer"
-                target="_blank"
-              >
-                <div className="halftone relative aspect-square border-b-[3px] border-border bg-bone-2">
-                  {post.imageUrl ? (
-                    <Image
-                      alt={post.title}
-                      className="object-cover transition group-hover:scale-[1.02]"
-                      fill
-                      sizes="(min-width: 768px) 33vw, 100vw"
-                      src={post.imageUrl}
-                      unoptimized
-                    />
-                  ) : (
-                    <span className="label-stamp absolute inset-0 flex items-center justify-center text-muted-foreground">
-                      Instagram post
-                    </span>
-                  )}
-                </div>
-              </a>
-              <div className="flex grow flex-col p-4">
-                <p className="mb-1.5 font-mono text-xs font-bold text-orange uppercase">
-                  {formatSocialDate(post.postDate)}
-                </p>
-                <h3 className="mb-2 text-[21px] leading-[0.95] text-foreground">
-                  {post.title}
-                </h3>
-                <p className="mb-4 grow text-sm leading-normal text-text-soft">
-                  {post.caption}
-                </p>
-                <Button
-                  className="w-full"
-                  nativeButton={false}
-                  render={
-                    <a
-                      href={post.instagramUrl}
-                      rel="noreferrer"
-                      target="_blank"
-                    />
-                  }
-                  size="sm"
-                  variant="outline"
-                >
-                  View on Instagram
-                </Button>
-              </div>
-            </article>
-          ))}
-        </div>
-      ) : (
-        <div className="border-2 border-dashed border-border/35 px-5 py-12 text-center">
-          <p className="text-base text-muted-foreground">
-            New Instagram highlights will appear here once they&apos;re
-            published.
-          </p>
-        </div>
-      )}
-    </section>
   )
 }
