@@ -15,9 +15,9 @@ import { Button } from "@/components/ui/button"
 import { businessMeeting, involvement, site } from "@/lib/site"
 
 export const metadata: Metadata = {
-  title: "Get Involved | SFVYPAA",
+  title: "Get Involved | VALLEYPAA",
   description:
-    "Join SFVYPAA committee service, business meetings, and young people AA event planning.",
+    "Join VALLEYPAA committee service, business meetings, and young people AA event planning.",
 }
 
 const meetingDetails = [
@@ -67,7 +67,7 @@ export default function GetInvolvedPage() {
         <div className="grid items-center justify-stretch lg:grid-cols-[minmax(0,440px)_minmax(0,440px)] lg:justify-center">
           <div className="relative aspect-[3/4] border-[3px] border-border bg-bone-2">
             <Image
-              alt="SFVYPAA business meeting flyer"
+              alt="VALLEYPAA business meeting flyer"
               className="object-contain"
               fill
               priority
@@ -85,7 +85,7 @@ export default function GetInvolvedPage() {
               {businessMeeting.title}
             </h2>
             <p className="mb-5.5 text-[15px] leading-relaxed text-text-soft">
-              SFVYPAA meets once per month for committee business, service
+              VALLEYPAA meets once per month for committee business, service
               planning, and upcoming young people events. Walk in — that&apos;s
               the whole onboarding.
             </p>

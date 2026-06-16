@@ -9,7 +9,7 @@ const repoRoot = path.resolve(
 
 const nextConfig: NextConfig = {
   outputFileTracingRoot: repoRoot,
-  transpilePackages: ["@sfvypaa/content"],
+  transpilePackages: ["@valleypaa/content"],
   serverExternalPackages: ["firebase-admin"],
   experimental: {
     serverActions: {

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { listSocialPosts, type SocialPostRecord } from "@sfvypaa/content";
+import { listSocialPosts, type SocialPostRecord } from "@valleypaa/content";
 import {
   AtSign,
   CalendarDays,
@@ -34,7 +34,7 @@ const dateTimeFormatter = new Intl.DateTimeFormat("en-US", {
 });
 
 function publicSiteUrl() {
-  return (process.env.SFVYPAA_PUBLIC_SITE_URL || "https://sfvypaa.org").replace(
+  return (process.env.VALLEYPAA_PUBLIC_SITE_URL || "https://valleypaa.org").replace(
     /\/+$/,
     "",
   );

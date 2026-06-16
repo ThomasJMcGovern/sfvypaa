@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 /**
- * SFVYPAA content CLI — create and inspect content in either environment.
+ * VALLEYPAA content CLI — create and inspect content in either environment.
  *
  *   bun run content <command> --env dev|prod [options]
  *
@@ -23,7 +23,7 @@
  *
  * Environments:
  *   --env dev    Local Firestore emulator (run `bun run emulators` first).
- *                Uses the offline demo-sfvypaa project — cannot touch the cloud.
+ *                Uses the offline demo-valleypaa project — cannot touch the cloud.
  *   --env prod   Real Firestore via creds in apps/admin/.env.local.
  *                Writes additionally require --force.
  */
@@ -177,9 +177,9 @@ const cliActor = {
 
 const banner =
   env === "dev"
-    ? "env: dev (emulator · demo-sfvypaa)"
+    ? "env: dev (emulator · demo-valleypaa)"
     : `env: PROD (${process.env.FIREBASE_PROJECT_ID})`;
-console.log(`★ SFVYPAA content CLI — ${banner}`);
+console.log(`★ VALLEYPAA content CLI — ${banner}`);
 console.log(`  actor: ${cliActor.id}${cliActor.gitEmail ? ` (git ${cliActor.gitEmail})` : ""}`);
 
 function dateLabel(iso: string) {
@@ -216,7 +216,7 @@ async function createEvent(input: {
       time: input.time,
       location: input.location,
       tone: input.summary,
-      host: input.cohosted ? "Co-hosted by SFVYPAA" : "Hosted by SFVYPAA",
+      host: input.cohosted ? "Co-hosted by VALLEYPAA" : "Hosted by VALLEYPAA",
       status: input.publish ? "published" : "draft",
       sortDate: "",
       rsvpUrl: input.rsvp ?? "",

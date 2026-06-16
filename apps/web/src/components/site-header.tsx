@@ -26,7 +26,7 @@ export function SiteHeader({ active }: SiteHeaderProps) {
       />
       <div className="relative mx-auto flex w-full max-w-7xl items-center gap-4 px-5 py-3 sm:px-8 lg:px-10">
         <Link
-          aria-label="SFVYPAA home"
+          aria-label="VALLEYPAA home"
           className="flex shrink-0 items-center gap-2.5"
           href="/"
         >
@@ -38,7 +38,7 @@ export function SiteHeader({ active }: SiteHeaderProps) {
             width={38}
           />
           <span className="font-display text-2xl leading-[0.9] tracking-[0.01em] text-foreground uppercase">
-            SFVYPAA
+            VALLEYPAA
           </span>
         </Link>
 

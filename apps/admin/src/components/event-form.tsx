@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useMemo, useState } from "react";
-import type { EventInput } from "@sfvypaa/content";
+import type { EventInput } from "@valleypaa/content";
 
 import {
   deleteEventAction,
@@ -64,7 +64,7 @@ export function EventForm({
             label="Host"
             name="host"
             defaultValue={event.host}
-            options={["Hosted by SFVYPAA", "Co-hosted by SFVYPAA"]}
+            options={["Hosted by VALLEYPAA", "Co-hosted by VALLEYPAA"]}
           />
         </div>
       </FieldGroup>

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { emptyEvent, getEvent, listEventLocations } from "@sfvypaa/content";
+import { emptyEvent, getEvent, listEventLocations } from "@valleypaa/content";
 import { ArrowLeft } from "lucide-react";
 
 import { AdminShell } from "@/components/admin-shell";
@@ -17,7 +17,7 @@ const defaultLocationSuggestions = [
 ];
 
 function publicSiteUrl() {
-  return (process.env.SFVYPAA_PUBLIC_SITE_URL || "https://sfvypaa.org").replace(
+  return (process.env.VALLEYPAA_PUBLIC_SITE_URL || "https://valleypaa.org").replace(
     /\/+$/,
     "",
   );

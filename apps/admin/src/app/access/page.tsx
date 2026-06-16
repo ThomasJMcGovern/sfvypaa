@@ -11,7 +11,7 @@ import {
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Sign in | SFVYPAA Admin",
+  title: "Sign in | VALLEYPAA Admin",
   robots: { index: false, follow: false },
 };
 
@@ -40,7 +40,7 @@ export default async function AdminAccessPage({
             src="/assets/punk-bill-ink.png"
             width={84}
           />
-          <h1 className="mt-3 text-5xl text-bone uppercase">SFVYPAA Admin</h1>
+          <h1 className="mt-3 text-5xl text-bone uppercase">VALLEYPAA Admin</h1>
           <p className="mt-2.5 font-mono text-[13px] text-[#8A8472]">
             Committee publishing console
           </p>

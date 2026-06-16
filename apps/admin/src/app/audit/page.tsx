@@ -1,4 +1,4 @@
-import { listAuditLog } from "@sfvypaa/content";
+import { listAuditLog } from "@valleypaa/content";
 import { Terminal, UserRound } from "lucide-react";
 
 import { AdminPageHead, AdminShell } from "@/components/admin-shell";
@@ -8,7 +8,7 @@ import { requireAdmin } from "@/lib/admin-session";
 export const dynamic = "force-dynamic";
 
 function publicSiteUrl() {
-  return (process.env.SFVYPAA_PUBLIC_SITE_URL || "https://sfvypaa.org").replace(
+  return (process.env.VALLEYPAA_PUBLIC_SITE_URL || "https://valleypaa.org").replace(
     /\/+$/,
     "",
   );

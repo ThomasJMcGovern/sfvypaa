@@ -36,16 +36,16 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://sfvypaa.org"),
-  title: "SFVYPAA | San Fernando Valley Young People in AA",
+  metadataBase: new URL("https://valleypaa.org"),
+  title: "VALLEYPAA | Valley Young People in AA",
   description:
     "Sober fellowship, service, meetings, and premium young people events across the San Fernando Valley.",
   alternates: {
     canonical: "/",
   },
   openGraph: {
-    title: "SFVYPAA",
-    description: "San Fernando Valley Young People in Alcoholics Anonymous.",
+    title: "VALLEYPAA",
+    description: "Valley Young People in Alcoholics Anonymous.",
     type: "website",
   },
 };

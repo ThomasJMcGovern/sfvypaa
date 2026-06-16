@@ -1,12 +1,12 @@
 ---
 name: sfvypaa-ops
-description: Use when working on the SFVYPAA monorepo — running dev servers or the Firestore/Auth emulator, creating/seeding content via the CLI, managing admin access/audit, deploying web or admin to Vercel, pushing to GitHub, or styling anything (the punk design system rules). Covers environments, security model, guardrails, and known gotchas.
+description: Use when working on the VALLEYPAA monorepo — running dev servers or the Firestore/Auth emulator, creating/seeding content via the CLI, managing admin access/audit, deploying web or admin to Vercel, pushing to GitHub, or styling anything (the punk design system rules). Covers environments, security model, guardrails, and known gotchas.
 user-invocable: true
 ---
 
-# SFVYPAA Operations
+# VALLEYPAA Operations
 
-Monorepo for sfvypaa.org (San Fernando Valley Young People in AA): `apps/web`
+Monorepo for valleypaa.org (Valley Young People in AA): `apps/web`
 (public site), `apps/admin` (publishing console), `packages/content` (shared
 Firestore/Storage layer, Zod schemas). Bun workspaces, Next.js 16 App Router,
 Tailwind 4. All commands run from the repo root.
@@ -15,16 +15,16 @@ Tailwind 4. All commands run from the repo root.
 
 | | dev | prod |
 |---|---|---|
-| Database | Firebase emulator, offline project `demo-sfvypaa` | Firebase project `sfvypaa-5a987` |
+| Database | Firebase emulator, offline project `demo-valleypaa` | Firebase project `sfvypaa-5a987` |
 | Credentials | none needed | `FIREBASE_PROJECT_ID` / `FIREBASE_CLIENT_EMAIL` / `FIREBASE_PRIVATE_KEY` (+ `FIREBASE_STORAGE_BUCKET`) in `apps/admin/.env.local` |
 | Selected by | `FIRESTORE_EMULATOR_HOST` env var being set | service-account env vars |
 
 Emulator ports are non-default because this machine is busy (Docker holds 8080,
 gist-geo holds 4000/4400/4500/9099): **Firestore 8085, Storage 9199, Auth 9100, UI
 http://localhost:4040**. Emulator data persists in `.firebase/emulator-data/`.
-The `demo-sfvypaa` project ID is fully offline — emulator work cannot touch the
+The `demo-valleypaa` project ID is fully offline — emulator work cannot touch the
 cloud. Emulator mode is **authoritative**: `getAdminApp()`/`getFirebaseProjectId()`
-force `demo-sfvypaa` and ignore any real service-account creds present in the env
+force `demo-valleypaa` and ignore any real service-account creds present in the env
 (needed so emulator-issued auth token audiences match).
 
 ```bash
@@ -72,7 +72,7 @@ Guardrails — do not bypass:
   disgruntled-admin kill switch. Can't remove the last owner.
 - **Audit:** every content + team mutation calls `recordAudit()` in
   `packages/content/src/audit.ts` → Firestore `audit_log` + an append-only sink
-  (`SFVYPAA_AUDIT_WEBHOOK_URL`, Slack/Discord webhook) + a `[audit]` log line.
+  (`VALLEYPAA_AUDIT_WEBHOOK_URL`, Slack/Discord webhook) + a `[audit]` log line.
   Store writes also stamp `createdBy`/`updatedBy`/`updatedFrom`. Viewable at
   `/audit`. CLI writes carry `source: "cli"` + `cli:<user>@<host>` + git email.
 - **Service-account key = the master key.** Whoever holds `FIREBASE_PRIVATE_KEY`
@@ -84,7 +84,7 @@ Guardrails — do not bypass:
 - **Bootstrap / lockout escape hatch:** seed the first owner with
   `bun run content add-owner --email you@gmail.com --env prod --force`. Firebase
   console manual steps before first deploy: enable Google provider; add
-  `admin.sfvypaa.org` + `localhost` to Authorized Domains; set
+  `admin.valleypaa.org` + `localhost` to Authorized Domains; set
   `NEXT_PUBLIC_FIREBASE_*` envs.
 
 ## Dev server gotchas
@@ -93,7 +93,7 @@ Guardrails — do not bypass:
   `-p 3003` (admin): `cd apps/<app> && bunx next dev -p <port>` (add the
   emulator + auth env vars as needed). For the admin against emulators, the
   `dev:admin:emu` script sets `FIREBASE_AUTH_EMULATOR_HOST` +
-  `NEXT_PUBLIC_FIREBASE_AUTH_EMULATOR_HOST` + `NEXT_PUBLIC_FIREBASE_PROJECT_ID=demo-sfvypaa`.
+  `NEXT_PUBLIC_FIREBASE_AUTH_EMULATOR_HOST` + `NEXT_PUBLIC_FIREBASE_PROJECT_ID=demo-valleypaa`.
 - The public site has **no** password gate.
 - If pages render unstyled (Times serif, no orange): stale Turbopack cache —
   `rm -rf apps/<app>/.next` and restart. The Admin SDK app is a singleton, so
@@ -101,7 +101,7 @@ Guardrails — do not bypass:
 
 ## Design system (punk zine)
 
-Source of truth is the "SFVYPAA Design System" project on claude.ai/design;
+Source of truth is the "VALLEYPAA Design System" project on claude.ai/design;
 implement from exported handoff bundles, don't restyle from memory. Tokens
 live in each app's `src/app/globals.css` (kept identical). Rules:
 
@@ -131,9 +131,9 @@ bun run build:admin
 
 - Default git credentials are the wrong account; push with:
   `git -c credential.helper= -c credential.helper='!f() { echo "username=x-access-token"; echo "password=$(gh auth token -u ThomasJMcGovern)"; }; f' push origin main`
-- **Public site** (`sfvypaa` Vercel project): deploys automatically on push
+- **Public site** (`valleypaa` Vercel project): deploys automatically on push
   to `main`.
-- **Admin** (`sfvypaa-admin` project): **does NOT auto-deploy on git push** —
+- **Admin** (`valleypaa-admin` project): **does NOT auto-deploy on git push** —
   its Ignored Build Step is set to `exit 0` so git-triggered builds are skipped.
   This is deliberate: both projects share the repo-root `vercel.json` (which
   builds the *web* app), so a git auto-deploy of admin would wrongly rebuild it
@@ -143,7 +143,7 @@ bun run build:admin
   pushing to main updates web but not admin. Requires the user explicitly
   authorizing a production deploy:
   ```bash
-  vercel link --yes --project sfvypaa-admin --scope tj-mcgoverns-projects
+  vercel link --yes --project valleypaa-admin --scope tj-mcgoverns-projects
   vercel pull --yes --environment=production --scope tj-mcgoverns-projects
   vercel build --prod --scope tj-mcgoverns-projects --local-config vercel.admin.json
   vercel deploy --prebuilt --prod --scope tj-mcgoverns-projects --local-config vercel.admin.json
@@ -157,7 +157,7 @@ bun run build:admin
 ## Data model (Firestore collections)
 
 `events` (title, eventDate ISO, date label, time, location, tone=summary,
-host: "Hosted by SFVYPAA" | "Co-hosted by SFVYPAA", status, rsvpUrl?,
+host: "Hosted by VALLEYPAA" | "Co-hosted by VALLEYPAA", status, rsvpUrl?,
 imageUrl?), `newsletters` (title, slug, excerpt, body plain-text, publishDate,
 status), `socialPosts` (title, caption, instagramUrl, imageUrl?, postDate,
 status), `settings/site` (showInstagramSocials). All content writes also stamp

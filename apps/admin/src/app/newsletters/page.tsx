@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { listNewsletters, type NewsletterRecord } from "@sfvypaa/content";
+import { listNewsletters, type NewsletterRecord } from "@valleypaa/content";
 import {
   CalendarDays,
   EyeOff,
@@ -33,7 +33,7 @@ const dateTimeFormatter = new Intl.DateTimeFormat("en-US", {
 });
 
 function publicSiteUrl() {
-  return (process.env.SFVYPAA_PUBLIC_SITE_URL || "https://sfvypaa.org").replace(
+  return (process.env.VALLEYPAA_PUBLIC_SITE_URL || "https://valleypaa.org").replace(
     /\/+$/,
     "",
   );

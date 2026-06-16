@@ -6,7 +6,7 @@ export function SiteFooter() {
       <div className="relative z-10 mx-auto grid w-full max-w-7xl gap-9 px-5 pt-12 pb-8 sm:grid-cols-[repeat(auto-fit,minmax(220px,1fr))] sm:px-8 lg:px-10">
         <div>
           <div className="font-display text-[32px] leading-[0.9] uppercase">
-            SFVYPAA
+            VALLEYPAA
           </div>
           <p className="mt-3 mb-4 max-w-[28ch] text-sm leading-[1.55] text-[#C9C0AC]">
             Young people in AA across the San Fernando Valley. Since 1935.

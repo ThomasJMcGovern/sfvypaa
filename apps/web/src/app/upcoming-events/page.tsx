@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { listPublishedEvents, type EventRecord } from "@sfvypaa/content"
+import { listPublishedEvents, type EventRecord } from "@valleypaa/content"
 import {
   ArrowRight,
   CalendarDays,
@@ -18,16 +18,16 @@ import { cn } from "@/lib/utils"
 export const dynamic = "force-dynamic"
 
 export const metadata: Metadata = {
-  title: "Upcoming Events | SFVYPAA",
+  title: "Upcoming Events | VALLEYPAA",
   description:
     "Hosted and co-hosted young people in AA events for the San Fernando Valley.",
 }
 
 export default async function UpcomingEventsPage() {
   const events = await listPublishedEvents()
-  const hosted = events.filter((event) => event.host === "Hosted by SFVYPAA")
+  const hosted = events.filter((event) => event.host === "Hosted by VALLEYPAA")
   const cohosted = events.filter(
-    (event) => event.host === "Co-hosted by SFVYPAA",
+    (event) => event.host === "Co-hosted by VALLEYPAA",
   )
 
   return (
@@ -36,7 +36,7 @@ export default async function UpcomingEventsPage() {
 
       <PageHead
         eyebrow="What's on"
-        sub="Backyard shows, speaker jams, service, and fellowship — hosted and co-hosted by SFVYPAA. All ages. All sober. Just show up."
+        sub="Backyard shows, speaker jams, service, and fellowship — hosted and co-hosted by VALLEYPAA. All ages. All sober. Just show up."
         title="Upcoming events."
       />
 
@@ -46,12 +46,12 @@ export default async function UpcomingEventsPage() {
             <EventGroup
               events={hosted}
               skew={-1}
-              title="Hosted by SFVYPAA"
+              title="Hosted by VALLEYPAA"
             />
             <EventGroup
               events={cohosted}
               skew={1}
-              title="Co-hosted by SFVYPAA"
+              title="Co-hosted by VALLEYPAA"
             />
           </>
         ) : (
@@ -97,7 +97,7 @@ function EmptyEvents() {
         No published events yet
       </h3>
       <p className="mx-auto max-w-[42ch] text-[15px] leading-relaxed text-text-soft">
-        New SFVYPAA events will appear here once they&apos;re announced. Check
+        New VALLEYPAA events will appear here once they&apos;re announced. Check
         back soon — or better, come help us plan one.
       </p>
     </div>

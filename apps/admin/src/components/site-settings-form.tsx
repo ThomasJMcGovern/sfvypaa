@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import type { SiteSettingsInput } from "@sfvypaa/content";
+import type { SiteSettingsInput } from "@valleypaa/content";
 import { Eye, Save } from "lucide-react";
 
 import {

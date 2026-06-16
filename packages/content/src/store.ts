@@ -84,9 +84,11 @@ function eventFromDoc(doc: QueryDocumentSnapshot): EventRecord {
     location: String(data.location ?? ""),
     tone: String(data.tone ?? ""),
     host:
-      data.host === "Co-hosted by SFVYPAA"
-        ? "Co-hosted by SFVYPAA"
-        : "Hosted by SFVYPAA",
+      // Tolerant of legacy records written as "Co-hosted by SFVYPAA" before the
+      // VALLEYPAA rename — match on the "Co-hosted" prefix, not an exact string.
+      String(data.host ?? "").startsWith("Co-hosted")
+        ? "Co-hosted by VALLEYPAA"
+        : "Hosted by VALLEYPAA",
     status: data.status === "published" ? "published" : "draft",
     sortDate: typeof data.sortDate === "string" ? data.sortDate : "",
     rsvpUrl: typeof data.rsvpUrl === "string" ? data.rsvpUrl : "",
