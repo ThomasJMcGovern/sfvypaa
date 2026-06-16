@@ -47,7 +47,7 @@ function cleanPaths(value: unknown) {
 }
 
 export async function POST(request: NextRequest) {
-  const configuredSecret = process.env.VALLEYPAA_REVALIDATE_SECRET;
+  const configuredSecret = process.env.SFVYPAA_REVALIDATE_SECRET;
   const providedSecret = request.headers.get(secretHeader);
 
   if (!configuredSecret || !secretsMatch(providedSecret, configuredSecret)) {

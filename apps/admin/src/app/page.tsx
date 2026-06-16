@@ -29,7 +29,7 @@ import { Button } from "@/components/ui/button";
 export const dynamic = "force-dynamic";
 
 function publicSiteUrl() {
-  return (process.env.VALLEYPAA_PUBLIC_SITE_URL || "https://valleypaa.org").replace(
+  return (process.env.SFVYPAA_PUBLIC_SITE_URL || "https://valleypaa.org").replace(
     /\/+$/,
     "",
   );
@@ -142,7 +142,7 @@ export default async function AdminHomePage() {
           <StatusTile
             icon={RefreshCw}
             label="Public revalidation"
-            ok={Boolean(process.env.VALLEYPAA_REVALIDATE_SECRET)}
+            ok={Boolean(process.env.SFVYPAA_REVALIDATE_SECRET)}
             okLabel="On"
             missingLabel="Off"
           />

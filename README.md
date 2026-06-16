@@ -34,7 +34,7 @@ CRUD/publish) and `owner` (that, plus managing the allowlist on the **Team** pag
 Removing someone revokes their session immediately.
 
 Every content and team change is recorded in the `audit_log` Firestore collection and
-mirrored to an append-only external sink (`VALLEYPAA_AUDIT_WEBHOOK_URL`, a Slack/Discord
+mirrored to an append-only external sink (`SFVYPAA_AUDIT_WEBHOOK_URL`, a Slack/Discord
 incoming webhook) plus a structured `[audit]` runtime-log line. The **Audit** page shows
 the latest 100. CLI/Claude-Code writes are tagged with provenance
 (`cli:<os-user>@<host>` + git email) so scripted changes are traceable and visibly
@@ -141,13 +141,13 @@ Set these environment variables in Vercel for both apps:
 
 The public app also uses:
 
-- `VALLEYPAA_REVALIDATE_SECRET`
+- `SFVYPAA_REVALIDATE_SECRET`
 
 The admin app also uses:
 
-- `VALLEYPAA_REVALIDATE_SECRET`
-- `VALLEYPAA_PUBLIC_SITE_URL` (optional; defaults to `https://valleypaa.org`)
-- `VALLEYPAA_AUDIT_WEBHOOK_URL` (optional; Slack/Discord incoming webhook for the
+- `SFVYPAA_REVALIDATE_SECRET`
+- `SFVYPAA_PUBLIC_SITE_URL` (optional; defaults to `https://valleypaa.org`)
+- `SFVYPAA_AUDIT_WEBHOOK_URL` (optional; Slack/Discord incoming webhook for the
   append-only audit copy)
 - `NEXT_PUBLIC_FIREBASE_API_KEY`, `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN`,
   `NEXT_PUBLIC_FIREBASE_PROJECT_ID` — client config for Google sign-in (public values)

@@ -14,7 +14,7 @@ import {
 export const dynamic = "force-dynamic";
 
 function publicSiteUrl() {
-  return (process.env.VALLEYPAA_PUBLIC_SITE_URL || "https://valleypaa.org").replace(
+  return (process.env.SFVYPAA_PUBLIC_SITE_URL || "https://valleypaa.org").replace(
     /\/+$/,
     "",
   );

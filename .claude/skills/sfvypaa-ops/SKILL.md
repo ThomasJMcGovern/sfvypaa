@@ -72,7 +72,7 @@ Guardrails — do not bypass:
   disgruntled-admin kill switch. Can't remove the last owner.
 - **Audit:** every content + team mutation calls `recordAudit()` in
   `packages/content/src/audit.ts` → Firestore `audit_log` + an append-only sink
-  (`VALLEYPAA_AUDIT_WEBHOOK_URL`, Slack/Discord webhook) + a `[audit]` log line.
+  (`SFVYPAA_AUDIT_WEBHOOK_URL`, Slack/Discord webhook) + a `[audit]` log line.
   Store writes also stamp `createdBy`/`updatedBy`/`updatedFrom`. Viewable at
   `/audit`. CLI writes carry `source: "cli"` + `cli:<user>@<host>` + git email.
 - **Service-account key = the master key.** Whoever holds `FIREBASE_PRIVATE_KEY`

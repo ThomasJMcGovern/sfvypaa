@@ -43,7 +43,7 @@ function actorLabel(actor: Actor) {
 }
 
 async function notifyExternalSink(line: string) {
-  const url = process.env.VALLEYPAA_AUDIT_WEBHOOK_URL;
+  const url = process.env.SFVYPAA_AUDIT_WEBHOOK_URL;
 
   if (!url) {
     return;

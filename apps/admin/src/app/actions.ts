@@ -236,7 +236,7 @@ function siteSettingsInput(formData: FormData): SiteSettingsInput {
 }
 
 function publicSiteUrl() {
-  const value = process.env.VALLEYPAA_PUBLIC_SITE_URL?.trim();
+  const value = process.env.SFVYPAA_PUBLIC_SITE_URL?.trim();
 
   return value || publicSiteFallbackUrl;
 }
@@ -254,7 +254,7 @@ function publicNewsletterPaths(...slugs: Array<string | undefined>) {
 }
 
 async function revalidatePublicSite(paths: string[]) {
-  const secret = process.env.VALLEYPAA_REVALIDATE_SECRET;
+  const secret = process.env.SFVYPAA_REVALIDATE_SECRET;
 
   if (!secret) {
     return;
