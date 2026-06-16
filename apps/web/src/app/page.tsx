@@ -1,5 +1,5 @@
 import Image from "next/image"
-import { getSiteSettings, listPublishedSocialPosts } from "@sfvypaa/content"
+import { getSiteSettings, listPublishedSocialPosts } from "@valleypaa/content"
 import { ArrowRight } from "lucide-react"
 
 import { LinkRow } from "@/components/link-row"
@@ -85,7 +85,7 @@ export default async function Home() {
               And it&apos;s not too late.
             </h1>
             <p className="mt-5.5 mb-7 max-w-[42ch] text-[19px] leading-normal font-medium text-text-soft">
-              SFVYPAA is young people in AA across the Valley. Show up as you
+              VALLEYPAA is young people in AA across the Valley. Show up as you
               are — nothing&apos;s required of you but to walk in.
             </p>
             <div className="flex flex-wrap gap-3">
@@ -150,7 +150,7 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* 3 — what is SFVYPAA: duotone valley + overlapping card */}
+      {/* 3 — what is VALLEYPAA: duotone valley + overlapping card */}
       <section className="mx-auto w-full max-w-7xl px-5 pt-16 sm:px-8 lg:px-10">
         <div className="grid items-center lg:grid-cols-[minmax(0,1fr)_minmax(0,360px)]">
           <div className="relative aspect-video border-[3px] border-border bg-bone-3">
@@ -165,10 +165,10 @@ export default async function Home() {
           <div className="relative z-[2] mx-4 -mt-10 border-[3px] border-border bg-card p-6 text-card-foreground shadow-stamp-lg lg:mx-0 lg:-ml-[72px] lg:mt-0 lg:p-7">
             <p className="label-stamp mb-3 text-orange">Who we are</p>
             <h2 className="mb-3 text-[clamp(2rem,4vw,3rem)] text-foreground">
-              What is SFVYPAA?
+              What is VALLEYPAA?
             </h2>
             <p className="text-base leading-relaxed text-text-soft">
-              SFVYPAA is a young people in Alcoholics Anonymous committee
+              VALLEYPAA is a young people in Alcoholics Anonymous committee
               serving the San Fernando Valley. We create opportunities for
               service, fellowship, and events that help carry the AA message to
               anybody who still suffers.
@@ -187,9 +187,9 @@ export default async function Home() {
           <LinkRow
             body="Meeting details live on the get-involved page, with the current time and place kept in one easy spot."
             cta="Get involved"
-            eyebrow="When does SFVYPAA meet?"
+            eyebrow="When does VALLEYPAA meet?"
             href={site.links.getInvolved}
-            imageAlt="SFVYPAA business meeting flyer"
+            imageAlt="VALLEYPAA business meeting flyer"
             imageMode="contain"
             imageSrc="/business-meeting.png"
             title="Get involved"
@@ -205,7 +205,7 @@ export default async function Home() {
             title="Events"
           />
           <LinkRow
-            body="Published committee updates, service notes, and event announcements live in the SFVYPAA newsletter archive."
+            body="Published committee updates, service notes, and event announcements live in the VALLEYPAA newsletter archive."
             cta="Read newsletters"
             eyebrow="The zine rack"
             href={site.links.newsletters}
@@ -279,7 +279,7 @@ export default async function Home() {
               rel="noreferrer"
               target="_blank"
             >
-              @sfvypaa
+              @valleypaa
             </a>{" "}
             — a real person answers.
           </p>

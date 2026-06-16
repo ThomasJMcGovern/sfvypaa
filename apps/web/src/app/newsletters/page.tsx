@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 import Link from "next/link"
-import { listPublishedNewsletters } from "@sfvypaa/content"
+import { listPublishedNewsletters } from "@valleypaa/content"
 import { ArrowRight, Newspaper } from "lucide-react"
 
 import { PageHead } from "@/components/page-head"
@@ -11,9 +11,9 @@ import { cn } from "@/lib/utils"
 export const revalidate = 60
 
 export const metadata: Metadata = {
-  title: "Newsletters | SFVYPAA",
+  title: "Newsletters | VALLEYPAA",
   description:
-    "Published SFVYPAA newsletter archive for San Fernando Valley young people in AA.",
+    "Published VALLEYPAA newsletter archive for San Fernando Valley young people in AA.",
 }
 
 const newsletterDateFormatter = new Intl.DateTimeFormat("en-US", {
@@ -44,7 +44,7 @@ export default async function NewslettersPage() {
 
       <PageHead
         eyebrow="The zine rack"
-        sub="Committee updates, event announcements, and service notes from SFVYPAA. Hot off the photocopier."
+        sub="Committee updates, event announcements, and service notes from VALLEYPAA. Hot off the photocopier."
         title="Newsletters."
       />
 

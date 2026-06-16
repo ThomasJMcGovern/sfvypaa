@@ -8,7 +8,7 @@ import { getStorage } from "firebase-admin/storage";
 
 let adminDb: Firestore | undefined;
 
-const emulatorProjectId = "demo-sfvypaa";
+const emulatorProjectId = "demo-valleypaa";
 
 export function isUsingEmulator() {
   return Boolean(process.env.FIRESTORE_EMULATOR_HOST);

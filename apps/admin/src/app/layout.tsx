@@ -30,8 +30,8 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "SFVYPAA Admin",
-  description: "Publishing portal for SFVYPAA events and newsletters.",
+  title: "VALLEYPAA Admin",
+  description: "Publishing portal for VALLEYPAA events and newsletters.",
   robots: {
     index: false,
     follow: false,

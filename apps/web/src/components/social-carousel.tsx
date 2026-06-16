@@ -89,14 +89,14 @@ export function SocialCarousel({
             variant="outline"
           >
             <AtSign data-icon="inline-start" />
-            @sfvypaa
+            @valleypaa
           </Button>
         </div>
       </div>
 
       {posts.length > 0 ? (
         <div
-          aria-label="SFVYPAA Instagram posts"
+          aria-label="VALLEYPAA Instagram posts"
           className="flex snap-x snap-mandatory gap-5 overflow-x-auto scroll-smooth pr-5 pb-5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           onScroll={update}
           ref={trackRef}

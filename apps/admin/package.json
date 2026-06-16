@@ -1,5 +1,5 @@
 {
-  "name": "@sfvypaa/admin",
+  "name": "@valleypaa/admin",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@base-ui/react": "^1.4.1",
-    "@sfvypaa/content": "workspace:*",
+    "@valleypaa/content": "workspace:*",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",

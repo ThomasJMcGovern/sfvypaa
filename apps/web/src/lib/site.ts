@@ -2,8 +2,8 @@ export const meetingSearchUrl =
   "https://lacoaa.org/meetings.php?lat=0&lng=0&pday=0&pformat=0&pmethod=1&pregion=0&ptime=0&ptype=Y#search"
 
 export const site = {
-  name: "SFVYPAA",
-  fullName: "San Fernando Valley Young People in Alcoholics Anonymous",
+  name: "VALLEYPAA",
+  fullName: "Valley Young People in Alcoholics Anonymous",
   description:
     "A young people in Alcoholics Anonymous committee serving the San Fernando Valley through meetings, service, fellowship, and events.",
   links: {
@@ -12,7 +12,7 @@ export const site = {
     events: "/upcoming-events",
     newsletters: "/newsletters",
     meetings: meetingSearchUrl,
-    instagram: "https://www.instagram.com/sfvypaa/",
+    instagram: "https://www.instagram.com/valleypaa/",
     contact: "/get-involved#contact",
   },
   contactEmail: "Contact link coming soon",
@@ -88,7 +88,7 @@ export const imageCredits = [
   },
   {
     label: "Business meeting flyer",
-    href: "https://www.instagram.com/sfvypaa/",
-    credit: "SFVYPAA",
+    href: "https://www.instagram.com/valleypaa/",
+    credit: "VALLEYPAA",
   },
 ]

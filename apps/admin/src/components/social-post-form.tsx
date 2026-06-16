@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import type { SocialPostInput } from "@sfvypaa/content";
+import type { SocialPostInput } from "@valleypaa/content";
 
 import {
   deleteSocialPostAction,

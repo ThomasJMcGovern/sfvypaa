@@ -9,29 +9,25 @@ const repoRoot = path.resolve(
 
 const nextConfig: NextConfig = {
   outputFileTracingRoot: repoRoot,
-  transpilePackages: ["@sfvypaa/content"],
+  transpilePackages: ["@valleypaa/content"],
   serverExternalPackages: ["firebase-admin"],
   async redirects() {
-    return [
-      {
-        source: "/:path*",
-        has: [{ type: "host", value: "www.sfvypaa.org" }],
-        destination: "https://sfvypaa.org/:path*",
-        permanent: true,
-      },
-      {
-        source: "/:path*",
-        has: [{ type: "host", value: "sfvypaa.com" }],
-        destination: "https://sfvypaa.org/:path*",
-        permanent: true,
-      },
-      {
-        source: "/:path*",
-        has: [{ type: "host", value: "www.sfvypaa.com" }],
-        destination: "https://sfvypaa.org/:path*",
-        permanent: true,
-      },
+    // Canonicalize www → apex on the live domain, and 301 every legacy
+    // sfvypaa.org / sfvypaa.com host to the new valleypaa.org so existing
+    // links and search results keep working through the cutover window.
+    const legacyHosts = [
+      "www.valleypaa.org",
+      "sfvypaa.org",
+      "www.sfvypaa.org",
+      "sfvypaa.com",
+      "www.sfvypaa.com",
     ];
+    return legacyHosts.map((host) => ({
+      source: "/:path*",
+      has: [{ type: "host", value: host }],
+      destination: "https://valleypaa.org/:path*",
+      permanent: true,
+    }));
   },
 };
 

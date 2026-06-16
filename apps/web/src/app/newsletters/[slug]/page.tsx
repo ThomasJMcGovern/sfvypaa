@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
-import { getPublishedNewsletterBySlug } from "@sfvypaa/content"
+import { getPublishedNewsletterBySlug } from "@valleypaa/content"
 import { ArrowLeft } from "lucide-react"
 
 import { SiteFooter } from "@/components/site-footer"
@@ -37,7 +37,7 @@ export async function generateMetadata({
   const newsletter = await getPublishedNewsletterBySlug(slug)
 
   return {
-    title: newsletter ? `${newsletter.title} | SFVYPAA` : "Newsletter | SFVYPAA",
+    title: newsletter ? `${newsletter.title} | VALLEYPAA` : "Newsletter | VALLEYPAA",
     description: newsletter?.excerpt,
   }
 }

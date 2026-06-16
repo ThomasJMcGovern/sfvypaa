@@ -1,6 +1,6 @@
-# SFVYPAA
+# VALLEYPAA
 
-Premium site and admin portal for San Fernando Valley Young People in Alcoholics Anonymous.
+Premium site and admin portal for Valley Young People in Alcoholics Anonymous.
 
 ## Stack
 
@@ -13,7 +13,7 @@ Premium site and admin portal for San Fernando Valley Young People in Alcoholics
 
 ## Design System
 
-The public site implements the **SFVYPAA design system** (DIY punk / photocopied zine,
+The public site implements the **VALLEYPAA design system** (DIY punk / photocopied zine,
 authored in Claude Design): bone paper + near-black ink + safety orange, Anton poster
 headlines, Public Sans body, JetBrains Mono for times and details, Permanent Marker for
 decorative stamps only. Square corners, chunky ink borders, hard "stamp" shadows, and
@@ -82,13 +82,13 @@ bun run build:admin
 There are two content environments:
 
 - **dev** — the local Firebase emulator suite (Firestore `127.0.0.1:8085`, Storage
-  `127.0.0.1:9199`, UI at `http://localhost:4040`). It uses the offline `demo-sfvypaa`
+  `127.0.0.1:9199`, UI at `http://localhost:4040`). It uses the offline `demo-valleypaa`
   project, needs no credentials, and cannot touch the cloud. Data persists between runs
   in `.firebase/emulator-data/`.
 - **prod** — the live `sfvypaa-5a987` Firebase project via service-account env vars.
 
 The emulator suite (Firestore 8085, Storage 9199, Auth 9100, UI 4040) runs on the
-offline `demo-sfvypaa` project and cannot touch the cloud.
+offline `demo-valleypaa` project and cannot touch the cloud.
 
 ```bash
 bun run emulators        # start the emulator suite (needs JDK 21+, e.g. brew install openjdk)
@@ -98,7 +98,7 @@ bun run dev:admin:emu    # admin against the emulators (incl. the Auth emulator)
 
 Plain `dev:web` / `dev:admin` use whatever Firebase env vars are set (i.e. prod creds
 from `.env.local`, or nothing). Emulator mode is authoritative — it ignores any real
-service-account creds that happen to be present and stays on `demo-sfvypaa`.
+service-account creds that happen to be present and stays on `demo-valleypaa`.
 
 ### Content & admin CLI
 
@@ -116,7 +116,7 @@ bun run content create-event --env dev \
 bun run content create-social-post --env dev \
   --title "Beach bonfire" --caption "Sundown speaker, s'mores, the one LA beach where fires are legal." \
   --date 2026-06-08 --image "https://images.unsplash.com/photo-..." --publish
-  # --image is required to publish; --instagram defaults to the @sfvypaa profile
+  # --image is required to publish; --instagram defaults to the @valleypaa profile
 
 bun run content add-owner --email you@gmail.com --env dev    # seed/restore an owner
 bun run content list-admins --env dev
@@ -146,14 +146,14 @@ The public app also uses:
 The admin app also uses:
 
 - `SFVYPAA_REVALIDATE_SECRET`
-- `SFVYPAA_PUBLIC_SITE_URL` (optional; defaults to `https://sfvypaa.org`)
+- `SFVYPAA_PUBLIC_SITE_URL` (optional; defaults to `https://valleypaa.org`)
 - `SFVYPAA_AUDIT_WEBHOOK_URL` (optional; Slack/Discord incoming webhook for the
   append-only audit copy)
 - `NEXT_PUBLIC_FIREBASE_API_KEY`, `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN`,
   `NEXT_PUBLIC_FIREBASE_PROJECT_ID` — client config for Google sign-in (public values)
 
 Before the admin can accept sign-ins, enable **Google** as a provider in the Firebase
-console (Authentication → Sign-in method) and add `admin.sfvypaa.org` + `localhost` to
+console (Authentication → Sign-in method) and add `admin.valleypaa.org` + `localhost` to
 the Authorized Domains list.
 
 The Storage bucket is used by the admin app for event image uploads.
@@ -194,15 +194,15 @@ Admin portal:
 
 ## Deploy
 
-The public Vercel project is `sfvypaa`. The root `vercel.json` builds `apps/web`.
+The public Vercel project is `valleypaa`. The root `vercel.json` builds `apps/web`.
 
-The admin Vercel project is `sfvypaa-admin`. Deploy it from the repo root with the admin config:
+The admin Vercel project is `valleypaa-admin`. Deploy it from the repo root with the admin config:
 
 ```bash
-vercel link --yes --project sfvypaa-admin --scope tj-mcgoverns-projects
+vercel link --yes --project valleypaa-admin --scope tj-mcgoverns-projects
 vercel pull --yes --environment=production --scope tj-mcgoverns-projects
 vercel build --prod --scope tj-mcgoverns-projects --local-config vercel.admin.json
 vercel deploy --prebuilt --prod --scope tj-mcgoverns-projects --local-config vercel.admin.json
 ```
 
-`admin.sfvypaa.org` should point to Vercel with an `A` record for host `admin` and value `76.76.21.21`.
+`admin.valleypaa.org` should point to Vercel with an `A` record for host `admin` and value `76.76.21.21`.

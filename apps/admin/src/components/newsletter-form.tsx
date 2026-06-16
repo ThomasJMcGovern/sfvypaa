@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import type { NewsletterInput } from "@sfvypaa/content";
+import type { NewsletterInput } from "@valleypaa/content";
 
 import {
   deleteNewsletterAction,

@@ -3,7 +3,7 @@ import { createHash, timingSafeEqual } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { NextResponse, type NextRequest } from "next/server";
 
-const secretHeader = "x-sfvypaa-revalidate-secret";
+const secretHeader = "x-valleypaa-revalidate-secret";
 
 // Constant-time secret comparison. Hashing both sides to a fixed-length digest
 // means timingSafeEqual never throws on length mismatch and leaks no length info.

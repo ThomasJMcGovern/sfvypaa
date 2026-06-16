@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { listEvents, type EventRecord } from "@sfvypaa/content";
+import { listEvents, type EventRecord } from "@valleypaa/content";
 import {
   CalendarDays,
   CalendarX,
@@ -36,7 +36,7 @@ const dateTimeFormatter = new Intl.DateTimeFormat("en-US", {
 });
 
 function publicSiteUrl() {
-  return (process.env.SFVYPAA_PUBLIC_SITE_URL || "https://sfvypaa.org").replace(
+  return (process.env.SFVYPAA_PUBLIC_SITE_URL || "https://valleypaa.org").replace(
     /\/+$/,
     "",
   );
@@ -173,7 +173,7 @@ export default async function EventsPage({
                   <>
                     <ContentStatusBadge status={event.status} />
                     <Badge variant="outline">
-                      {event.host === "Co-hosted by SFVYPAA"
+                      {event.host === "Co-hosted by VALLEYPAA"
                         ? "Co-hosted"
                         : "Hosted"}
                     </Badge>

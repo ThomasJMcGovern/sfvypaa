@@ -6,7 +6,7 @@ import {
   removeAdmin,
   setAdmin,
   type AdminRole,
-} from "@sfvypaa/content";
+} from "@valleypaa/content";
 import { revalidatePath } from "next/cache";
 
 import { adminToActor, requireOwner } from "@/lib/admin-session";

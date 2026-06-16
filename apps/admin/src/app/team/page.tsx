@@ -1,4 +1,4 @@
-import { listAdmins } from "@sfvypaa/content";
+import { listAdmins } from "@valleypaa/content";
 import { Trash2 } from "lucide-react";
 
 import { removeTeamMemberAction } from "@/app/team/actions";
@@ -11,7 +11,7 @@ import { requireOwner } from "@/lib/admin-session";
 export const dynamic = "force-dynamic";
 
 function publicSiteUrl() {
-  return (process.env.SFVYPAA_PUBLIC_SITE_URL || "https://sfvypaa.org").replace(
+  return (process.env.SFVYPAA_PUBLIC_SITE_URL || "https://valleypaa.org").replace(
     /\/+$/,
     "",
   );

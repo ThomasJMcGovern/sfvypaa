@@ -4,8 +4,8 @@ export const contentStatusSchema = z.enum(["draft", "published"]);
 export type ContentStatus = z.infer<typeof contentStatusSchema>;
 
 export const eventHostSchema = z.enum([
-  "Hosted by SFVYPAA",
-  "Co-hosted by SFVYPAA",
+  "Hosted by VALLEYPAA",
+  "Co-hosted by VALLEYPAA",
 ]);
 export type EventHost = z.infer<typeof eventHostSchema>;
 
@@ -96,7 +96,7 @@ export const emptyEvent: EventInput = {
   time: "",
   location: "",
   tone: "",
-  host: "Hosted by SFVYPAA",
+  host: "Hosted by VALLEYPAA",
   status: "draft",
   sortDate: "",
   rsvpUrl: "",

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { emptyNewsletter, getNewsletter } from "@sfvypaa/content";
+import { emptyNewsletter, getNewsletter } from "@valleypaa/content";
 import { ArrowLeft } from "lucide-react";
 
 import { AdminShell } from "@/components/admin-shell";
@@ -14,7 +14,7 @@ import {
 export const dynamic = "force-dynamic";
 
 function publicSiteUrl() {
-  return (process.env.SFVYPAA_PUBLIC_SITE_URL || "https://sfvypaa.org").replace(
+  return (process.env.SFVYPAA_PUBLIC_SITE_URL || "https://valleypaa.org").replace(
     /\/+$/,
     "",
   );

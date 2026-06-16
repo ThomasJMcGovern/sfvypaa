@@ -26,7 +26,7 @@ import {
   type NewsletterInput,
   type SiteSettingsInput,
   type SocialPostInput,
-} from "@sfvypaa/content";
+} from "@valleypaa/content";
 import { format } from "date-fns";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -43,8 +43,8 @@ export type AdminActionState = {
   fieldErrors?: Record<string, string>;
 } | null;
 
-const publicSiteFallbackUrl = "https://sfvypaa.org";
-const publicRevalidateHeader = "x-sfvypaa-revalidate-secret";
+const publicSiteFallbackUrl = "https://valleypaa.org";
+const publicRevalidateHeader = "x-valleypaa-revalidate-secret";
 
 function field(formData: FormData, key: string) {
   const value = formData.get(key);
@@ -56,9 +56,9 @@ function status(formData: FormData): ContentStatus {
 }
 
 function host(formData: FormData): EventHost {
-  return field(formData, "host") === "Co-hosted by SFVYPAA"
-    ? "Co-hosted by SFVYPAA"
-    : "Hosted by SFVYPAA";
+  return field(formData, "host").startsWith("Co-hosted")
+    ? "Co-hosted by VALLEYPAA"
+    : "Hosted by VALLEYPAA";
 }
 
 function eventDateLabel(value: string) {

@@ -6,7 +6,7 @@ import {
   listEvents,
   listNewsletters,
   listSocialPosts,
-} from "@sfvypaa/content";
+} from "@valleypaa/content";
 import {
   AtSign,
   CalendarDays,
@@ -29,7 +29,7 @@ import { Button } from "@/components/ui/button";
 export const dynamic = "force-dynamic";
 
 function publicSiteUrl() {
-  return (process.env.SFVYPAA_PUBLIC_SITE_URL || "https://sfvypaa.org").replace(
+  return (process.env.SFVYPAA_PUBLIC_SITE_URL || "https://valleypaa.org").replace(
     /\/+$/,
     "",
   );
@@ -93,7 +93,7 @@ export default async function AdminHomePage() {
           </span>
         }
         eyebrow="Publishing console"
-        sub="Publish approved SFVYPAA events, newsletters, and curated social posts to the public site. The grit lives in the frame — the data stays loud and clear."
+        sub="Publish approved VALLEYPAA events, newsletters, and curated social posts to the public site. The grit lives in the frame — the data stays loud and clear."
         title="Dashboard"
       />
 

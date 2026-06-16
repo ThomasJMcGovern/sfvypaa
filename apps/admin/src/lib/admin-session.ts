@@ -5,12 +5,12 @@ import {
   getAdminAuth,
   type Actor,
   type AdminRole,
-} from "@sfvypaa/content";
+} from "@valleypaa/content";
 import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 export const adminAccessPath = "/access";
-export const adminSessionCookieName = "sfvypaa_admin_session";
+export const adminSessionCookieName = "valleypaa_admin_session";
 
 const sessionMaxAgeMs = 60 * 60 * 24 * 14 * 1000; // 14 days
 

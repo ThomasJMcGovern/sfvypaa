@@ -72,7 +72,7 @@ export function AdminShell({
               width={36}
             />
             <span className="font-display text-2xl leading-[0.9] text-foreground uppercase">
-              SFVYPAA
+              VALLEYPAA
             </span>
             <span className="border-2 border-ink bg-orange px-2 py-0.5 text-xs font-bold tracking-[0.14em] text-ink uppercase">
               Admin
