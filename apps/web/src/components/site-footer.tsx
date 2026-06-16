@@ -36,7 +36,7 @@ export function SiteFooter() {
               rel="noreferrer"
               target="_blank"
             >
-              → Instagram @sfvypaa
+              → Instagram @valleypaa
             </a>
           </div>
         </div>

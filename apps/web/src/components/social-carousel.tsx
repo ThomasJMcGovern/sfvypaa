@@ -89,7 +89,7 @@ export function SocialCarousel({
             variant="outline"
           >
             <AtSign data-icon="inline-start" />
-            @sfvypaa
+            @valleypaa
           </Button>
         </div>
       </div>

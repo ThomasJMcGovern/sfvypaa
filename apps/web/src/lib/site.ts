@@ -12,7 +12,7 @@ export const site = {
     events: "/upcoming-events",
     newsletters: "/newsletters",
     meetings: meetingSearchUrl,
-    instagram: "https://www.instagram.com/sfvypaa/",
+    instagram: "https://www.instagram.com/valleypaa/",
     contact: "/get-involved#contact",
   },
   contactEmail: "Contact link coming soon",
@@ -88,7 +88,7 @@ export const imageCredits = [
   },
   {
     label: "Business meeting flyer",
-    href: "https://www.instagram.com/sfvypaa/",
+    href: "https://www.instagram.com/valleypaa/",
     credit: "VALLEYPAA",
   },
 ]

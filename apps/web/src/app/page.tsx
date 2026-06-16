@@ -279,7 +279,7 @@ export default async function Home() {
               rel="noreferrer"
               target="_blank"
             >
-              @sfvypaa
+              @valleypaa
             </a>{" "}
             — a real person answers.
           </p>

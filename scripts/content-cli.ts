@@ -44,7 +44,7 @@ const { values: args, positionals } = parseArgs({
     location: { type: "string" },
     summary: { type: "string" },
     caption: { type: "string" },
-    instagram: { type: "string", default: "https://www.instagram.com/sfvypaa/" },
+    instagram: { type: "string", default: "https://www.instagram.com/valleypaa/" },
     rsvp: { type: "string", default: "" },
     image: { type: "string", default: "" },
     email: { type: "string" },
@@ -362,7 +362,7 @@ if (command === "list") {
       title: "New here? Start here.",
       caption:
         "You don't have to talk. You don't have to call yourself anything. Come early, grab a coffee, sit in the back. We saved you a seat.",
-      instagramUrl: "https://www.instagram.com/sfvypaa/",
+      instagramUrl: "https://www.instagram.com/valleypaa/",
       imageUrl: "",
       postDate: "2026-05-28",
       status: "published",

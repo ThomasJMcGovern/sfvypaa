@@ -110,7 +110,7 @@ export default function GetInvolvedPage() {
               }
             >
               <AtSign data-icon="inline-start" />
-              Follow @sfvypaa
+              Follow @valleypaa
             </Button>
           </div>
         </div>
@@ -157,7 +157,7 @@ export default function GetInvolvedPage() {
                 rel="noreferrer"
                 target="_blank"
               >
-                @sfvypaa
+                @valleypaa
               </a>{" "}
               — or just show up to the business meeting.
             </p>
