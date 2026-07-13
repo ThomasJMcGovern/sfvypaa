@@ -12,8 +12,8 @@ import { businessMeeting, site } from "@/lib/site"
 const principles = [
   {
     glyph: "★",
-    title: "Anonymous by design",
-    text: "Loud visuals, zero identifiable member photography. We lean on Valley landscapes, light, and atmosphere instead of faces.",
+    title: "Sober, together",
+    text: "A San Fernando Valley community of young people staying sober and showing up for each other — in the rooms and out in the world.",
   },
   {
     glyph: "→",
@@ -22,8 +22,8 @@ const principles = [
   },
   {
     glyph: "✱",
-    title: "Young people energy",
-    text: "Rooms and events that feel alive, current, and genuinely welcoming to anyone who walks in.",
+    title: "Newcomers first",
+    text: "The newest person in the room matters most — however you got here and however new you are, there's a seat and a welcome waiting.",
   },
 ]
 
