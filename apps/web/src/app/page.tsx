@@ -261,9 +261,9 @@ export default async function Home() {
           New here? Read this.
         </h2>
         <p className="mx-auto mb-6 max-w-[46ch] text-lg leading-relaxed text-text-soft">
-          You don&apos;t have to have hit a bottom. You don&apos;t have to call
-          yourself anything. You don&apos;t have to talk. Come early, get a
-          coffee, sit in the back if you want. We&apos;ll be glad you came.
+          You don&apos;t have to have hit a bottom. Come early, grab a coffee,
+          and get to know other young people staying sober in the San Fernando
+          Valley. We&apos;ll be glad you came.
         </p>
         <div className="border-2 border-border border-l-8 border-l-orange bg-card p-4 text-left shadow-stamp">
           <p className="text-sm font-extrabold tracking-[0.06em] uppercase">
