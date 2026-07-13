@@ -21,6 +21,7 @@ import {
   TextArea,
 } from "@/components/form-fields";
 import { Input } from "@/components/ui/input";
+import { formatEventDateLabel } from "@/lib/event-date";
 
 const initialState: AdminActionState = null;
 
@@ -40,6 +41,10 @@ export function EventForm({
   const eventDate = event.eventDate || event.sortDate;
   const fieldErrors = state?.fieldErrors ?? {};
   const isPublished = event.status === "published";
+  const derivedDateLabel = formatEventDateLabel(eventDate);
+  const isCustomDateLabel = Boolean(
+    event.date && event.date !== derivedDateLabel,
+  );
 
   return (
     <form action={formAction} className="grid gap-5 pb-16">
@@ -86,6 +91,15 @@ export function EventForm({
             required
           />
         </div>
+        <Field
+          label="Date shown on card"
+          name="dateLabel"
+          defaultValue={isCustomDateLabel ? event.date : ""}
+          error={fieldErrors.date}
+          mono
+          placeholder={derivedDateLabel || "e.g. Second Saturday of each month"}
+          hint="Leave blank to use the calendar date above. For recurring events, enter custom text like “Second Saturday of each month.”"
+        />
       </FieldGroup>
 
       <FieldGroup title="Content">

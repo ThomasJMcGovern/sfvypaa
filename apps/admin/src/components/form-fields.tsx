@@ -73,6 +73,7 @@ export function Field({
   error,
   type = "text",
   mono = false,
+  hint,
 }: {
   label: string;
   name: string;
@@ -82,6 +83,7 @@ export function Field({
   error?: string;
   type?: string;
   mono?: boolean;
+  hint?: string;
 }) {
   const errorId = error ? `${name}-error` : undefined;
 
@@ -98,6 +100,11 @@ export function Field({
         required={required}
         type={type}
       />
+      {hint ? (
+        <p className="font-mono text-xs leading-5 text-muted-foreground">
+          {hint}
+        </p>
+      ) : null}
       {error ? <FieldError id={errorId}>{error}</FieldError> : null}
     </label>
   );

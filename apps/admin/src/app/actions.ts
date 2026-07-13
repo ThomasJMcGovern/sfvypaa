@@ -27,7 +27,6 @@ import {
   type SiteSettingsInput,
   type SocialPostInput,
 } from "@valleypaa/content";
-import { format } from "date-fns";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -37,6 +36,7 @@ import {
   clearAdminSession,
   getCurrentAdmin,
 } from "@/lib/admin-session";
+import { formatEventDateLabel } from "@/lib/event-date";
 
 export type AdminActionState = {
   message?: string;
@@ -59,20 +59,6 @@ function host(formData: FormData): EventHost {
   return field(formData, "host").startsWith("Co-hosted")
     ? "Co-hosted by VALLEYPAA"
     : "Hosted by VALLEYPAA";
-}
-
-function eventDateLabel(value: string) {
-  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
-
-  if (!match) {
-    return "";
-  }
-
-  const [, year, month, day] = match;
-  return format(
-    new Date(Number(year), Number(month) - 1, Number(day)),
-    "MMMM d, yyyy",
-  );
 }
 
 function uploadedImage(formData: FormData) {
@@ -188,12 +174,15 @@ async function requireActionActor(): Promise<Actor> {
 
 function eventInput(formData: FormData): EventInput {
   const eventDate = field(formData, "eventDate");
+  const dateLabel = field(formData, "dateLabel").trim();
 
   return {
     id: field(formData, "id") || undefined,
     title: field(formData, "title"),
     eventDate,
-    date: eventDateLabel(eventDate),
+    // A custom label (e.g. "Second Saturday of each month") wins and survives
+    // re-saves; otherwise fall back to the calendar date.
+    date: dateLabel || formatEventDateLabel(eventDate),
     time: field(formData, "time"),
     location: field(formData, "location"),
     tone: field(formData, "tone"),
