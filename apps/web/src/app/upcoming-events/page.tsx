@@ -160,7 +160,7 @@ function EventCard({
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             alt={`${event.title} flyer`}
-            className="aspect-[4/3] w-full object-cover"
+            className="block h-auto w-full"
             src={event.imageUrl}
           />
         </div>

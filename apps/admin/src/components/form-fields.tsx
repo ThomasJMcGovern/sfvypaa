@@ -295,14 +295,14 @@ export function ImageUploadField({
       <div className="grid gap-3 border-2 border-dashed border-border bg-secondary p-3 text-foreground sm:grid-cols-[8rem_1fr]">
         <div
           className={cn(
-            "relative flex items-center justify-center overflow-hidden border-2 border-border bg-card",
+            "relative flex items-center justify-center overflow-hidden border-2 border-border bg-bone-2",
             aspect === "1/1" ? "aspect-square" : "aspect-[4/3]"
           )}
         >
           {previewUrl ? (
             <Image
               alt="Image preview"
-              className="object-cover"
+              className="object-contain"
               fill
               sizes="8rem"
               src={previewUrl}
