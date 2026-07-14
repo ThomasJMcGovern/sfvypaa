@@ -7,6 +7,7 @@ import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
 import { SocialCarousel } from "@/components/social-carousel"
 import { Button } from "@/components/ui/button"
+import { reflectionForMonthDay, todayMonthDay } from "@/lib/reflections"
 import { businessMeeting, site } from "@/lib/site"
 
 const principles = [
@@ -60,6 +61,14 @@ export default async function Home() {
         dateLabel: formatSocialDate(post.postDate),
       }))
     : []
+
+  const todayMd = todayMonthDay()
+  const todaysReflection = reflectionForMonthDay(todayMd)
+  const [todayMonth, todayDay] = todayMd.split("-").map(Number)
+  const todayLabel = new Intl.DateTimeFormat("en-US", {
+    month: "long",
+    day: "numeric",
+  }).format(new Date(2024, (todayMonth ?? 1) - 1, todayDay ?? 1))
 
   return (
     <main className="min-h-screen overflow-x-clip bg-background text-foreground">
@@ -148,6 +157,40 @@ export default async function Home() {
             <ArrowRight data-icon="inline-end" />
           </Button>
         </div>
+      </section>
+
+      {/* 2b — daily reflection teaser */}
+      <section className="mx-auto w-full max-w-7xl px-5 pt-6 sm:px-8 lg:px-10">
+        <a
+          className="group flex flex-wrap items-center gap-5 border-[3px] border-border bg-card px-6 py-5 text-card-foreground shadow-stamp transition-shadow hover:shadow-stamp-lg"
+          href={site.links.dailyReflection}
+        >
+          <div className="font-display flex size-[46px] shrink-0 items-center justify-center border-[3px] border-border text-2xl text-orange">
+            ★
+          </div>
+          <div className="min-w-[min(100%,260px)] flex-1">
+            <p className="label-stamp text-orange">
+              Daily reflection · {todayLabel}
+            </p>
+            {todaysReflection ? (
+              <>
+                <p className="font-display mt-1 text-2xl leading-[0.95] text-foreground uppercase">
+                  {todaysReflection.title}
+                </p>
+                <p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-text-soft">
+                  {todaysReflection.quote}
+                </p>
+              </>
+            ) : (
+              <p className="font-display mt-1 text-2xl leading-[0.95] text-foreground uppercase">
+                A thought to sit with, every day.
+              </p>
+            )}
+          </div>
+          <span className="inline-flex items-center gap-1.5 font-mono text-xs font-bold tracking-wider text-orange uppercase">
+            Read today&apos;s <ArrowRight className="size-4" />
+          </span>
+        </a>
       </section>
 
       {/* 3 — what is VALLEYPAA: duotone valley + overlapping card */}

@@ -10,7 +10,12 @@ import { navItems } from "@/lib/site"
 import { cn } from "@/lib/utils"
 
 type SiteHeaderProps = {
-  active: "home" | "get-involved" | "upcoming-events" | "newsletters"
+  active:
+    | "home"
+    | "get-involved"
+    | "upcoming-events"
+    | "newsletters"
+    | "daily-reflection"
 }
 
 export function SiteHeader({ active }: SiteHeaderProps) {
