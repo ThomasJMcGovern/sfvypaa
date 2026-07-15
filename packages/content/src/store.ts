@@ -144,6 +144,10 @@ function siteSettingsFromData(
       typeof data?.showInstagramSocials === "boolean"
         ? data.showInstagramSocials
         : defaultSiteSettings.showInstagramSocials,
+    showDailyReflection:
+      typeof data?.showDailyReflection === "boolean"
+        ? data.showDailyReflection
+        : defaultSiteSettings.showDailyReflection,
     updatedAt: toIsoString(data?.updatedAt),
   };
 }
@@ -574,6 +578,7 @@ export async function saveSiteSettings(
   await ref.set(
     {
       showInstagramSocials: parsed.showInstagramSocials,
+      showDailyReflection: parsed.showDailyReflection,
       updatedAt: FieldValue.serverTimestamp(),
       updatedBy: actor.id,
       updatedFrom: actor.source,
@@ -586,7 +591,9 @@ export async function saveSiteSettings(
     action: "settings.update",
     targetType: "settings",
     targetId: siteSettingsDocument,
-    summary: `Instagram socials ${parsed.showInstagramSocials ? "shown" : "hidden"}`,
+    summary: `Instagram socials ${
+      parsed.showInstagramSocials ? "shown" : "hidden"
+    } · Daily Reflection ${parsed.showDailyReflection ? "shown" : "hidden"}`,
   });
 
   return siteSettingsDocument;

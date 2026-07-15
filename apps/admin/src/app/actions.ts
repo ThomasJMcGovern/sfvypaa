@@ -221,6 +221,7 @@ function socialPostInput(formData: FormData): SocialPostInput {
 function siteSettingsInput(formData: FormData): SiteSettingsInput {
   return {
     showInstagramSocials: field(formData, "showInstagramSocials") === "on",
+    showDailyReflection: field(formData, "showDailyReflection") === "on",
   };
 }
 

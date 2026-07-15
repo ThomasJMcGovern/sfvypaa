@@ -160,6 +160,7 @@ export default async function Home() {
       </section>
 
       {/* 2b — daily reflection teaser */}
+      {settings.showDailyReflection ? (
       <section className="mx-auto w-full max-w-7xl px-5 pt-6 sm:px-8 lg:px-10">
         <a
           className="group flex flex-wrap items-center gap-5 border-[3px] border-border bg-card px-6 py-5 text-card-foreground shadow-stamp transition-shadow hover:shadow-stamp-lg"
@@ -192,6 +193,7 @@ export default async function Home() {
           </span>
         </a>
       </section>
+      ) : null}
 
       {/* 3 — what is VALLEYPAA: duotone valley + overlapping card */}
       <section className="mx-auto w-full max-w-7xl px-5 pt-16 sm:px-8 lg:px-10">

@@ -1,4 +1,6 @@
 import type { Metadata } from "next"
+import { getSiteSettings } from "@valleypaa/content"
+import { notFound } from "next/navigation"
 
 import { DailyReflectionViewer } from "@/components/daily-reflection-viewer"
 import { PageHead } from "@/components/page-head"
@@ -15,6 +17,12 @@ export const metadata: Metadata = {
 }
 
 export default async function DailyReflectionPage() {
+  const settings = await getSiteSettings()
+
+  if (!settings.showDailyReflection) {
+    notFound()
+  }
+
   const today = todayMonthDay()
 
   return (

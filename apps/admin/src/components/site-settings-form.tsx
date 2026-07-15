@@ -2,7 +2,7 @@
 
 import { useActionState } from "react";
 import type { SiteSettingsInput } from "@valleypaa/content";
-import { Eye, Save } from "lucide-react";
+import { BookOpen, Eye, Save } from "lucide-react";
 
 import {
   saveSiteSettingsAction,
@@ -57,6 +57,34 @@ export function SiteSettingsForm({
             className="peer absolute inset-0 cursor-pointer opacity-0"
             defaultChecked={settings.showInstagramSocials}
             name="showInstagramSocials"
+            type="checkbox"
+          />
+          <span className="flex h-[34px] w-16 items-center border-[3px] border-border bg-secondary p-[3px] transition-colors peer-checked:justify-end peer-checked:bg-orange peer-focus-visible:ring-3 peer-focus-visible:ring-ring/60">
+            <span className="block size-6 bg-ink" />
+          </span>
+        </span>
+      </label>
+
+      <label className="flex cursor-pointer items-center gap-4.5 border-[3px] border-border bg-card p-5 text-card-foreground shadow-stamp">
+        <span className="flex size-11 shrink-0 items-center justify-center border-[3px] border-border text-orange">
+          <BookOpen className="size-5" />
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block text-base font-extrabold text-foreground">
+            Show Daily Reflection page
+          </span>
+          <span className="mt-1 block text-sm leading-normal text-text-soft">
+            When on, the Daily Reflection page, its homepage card, and the nav
+            link are public. Keep it off until you&apos;re licensed to publish
+            the reflections.
+          </span>
+        </span>
+        {/* stamp switch: ink knob slides on an orange track */}
+        <span className="relative inline-flex shrink-0">
+          <input
+            className="peer absolute inset-0 cursor-pointer opacity-0"
+            defaultChecked={settings.showDailyReflection}
+            name="showDailyReflection"
             type="checkbox"
           />
           <span className="flex h-[34px] w-16 items-center border-[3px] border-border bg-secondary p-[3px] transition-colors peer-checked:justify-end peer-checked:bg-orange peer-focus-visible:ring-3 peer-focus-visible:ring-ring/60">

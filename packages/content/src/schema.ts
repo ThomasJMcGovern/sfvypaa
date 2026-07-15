@@ -81,6 +81,7 @@ export type SocialPostRecord = Omit<SocialPostInput, "id"> & {
 
 export const siteSettingsInputSchema = z.object({
   showInstagramSocials: z.boolean(),
+  showDailyReflection: z.boolean(),
 });
 export type SiteSettingsInput = z.infer<typeof siteSettingsInputSchema>;
 
@@ -123,4 +124,5 @@ export const emptySocialPost: SocialPostInput = {
 
 export const defaultSiteSettings: SiteSettingsInput = {
   showInstagramSocials: true,
+  showDailyReflection: false,
 };

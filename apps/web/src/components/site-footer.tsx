@@ -1,6 +1,13 @@
+import { getSiteSettings } from "@valleypaa/content"
+
 import { imageCredits, navItems, site } from "@/lib/site"
 
-export function SiteFooter() {
+export async function SiteFooter() {
+  const settings = await getSiteSettings()
+  const items = settings.showDailyReflection
+    ? navItems
+    : navItems.filter((item) => item.key !== "daily-reflection")
+
   return (
     <footer className="grain mt-[72px] bg-ink text-bone">
       <div className="relative z-10 mx-auto grid w-full max-w-7xl gap-9 px-5 pt-12 pb-8 sm:grid-cols-[repeat(auto-fit,minmax(220px,1fr))] sm:px-8 lg:px-10">
@@ -19,7 +26,7 @@ export function SiteFooter() {
         <div>
           <p className="label-stamp mb-2.5 text-[#8A8472]">Get around</p>
           <div className="flex flex-col items-start gap-0.5">
-            {navItems.map((item) => (
+            {items.map((item) => (
               <a
                 className="py-1 text-sm font-semibold text-bone transition-colors hover:text-orange"
                 href={item.href}
