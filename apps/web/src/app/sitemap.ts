@@ -50,12 +50,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   for (const event of events) {
     const past = isPastEvent(event.eventDate)
 
+    // Deliberately no `images`. Next does not XML-escape <image:loc>, and the
+    // Firebase Storage flyer URLs contain "?alt=media&token=..." — that bare
+    // ampersand makes the whole sitemap unparseable, which would get the entire
+    // file rejected. Flyers in Google Images aren't worth that.
     entries.push({
       url: `${siteUrl}/upcoming-events/${eventSlug(event)}`,
       lastModified: event.updatedAt ?? event.publishedAt,
       changeFrequency: past ? "yearly" : "weekly",
       priority: past ? 0.4 : 0.8,
-      ...(event.imageUrl ? { images: [event.imageUrl] } : {}),
     })
   }
 
