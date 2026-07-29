@@ -66,6 +66,14 @@ export const metadata: Metadata = {
       },
     ],
   },
+  // Bing Webmaster Tools site ownership. Must stay in place — removing it
+  // un-verifies the property. Bing matters more than Google for this site's
+  // goal: it backs ChatGPT's search layer.
+  verification: {
+    other: {
+      "msvalidate.01": "DFF284D67F2ED8A6DA804DA56B4F4A3F",
+    },
+  },
   twitter: {
     card: "summary_large_image",
     title: "VALLEYPAA",
