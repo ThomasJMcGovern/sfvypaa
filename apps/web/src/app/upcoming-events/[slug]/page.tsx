@@ -1,10 +1,10 @@
 import type { Metadata } from "next"
 import Link from "next/link"
-import { notFound } from "next/navigation"
+import { notFound, permanentRedirect } from "next/navigation"
 import {
   eventSlug,
-  getPublishedEventBySlug,
   listPublishedEvents,
+  resolveEventSlug,
 } from "@valleypaa/content"
 import { ArrowLeft, ArrowRight, CalendarDays, Clock, MapPin } from "lucide-react"
 
@@ -31,11 +31,13 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>
 }): Promise<Metadata> {
   const { slug } = await params
-  const event = await getPublishedEventBySlug(slug)
+  const resolved = await resolveEventSlug(slug)
 
-  if (!event) {
+  if (!resolved) {
     return { title: "Event" }
   }
+
+  const { event, canonicalSlug } = resolved
 
   const description = [
     event.tone,
@@ -48,13 +50,13 @@ export async function generateMetadata({
   return {
     title: `${event.title} — ${event.date}`,
     description,
-    alternates: { canonical: `/upcoming-events/${slug}` },
+    alternates: { canonical: `/upcoming-events/${canonicalSlug}` },
     openGraph: {
       ...baseOpenGraph,
       type: "article",
       title: `${event.title} — ${event.date}`,
       description,
-      url: `/upcoming-events/${slug}`,
+      url: `/upcoming-events/${canonicalSlug}`,
       ...(event.imageUrl ? { images: [event.imageUrl] } : {}),
     },
   }
@@ -66,10 +68,19 @@ export default async function EventDetailPage({
   params: Promise<{ slug: string }>
 }) {
   const { slug } = await params
-  const event = await getPublishedEventBySlug(slug)
+  const resolved = await resolveEventSlug(slug)
 
-  if (!event) {
+  if (!resolved) {
     notFound()
+  }
+
+  const { event, canonicalSlug, isCanonical } = resolved
+
+  // An older URL form (or a pre-rename title) still identifies this event.
+  // Redirect permanently so previously indexed links keep their value and
+  // there is only ever one indexable URL per event.
+  if (!isCanonical) {
+    permanentRedirect(`/upcoming-events/${canonicalSlug}`)
   }
 
   const past = isPastEvent(event.eventDate)
@@ -80,11 +91,11 @@ export default async function EventDetailPage({
 
       <JsonLd
         data={[
-          eventJsonLd(event, slug),
+          eventJsonLd(event, canonicalSlug),
           breadcrumbJsonLd([
             { name: "Home", path: "/" },
             { name: "Sober events", path: "/upcoming-events" },
-            { name: event.title, path: `/upcoming-events/${slug}` },
+            { name: event.title, path: `/upcoming-events/${canonicalSlug}` },
           ]),
         ]}
       />

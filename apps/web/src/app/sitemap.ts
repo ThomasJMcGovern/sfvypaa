@@ -9,7 +9,9 @@ import {
 import { isPastEvent } from "@/lib/event-datetime"
 import { siteUrl } from "@/lib/seo"
 
-export const revalidate = 3600
+// Short enough that a slug change can't leave a stale URL in the sitemap for
+// long. Admin publishes also revalidate this path explicitly.
+export const revalidate = 600
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [settings, events, newsletters] = await Promise.all([

@@ -325,12 +325,7 @@ export async function saveEventAction(
     }
 
     id = await saveEvent(data, actor);
-    slug = eventSlug({
-      id,
-      title: data.title,
-      eventDate: data.eventDate ?? "",
-      sortDate: data.sortDate ?? "",
-    });
+    slug = eventSlug({ id, title: data.title });
   } catch (error) {
     return isImageUploadError(error)
       ? errorState(error, "imageFile")

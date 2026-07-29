@@ -72,30 +72,32 @@ export function slugify(value: string) {
     .replace(/^-+|-+$/g, "");
 }
 
-const isoDatePattern = /^\d{4}-\d{2}-\d{2}$/;
+const trailingIsoDatePattern = /-\d{4}-\d{2}-\d{2}$/;
+
+/** Stable, opaque tail derived from the immutable Firestore document id. */
+function eventIdSuffix(id: string) {
+  return slugify(id).replace(/-/g, "").slice(0, 8);
+}
 
 /**
- * URL slug for an event, derived rather than stored so no Firestore migration
- * is needed. The ISO date suffix disambiguates recurring records — a monthly
- * "Business Meeting" would otherwise collide with every previous month — and
- * puts the date in the URL, which is a strong relevance signal for dated-event
- * queries. Falls back to the document id for legacy records with no date.
+ * URL slug for an event.
+ *
+ * Deliberately NOT derived from eventDate. An earlier version embedded the ISO
+ * date for its relevance signal, but that made the URL a function of mutable
+ * data: rescheduling an event silently 404'd a URL that was already in the
+ * sitemap and submitted to search engines. A dead indexed URL costs far more
+ * than a date in the path is worth.
+ *
+ * The suffix comes from the document id, which never changes, so editing the
+ * date, time, venue, or description leaves the URL untouched. Retitling does
+ * change it — but resolveEventSlug() below redirects the old form rather than
+ * 404ing, so previously published URLs keep working.
  */
-export function eventSlug(
-  event: Pick<EventRecord, "id" | "title" | "eventDate" | "sortDate">,
-) {
-  const base = slugify(event.title)
-  const raw = (event.eventDate || event.sortDate || "").trim()
-  const iso = isoDatePattern.test(raw) ? raw : ""
+export function eventSlug(event: Pick<EventRecord, "id" | "title">) {
+  const base = slugify(event.title);
+  const suffix = eventIdSuffix(event.id);
 
-  if (iso) {
-    return base ? `${base}-${iso}` : `${slugify(event.id)}-${iso}`;
-  }
-
-  // eventDate is schema-required, so this only covers legacy records. Fall back
-  // to the id rather than the bare title: two undated events sharing a title
-  // would otherwise collide, and the second would be silently unreachable.
-  return base ? `${base}-${slugify(event.id)}` : slugify(event.id);
+  return base ? `${base}-${suffix}` : suffix;
 }
 
 function eventFromDoc(doc: QueryDocumentSnapshot): EventRecord {
@@ -234,16 +236,51 @@ export async function listPublishedEvents() {
 }
 
 /**
- * Resolves a published event by its derived slug. Scans the published list
- * rather than querying: published counts are in the single digits, so a scan is
- * cheaper than maintaining a Firestore index on a field that doesn't exist —
- * and routing through listPublishedEvents guarantees drafts can never be
- * reached by guessing a URL.
+ * Resolves a published event by slug, tolerating every historical slug form so
+ * that URLs already published to search engines never 404.
+ *
+ * Returns the event plus its canonical slug; when the request didn't use the
+ * canonical form the caller should redirect rather than render, so there is
+ * exactly one indexable URL per event.
+ *
+ * Scans the published list rather than querying: counts are in the single
+ * digits, so a scan beats maintaining a Firestore index on a derived field, and
+ * routing through listPublishedEvents guarantees drafts can't be reached by
+ * guessing a URL.
  */
-export async function getPublishedEventBySlug(slug: string) {
+export async function resolveEventSlug(slug: string) {
   const events = await listPublishedEvents();
 
-  return events.find((event) => eventSlug(event) === slug) ?? null;
+  const canonicalMatch = events.find((event) => eventSlug(event) === slug);
+
+  if (canonicalMatch) {
+    return { event: canonicalMatch, canonicalSlug: slug, isCanonical: true };
+  }
+
+  // Legacy form: "<title>-YYYY-MM-DD". Strip the date and match on title.
+  // Also covers the bare "<title>" form.
+  const withoutDate = slug.replace(trailingIsoDatePattern, "");
+  const byTitle = events.find(
+    (event) => slugify(event.title) === withoutDate,
+  );
+
+  // Retitled event: the id suffix is stable, so an old URL still identifies it.
+  const requestedSuffix = slug.split("-").pop() ?? "";
+  const byId =
+    requestedSuffix.length >= 6
+      ? events.find((event) => eventIdSuffix(event.id) === requestedSuffix)
+      : undefined;
+
+  const match = byTitle ?? byId;
+
+  return match
+    ? { event: match, canonicalSlug: eventSlug(match), isCanonical: false }
+    : null;
+}
+
+/** Convenience wrapper for callers that don't care about redirects. */
+export async function getPublishedEventBySlug(slug: string) {
+  return (await resolveEventSlug(slug))?.event ?? null;
 }
 
 export async function getEvent(id: string) {

@@ -8,6 +8,7 @@ export {
   getNewsletterBySlug,
   getPublishedEventBySlug,
   getPublishedNewsletterBySlug,
+  resolveEventSlug,
   getSocialPost,
   getSiteSettings,
   listEventLocations,
