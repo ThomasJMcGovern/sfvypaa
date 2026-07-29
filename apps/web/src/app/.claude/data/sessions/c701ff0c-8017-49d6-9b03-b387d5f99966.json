@@ -1,9 +1,0 @@
-{
-  "session_id": "c701ff0c-8017-49d6-9b03-b387d5f99966",
-  "prompts": [
-    "Hey. So we're trying to show up for this query on chat gpt \"Sober events near the Los Angeles area\" Can you analyze my website and see where on the site I can mention something about that we host sober events for young people around the Los Angeles area so then we can go do a test and see if we show up in ChatGPT.\n\nWe wanna create an agent that uses the ChatGPT latest API, whatever model that the real search is using. And we want to continuously loop for a query. changes that we should make to the website in order to show up for that specific query. So, for example, if I want to show up for that server events near the Los Angeles area query, the agent would first look at what the response currently is and what is being cited. And if it sees that we're not even being cited, we should look at what the other websites are doing or see if maybe our site doesn't have anything that specifies something about silver events near the Los Angeles area specifically. Basically, we make a guess, and then we test it out and then see if the... query now reduces our website slash organization after making the update. The loop should consist of asking ChatGPT about a specific query related to the brand and looking at the results  ( Search look at the results, see if we're in the results. Try something. Search again. See the results. Change again or change back and then change again.) until we show up\n\ncan u rewrtie this prompt",
-    "start part 1 planning",
-    "start part 1 planning. just open a browser, search the query, read the response and get the citations, etc",
-    "continue, note that we want to try changing just website copy first to see if that is enough to affect change and then we can worry about other things like listings later"
-  ]
-}

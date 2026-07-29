@@ -56,3 +56,6 @@ apps/*/.claude/
 packages/*/.claude/
 logs/
 **/logs/
+
+# Claude Code scratch dirs that live inside the app tree
+apps/web/src/app/.claude/
