@@ -1,5 +1,24 @@
 const isoDatePattern = /^\d{4}-\d{2}-\d{2}$/
-const timeTokenPattern = /(\d{1,2})(?::(\d{2}))?\s*([ap])\.?m\.?/gi
+
+// A single time with an explicit meridiem: "7 PM", "4:30 p.m."
+const timeTokenPattern = /(\d{1,2})(?::(\d{2}))?\s*([ap])\.?m\.?/i
+
+// A range where the meridiem may appear only on the end time: "4:00 – 7:00 pm".
+// The start time's meridiem is optional precisely because that is the case this
+// exists to handle — matching only the end token would report the event as
+// starting when it actually finishes.
+const timeRangePattern =
+  /(\d{1,2})(?::(\d{2}))?\s*(?:([ap])\.?m\.?)?\s*(?:-|–|—|to|until|till)\s*(\d{1,2})(?::(\d{2}))?\s*([ap])\.?m\.?/i
+
+function to24Hour(hour: number, meridiem: string) {
+  const m = meridiem.toLowerCase()
+
+  if (m === "p") {
+    return hour === 12 ? 12 : hour + 12
+  }
+
+  return hour === 12 ? 0 : hour
+}
 
 export function isIsoDate(value: string | undefined): value is string {
   return typeof value === "string" && isoDatePattern.test(value)
@@ -40,31 +59,50 @@ export function eventStartDate(
     return undefined
   }
 
-  const match = timeTokenPattern.exec(time ?? "")
-  timeTokenPattern.lastIndex = 0
+  const raw = time ?? ""
+  const stamp = (hour: number, minute: string) =>
+    `${eventDate}T${String(hour).padStart(2, "0")}:${minute}:00${pacificOffset(eventDate)}`
 
-  if (!match) {
+  // Try a range first. "4:00 – 7:00 pm" must resolve to 16:00, not 19:00.
+  const range = timeRangePattern.exec(raw)
+
+  if (range) {
+    const [, sh, sm, sMeridiem, eh, , eMeridiem] = range
+    const startHour = Number(sh)
+    const endHour = Number(eh)
+
+    if (startHour >= 1 && startHour <= 12 && endHour >= 1 && endHour <= 12) {
+      // No meridiem on the start time: inherit the end's. If that would put the
+      // start after the end ("11 - 1 pm"), the start must be the other half of
+      // the day.
+      let meridiem = sMeridiem ?? eMeridiem
+
+      if (!sMeridiem) {
+        const inherited = to24Hour(startHour, meridiem)
+
+        if (inherited > to24Hour(endHour, eMeridiem)) {
+          meridiem = meridiem.toLowerCase() === "p" ? "a" : "p"
+        }
+      }
+
+      return stamp(to24Hour(startHour, meridiem), sm ?? "00")
+    }
+  }
+
+  const single = timeTokenPattern.exec(raw)
+
+  if (!single) {
     return eventDate
   }
 
-  const [, rawHour, rawMinute, meridiem] = match
-  let hour = Number(rawHour)
+  const [, rawHour, rawMinute, meridiem] = single
+  const hour = Number(rawHour)
 
   if (hour < 1 || hour > 12) {
     return eventDate
   }
 
-  if (meridiem.toLowerCase() === "p" && hour !== 12) {
-    hour += 12
-  }
-
-  if (meridiem.toLowerCase() === "a" && hour === 12) {
-    hour = 0
-  }
-
-  const minute = rawMinute ?? "00"
-
-  return `${eventDate}T${String(hour).padStart(2, "0")}:${minute}:00${pacificOffset(eventDate)}`
+  return stamp(to24Hour(hour, meridiem), rawMinute ?? "00")
 }
 
 /** True when the event date is strictly before today (Pacific). */
