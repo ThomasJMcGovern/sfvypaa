@@ -18,6 +18,7 @@ function secretsMatch(provided: string | null, configured: string) {
   return timingSafeEqual(providedDigest, configuredDigest);
 }
 const newsletterSlugPathPattern = /^\/newsletters\/[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const eventSlugPathPattern = /^\/upcoming-events\/[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 type RevalidateBody = {
   paths?: unknown;
@@ -27,7 +28,10 @@ function allowedPath(path: string) {
   return (
     path === "/" ||
     path === "/newsletters" ||
-    newsletterSlugPathPattern.test(path)
+    path === "/upcoming-events" ||
+    path === "/sitemap.xml" ||
+    newsletterSlugPathPattern.test(path) ||
+    eventSlugPathPattern.test(path)
   );
 }
 

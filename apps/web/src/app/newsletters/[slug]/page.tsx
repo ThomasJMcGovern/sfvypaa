@@ -37,8 +37,9 @@ export async function generateMetadata({
   const newsletter = await getPublishedNewsletterBySlug(slug)
 
   return {
-    title: newsletter ? `${newsletter.title} | VALLEYPAA` : "Newsletter | VALLEYPAA",
+    title: newsletter ? newsletter.title : "Newsletter",
     description: newsletter?.excerpt,
+    alternates: { canonical: `/newsletters/${slug}` },
   }
 }
 

@@ -72,6 +72,32 @@ export function slugify(value: string) {
     .replace(/^-+|-+$/g, "");
 }
 
+const isoDatePattern = /^\d{4}-\d{2}-\d{2}$/;
+
+/**
+ * URL slug for an event, derived rather than stored so no Firestore migration
+ * is needed. The ISO date suffix disambiguates recurring records — a monthly
+ * "Business Meeting" would otherwise collide with every previous month — and
+ * puts the date in the URL, which is a strong relevance signal for dated-event
+ * queries. Falls back to the document id for legacy records with no date.
+ */
+export function eventSlug(
+  event: Pick<EventRecord, "id" | "title" | "eventDate" | "sortDate">,
+) {
+  const base = slugify(event.title)
+  const raw = (event.eventDate || event.sortDate || "").trim()
+  const iso = isoDatePattern.test(raw) ? raw : ""
+
+  if (iso) {
+    return base ? `${base}-${iso}` : `${slugify(event.id)}-${iso}`;
+  }
+
+  // eventDate is schema-required, so this only covers legacy records. Fall back
+  // to the id rather than the bare title: two undated events sharing a title
+  // would otherwise collide, and the second would be silently unreachable.
+  return base ? `${base}-${slugify(event.id)}` : slugify(event.id);
+}
+
 function eventFromDoc(doc: QueryDocumentSnapshot): EventRecord {
   const data = doc.data();
 
@@ -205,6 +231,19 @@ export async function listPublishedEvents() {
   } catch {
     return [];
   }
+}
+
+/**
+ * Resolves a published event by its derived slug. Scans the published list
+ * rather than querying: published counts are in the single digits, so a scan is
+ * cheaper than maintaining a Firestore index on a field that doesn't exist —
+ * and routing through listPublishedEvents guarantees drafts can never be
+ * reached by guessing a URL.
+ */
+export async function getPublishedEventBySlug(slug: string) {
+  const events = await listPublishedEvents();
+
+  return events.find((event) => eventSlug(event) === slug) ?? null;
 }
 
 export async function getEvent(id: string) {

@@ -5,6 +5,7 @@ import {
   deleteNewsletter,
   deleteSocialPost,
   eventInputSchema,
+  eventSlug,
   getEvent,
   getNewsletter,
   getNewsletterBySlug,
@@ -243,6 +244,19 @@ function publicNewsletterPaths(...slugs: Array<string | undefined>) {
   return [...new Set(paths)];
 }
 
+function publicEventPaths(...slugs: Array<string | undefined>) {
+  // "/" too: the homepage surfaces event-derived content.
+  const paths = ["/", "/upcoming-events", "/sitemap.xml"];
+
+  for (const slug of slugs) {
+    if (slug) {
+      paths.push(`/upcoming-events/${slug}`);
+    }
+  }
+
+  return [...new Set(paths)];
+}
+
 async function revalidatePublicSite(paths: string[]) {
   const secret = process.env.SFVYPAA_REVALIDATE_SECRET;
 
@@ -291,6 +305,8 @@ export async function saveEventAction(
   }
 
   let id: string;
+  let slug: string | undefined;
+  let previousSlug: string | undefined;
 
   try {
     const image = uploadedImage(formData);
@@ -301,7 +317,20 @@ export async function saveEventAction(
         }
       : parsed.data;
 
+    // Capture the pre-save slug so a retitled or rescheduled event also
+    // revalidates the URL it used to live at.
+    if (data.id) {
+      const existing = await getEvent(data.id);
+      previousSlug = existing ? eventSlug(existing) : undefined;
+    }
+
     id = await saveEvent(data, actor);
+    slug = eventSlug({
+      id,
+      title: data.title,
+      eventDate: data.eventDate ?? "",
+      sortDate: data.sortDate ?? "",
+    });
   } catch (error) {
     return isImageUploadError(error)
       ? errorState(error, "imageFile")
@@ -309,7 +338,9 @@ export async function saveEventAction(
   }
 
   revalidatePath("/events");
-  revalidatePath("/upcoming-events");
+  // Must come before redirect() — redirect throws a control-flow exception,
+  // so anything after it never runs.
+  await revalidatePublicSite(publicEventPaths(slug, previousSlug));
   redirect(`/events/${id}`);
 }
 
@@ -317,13 +348,17 @@ export async function deleteEventAction(formData: FormData) {
   const actor = await requireActionActor();
 
   const id = field(formData, "id");
+  let slug: string | undefined;
 
   if (id) {
+    // Resolve the slug before deleting — afterwards there's no record to derive it from.
+    const existing = await getEvent(id);
+    slug = existing ? eventSlug(existing) : undefined;
     await deleteEvent(id, actor);
   }
 
   revalidatePath("/events");
-  revalidatePath("/upcoming-events");
+  await revalidatePublicSite(publicEventPaths(slug));
   redirect("/events");
 }
 
@@ -499,7 +534,7 @@ export async function toggleEventStatusAction(formData: FormData) {
   if (event) {
     await saveEvent({ ...event, status: nextStatus(formData) }, actor);
     revalidatePath("/events");
-    revalidatePath("/upcoming-events");
+    await revalidatePublicSite(publicEventPaths(eventSlug(event)));
   }
 
   redirect("/events");

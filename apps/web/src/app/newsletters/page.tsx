@@ -11,9 +11,10 @@ import { cn } from "@/lib/utils"
 export const revalidate = 60
 
 export const metadata: Metadata = {
-  title: "Newsletters | VALLEYPAA",
+  title: "Newsletters",
   description:
-    "Published VALLEYPAA newsletter archive for San Fernando Valley young people in AA.",
+    "Published VALLEYPAA newsletter archive — committee updates, sober event announcements, and service notes from young people in AA in the San Fernando Valley, Los Angeles.",
+  alternates: { canonical: "/newsletters" },
 }
 
 const newsletterDateFormatter = new Intl.DateTimeFormat("en-US", {

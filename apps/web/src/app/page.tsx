@@ -1,3 +1,4 @@
+import type { Metadata } from "next"
 import Image from "next/image"
 import { getSiteSettings, listPublishedSocialPosts } from "@valleypaa/content"
 import { ArrowRight } from "lucide-react"
@@ -10,11 +11,12 @@ import { Button } from "@/components/ui/button"
 import { reflectionForMonthDay, todayMonthDay } from "@/lib/reflections"
 import { businessMeeting, site } from "@/lib/site"
 
+
 const principles = [
   {
     glyph: "★",
     title: "Sober, together",
-    text: "A San Fernando Valley community of young people staying sober and showing up for each other — in the rooms and out in the world.",
+    text: "Young people staying sober across the San Fernando Valley and the wider Los Angeles area — showing up for each other in the rooms and out in the world.",
   },
   {
     glyph: "→",
@@ -29,6 +31,12 @@ const principles = [
 ]
 
 export const revalidate = 60
+
+// Title and description intentionally omitted — the root layout's defaults are
+// already written for the homepage.
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+}
 
 const socialDateFormatter = new Intl.DateTimeFormat("en-US", {
   month: "short",
@@ -83,7 +91,7 @@ export default async function Home() {
           <div className="relative z-[2]">
             <div className="mb-5 flex flex-wrap items-center gap-3">
               <span className="border-2 border-primary bg-primary px-2.5 py-0.5 text-xs font-bold tracking-[0.14em] text-primary-foreground uppercase">
-                San Fernando Valley
+                San Fernando Valley · Los Angeles
               </span>
               <span className="stamp -rotate-[5deg] border-2 border-orange px-2 py-0.5 text-sm text-orange">
                 since 1935 · still loud
@@ -94,8 +102,9 @@ export default async function Home() {
               And it&apos;s not too late.
             </h1>
             <p className="mt-5.5 mb-7 max-w-[42ch] text-[19px] leading-normal font-medium text-text-soft">
-              VALLEYPAA is young people in AA across the Valley. Show up as you
-              are — nothing&apos;s required of you but to walk in.
+              VALLEYPAA is young people in AA across the San Fernando Valley —
+              Los Angeles, just over the hill. Sober events, meetings, service.
+              Show up as you are; nothing&apos;s required of you but to walk in.
             </p>
             <div className="flex flex-wrap gap-3">
               <Button
@@ -213,10 +222,14 @@ export default async function Home() {
               What is VALLEYPAA?
             </h2>
             <p className="text-base leading-relaxed text-text-soft">
-              VALLEYPAA is a young people in Alcoholics Anonymous committee
-              serving the San Fernando Valley. We create opportunities for
-              service, fellowship, and events that help carry the AA message to
-              anybody who still suffers.
+              VALLEYPAA — Valley Young People in Alcoholics Anonymous — is a
+              YPAA committee serving the San Fernando Valley, the northwest
+              section of the City of Los Angeles. We put on sober events and
+              service opportunities that carry the AA message to anybody who
+              still suffers. Our events land in Canoga Park, Reseda, Van Nuys,
+              North Hollywood, Woodland Hills, and Sherman Oaks, and we turn up
+              at events across the wider Los Angeles area hosted by other young
+              people committees.
             </p>
           </div>
         </div>
@@ -230,7 +243,7 @@ export default async function Home() {
       <section className="mx-auto w-full max-w-7xl px-5 pt-[72px] sm:px-8 lg:px-10">
         <div className="flex flex-col gap-7">
           <LinkRow
-            body="Meeting details live on the get-involved page, with the current time and place kept in one easy spot."
+            body={`Our committee business meeting is the ${businessMeeting.schedule.toLowerCase()} at ${businessMeeting.time} — ${businessMeeting.location}, ${businessMeeting.address}. Walk in; that's the whole onboarding.`}
             cta="Get involved"
             eyebrow="When does VALLEYPAA meet?"
             href={site.links.getInvolved}
@@ -240,14 +253,14 @@ export default async function Home() {
             title="Get involved"
           />
           <LinkRow
-            body="Events are separated from the homepage so flyers, hosted events, and RSVP times have room to breathe."
+            body="Every sober event VALLEYPAA hosts or co-hosts, with the real date, time, and address — speaker meetings, beach days, backyard shows, and Valley-wide fellowship."
             cta="Upcoming events"
             eyebrow="What's on"
             flip
             href={site.links.events}
             imageAlt="Anonymous abstract stage lights"
             imageSrc="/stage-lights.jpg"
-            title="Events"
+            title="Sober events"
           />
           <LinkRow
             body="Published committee updates, service notes, and event announcements live in the VALLEYPAA newsletter archive."
@@ -259,7 +272,7 @@ export default async function Home() {
             title="Newsletters"
           />
           <LinkRow
-            body="Use the Los Angeles Central Office young people meeting search for current local young people meetings."
+            body="Use the Los Angeles Central Office (LACOAA) meeting search for young people AA meetings across Los Angeles County, including every San Fernando Valley neighborhood."
             cta="Find meetings here"
             external
             eyebrow="Looking for a meeting?"

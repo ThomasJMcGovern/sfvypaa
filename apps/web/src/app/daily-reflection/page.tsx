@@ -11,9 +11,10 @@ import { todayMonthDay } from "@/lib/reflections"
 export const dynamic = "force-dynamic"
 
 export const metadata: Metadata = {
-  title: "Daily Reflection | VALLEYPAA",
+  title: "Daily Reflection",
   description:
-    "A daily recovery reflection for young people in Alcoholics Anonymous in the San Fernando Valley.",
+    "A daily recovery reflection for young people in Alcoholics Anonymous in the San Fernando Valley, Los Angeles.",
+  alternates: { canonical: "/daily-reflection" },
 }
 
 export default async function DailyReflectionPage() {

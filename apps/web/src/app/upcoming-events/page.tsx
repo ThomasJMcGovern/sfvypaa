@@ -1,5 +1,10 @@
 import type { Metadata } from "next"
-import { listPublishedEvents, type EventRecord } from "@valleypaa/content"
+import Link from "next/link"
+import {
+  eventSlug,
+  listPublishedEvents,
+  type EventRecord,
+} from "@valleypaa/content"
 import {
   ArrowRight,
   CalendarDays,
@@ -8,25 +13,44 @@ import {
   MapPin,
 } from "lucide-react"
 
+import { FaqSection } from "@/components/faq-section"
+import { JsonLd } from "@/components/json-ld"
 import { PageHead } from "@/components/page-head"
 import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
 import { Button } from "@/components/ui/button"
-import { site } from "@/lib/site"
+import { isIsoDate, isPastEvent } from "@/lib/event-datetime"
+import { businessMeeting, faqs, site } from "@/lib/site"
+import { eventListJsonLd } from "@/lib/structured-data"
 import { cn } from "@/lib/utils"
 
-export const dynamic = "force-dynamic"
+// ISR rather than force-dynamic. listPublishedEvents() returns [] on any
+// Firestore error, so under force-dynamic a transient blip during a crawl
+// renders "No published events yet" — and that is what gets indexed. ISR keeps
+// serving the last good HTML. Admin publishes push a revalidation through
+// /api/revalidate, so this is not a staleness regression.
+export const revalidate = 300
 
 export const metadata: Metadata = {
-  title: "Upcoming Events | VALLEYPAA",
+  title: "Sober Events in the San Fernando Valley, Los Angeles",
   description:
-    "Hosted and co-hosted young people in AA events for the San Fernando Valley.",
+    "Every upcoming sober event hosted or co-hosted by VALLEYPAA, a young people in Alcoholics Anonymous committee in the San Fernando Valley, Los Angeles — with the date, time, and address for each one. Free to attend.",
+  alternates: { canonical: "/upcoming-events" },
 }
 
 export default async function UpcomingEventsPage() {
   const events = await listPublishedEvents()
-  const hosted = events.filter((event) => event.host === "Hosted by VALLEYPAA")
-  const cohosted = events.filter(
+  // listPublishedEvents has no date filter, so past events would otherwise
+  // accumulate under a heading that says "Upcoming".
+  const upcoming = events.filter((event) => !isPastEvent(event.eventDate))
+  const past = events
+    .filter((event) => isPastEvent(event.eventDate))
+    .reverse()
+
+  const hosted = upcoming.filter(
+    (event) => event.host === "Hosted by VALLEYPAA",
+  )
+  const cohosted = upcoming.filter(
     (event) => event.host === "Co-hosted by VALLEYPAA",
   )
 
@@ -35,14 +59,19 @@ export default async function UpcomingEventsPage() {
       <SiteHeader active="upcoming-events" />
 
       <PageHead
-        eyebrow="What's on"
-        sub="Backyard shows, speaker jams, service, and fellowship — hosted and co-hosted by VALLEYPAA. All ages. All sober. Just show up."
-        title="Upcoming events."
+        eyebrow="What's on · San Fernando Valley, Los Angeles"
+        sub="Backyard shows, speaker jams, beach days, service, and fellowship — hosted and co-hosted by VALLEYPAA across the San Fernando Valley, the north end of Los Angeles. All ages. All sober. Free. Just show up."
+        title="Sober events."
       />
 
       <section className="mx-auto w-full max-w-7xl px-5 pt-6 sm:px-8 lg:px-10">
         {events.length > 0 ? (
           <>
+            <JsonLd
+              data={eventListJsonLd(
+                upcoming.map((event) => ({ event, slug: eventSlug(event) })),
+              )}
+            />
             <EventGroup
               events={hosted}
               skew={-1}
@@ -53,11 +82,50 @@ export default async function UpcomingEventsPage() {
               skew={1}
               title="Co-hosted by VALLEYPAA"
             />
+            <EventGroup events={past} skew={0} title="Past events" />
           </>
         ) : (
           <EmptyEvents />
         )}
       </section>
+
+      {/* What VALLEYPAA actually hosts — a retrievable, factual answer to the
+          question models currently guess at. */}
+      <section className="mx-auto w-full max-w-7xl px-5 pt-6 sm:px-8 lg:px-10">
+        <div className="border-[3px] border-border bg-card p-7 text-card-foreground shadow-stamp">
+          <p className="label-stamp mb-3 text-orange">The honest list</p>
+          <h2 className="mb-4 text-[clamp(1.75rem,3.5vw,2.5rem)] text-foreground">
+            What VALLEYPAA actually hosts
+          </h2>
+          <p className="mb-4 text-base leading-relaxed text-text-soft">
+            VALLEYPAA is a young people in Alcoholics Anonymous committee in the
+            San Fernando Valley — the northwest end of the City of Los Angeles.
+            We host and co-host sober events: dances and speaker jams, beach
+            days and hikes, campouts and holiday parties, markets, and meetings.
+            Everything we host is listed on this page with its real date, time,
+            and address.{" "}
+            <strong className="text-foreground">
+              If it isn&apos;t on this page, we&apos;re not hosting it.
+            </strong>
+          </p>
+          <p className="mb-4 text-base leading-relaxed text-text-soft">
+            Our one standing commitment is the committee business meeting:{" "}
+            {businessMeeting.schedule.toLowerCase()} at {businessMeeting.time},
+            at {businessMeeting.location}, {businessMeeting.address}.
+          </p>
+          <p className="text-base leading-relaxed text-text-soft">
+            Events are free to walk into. There&apos;s no alcohol and no drugs
+            at anything we put on. You don&apos;t have to be in AA, and you
+            don&apos;t have to be sober, to come.
+          </p>
+        </div>
+      </section>
+
+      <FaqSection
+        eyebrow="Before you come"
+        faqs={faqs}
+        title="Questions people actually ask."
+      />
 
       {/* want to help plan? */}
       <section className="mx-auto w-full max-w-7xl px-5 pt-2 sm:px-8 lg:px-10">
@@ -97,8 +165,9 @@ function EmptyEvents() {
         No published events yet
       </h3>
       <p className="mx-auto max-w-[42ch] text-[15px] leading-relaxed text-text-soft">
-        New VALLEYPAA events will appear here once they&apos;re announced. Check
-        back soon — or better, come help us plan one.
+        New VALLEYPAA sober events for the San Fernando Valley will appear here
+        once they&apos;re announced. Check back soon — or better, come help us
+        plan one.
       </p>
     </div>
   )
@@ -172,10 +241,19 @@ function EventCard({
           </span>
         </div>
         <h3 className="mb-4 text-2xl leading-[0.95] text-foreground">
-          {event.title}
+          <Link
+            className="transition-colors hover:text-orange"
+            href={`${site.links.events}/${eventSlug(event)}`}
+          >
+            {event.title}
+          </Link>
         </h3>
         <div className="mb-4 flex flex-col gap-2 border-b-2 border-border/35 pb-4">
-          <EventMeta icon={CalendarDays} text={event.date} />
+          <EventMeta
+            icon={CalendarDays}
+            isoDate={event.eventDate}
+            text={event.date}
+          />
           <EventMeta icon={Clock} text={event.time} />
           <EventMeta icon={MapPin} text={event.location} />
         </div>
@@ -201,16 +279,20 @@ function EventCard({
 
 function EventMeta({
   icon: Icon,
+  isoDate,
   text,
 }: {
   icon: typeof CalendarDays
+  isoDate?: string
   text: string
 }) {
   return (
     <div className="flex items-center gap-2.5">
       <Icon className="size-4 shrink-0 text-orange" />
       <span className="font-mono text-[13px] font-bold text-foreground">
-        {text}
+        {/* The human label often reads "Saturday, Aug 16" with no year — the
+            machine date removes that ambiguity for crawlers. */}
+        {isIsoDate(isoDate) ? <time dateTime={isoDate}>{text}</time> : text}
       </span>
     </div>
   )

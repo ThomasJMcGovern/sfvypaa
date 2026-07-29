@@ -9,15 +9,16 @@ import {
   MapPin,
 } from "lucide-react"
 
+import { FaqSection } from "@/components/faq-section"
 import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
 import { Button } from "@/components/ui/button"
-import { businessMeeting, involvement, site } from "@/lib/site"
+import { businessMeeting, faqs, involvement, site } from "@/lib/site"
 
 export const metadata: Metadata = {
-  title: "Get Involved | VALLEYPAA",
-  description:
-    "Join VALLEYPAA committee service, business meetings, and young people AA event planning.",
+  title: "Get Involved",
+  description: `Join VALLEYPAA, the young people in Alcoholics Anonymous committee for the San Fernando Valley, Los Angeles. Committee business meeting: ${businessMeeting.schedule.toLowerCase()}, ${businessMeeting.time}, ${businessMeeting.location}, ${businessMeeting.address}.`,
+  alternates: { canonical: "/get-involved" },
 }
 
 const meetingDetails = [
@@ -47,8 +48,9 @@ export default function GetInvolvedPage() {
             <span className="text-orange">Get of service.</span>
           </h1>
           <p className="mx-auto mt-5.5 mb-6.5 max-w-[44ch] text-lg leading-[1.55] font-medium text-text-soft">
-            Help plan service, outreach, fellowship, and young people AA events
-            across the San Fernando Valley.
+            Help plan sober events, service, outreach, and fellowship for young
+            people in AA across the San Fernando Valley and the wider Los
+            Angeles area.
           </p>
           <a
             className="inline-flex items-center gap-2 border-b-[3px] border-orange px-0.5 py-1 text-[13px] font-extrabold tracking-[0.08em] text-foreground uppercase transition-colors hover:text-orange"
@@ -85,9 +87,9 @@ export default function GetInvolvedPage() {
               {businessMeeting.title}
             </h2>
             <p className="mb-5.5 text-[15px] leading-relaxed text-text-soft">
-              VALLEYPAA meets once per month for committee business, service
-              planning, and upcoming young people events. Walk in — that&apos;s
-              the whole onboarding.
+              VALLEYPAA meets once a month for committee business, service
+              planning, and upcoming sober events in the San Fernando Valley.
+              Walk in — that&apos;s the whole onboarding.
             </p>
             <div className="mb-6 flex flex-col gap-2.5 border-t-2 border-border/35 pt-4.5">
               {meetingDetails.map(({ icon: Icon, text }) => (
@@ -135,6 +137,9 @@ export default function GetInvolvedPage() {
           ))}
         </div>
       </section>
+
+      {/* Canonical home for the FAQ schema — this is the URL AI search already cites. */}
+      <FaqSection faqs={faqs} schema />
 
       {/* 4 — contact */}
       <section className="mx-auto w-full max-w-7xl px-5 pt-14 sm:px-8 lg:px-10" id="contact">
