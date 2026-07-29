@@ -14,10 +14,23 @@ import { SiteHeader } from "@/components/site-header"
 import { Button } from "@/components/ui/button"
 import { isIsoDate, isPastEvent } from "@/lib/event-datetime"
 import { baseOpenGraph } from "@/lib/seo"
-import { site } from "@/lib/site"
+import { serviceArea, site } from "@/lib/site"
 import { breadcrumbJsonLd, eventJsonLd } from "@/lib/structured-data"
 
 export const revalidate = 300
+
+/**
+ * Single source for the qualifying sentence. It runs directly under the h1 and
+ * inside the meta description, so it has to read well in both — and it must be
+ * generic, because EventRecord has no field describing the kind of event.
+ */
+function eventDek(event: { host: string }) {
+  const hosting = event.host.startsWith("Co-hosted")
+    ? "Co-hosted by VALLEYPAA"
+    : "Hosted by VALLEYPAA"
+
+  return `A sober event in the ${serviceArea.region}, ${serviceArea.city} — no alcohol, no drugs, free to walk into. ${hosting}, a young people in Alcoholics Anonymous committee.`
+}
 
 export async function generateStaticParams() {
   const events = await listPublishedEvents()
@@ -42,19 +55,24 @@ export async function generateMetadata({
   const description = [
     event.tone,
     `${event.date}${event.time ? `, ${event.time}` : ""} — ${event.location}.`,
-    "A sober event in the San Fernando Valley, Los Angeles. Free to attend.",
+    `${eventDek(event)} Free to attend.`,
   ]
     .filter(Boolean)
     .join(" ")
 
+  // "Sober Event" rides along with the name because the name alone is ambiguous:
+  // "Bizarre Bazaar" also belongs to a Richmond craft market, an LA comedy show
+  // and a Texas smoke shop, and searches for it resolve to those instead.
+  const title = `${event.title} — Sober Event, ${event.date}`
+
   return {
-    title: `${event.title} — ${event.date}`,
+    title,
     description,
     alternates: { canonical: `/upcoming-events/${canonicalSlug}` },
     openGraph: {
       ...baseOpenGraph,
       type: "article",
-      title: `${event.title} — ${event.date}`,
+      title,
       description,
       url: `/upcoming-events/${canonicalSlug}`,
       ...(event.imageUrl ? { images: [event.imageUrl] } : {}),
@@ -128,6 +146,12 @@ export default async function EventDetailPage({
           {event.title}
         </h1>
 
+        {/* Sits directly under the name on purpose — adjacency is what
+            disambiguates it from the other events sharing this title. */}
+        <p className="mt-4.5 max-w-[52ch] text-lg leading-normal font-medium text-text-soft">
+          {eventDek(event)}
+        </p>
+
         <div className="mt-6 flex flex-col gap-2.5 border-y-2 border-border/35 py-5">
           <DetailRow icon={CalendarDays} isoDate={event.eventDate} text={event.date} />
           <DetailRow icon={Clock} text={event.time} />
@@ -149,11 +173,11 @@ export default async function EventDetailPage({
           {event.tone}
         </p>
 
+        {/* The sober/geography framing now lives in the dek under the h1. This
+            keeps only the part that isn't stated there. */}
         <p className="mt-4 text-base leading-relaxed text-text-soft">
-          A sober event in the San Fernando Valley, Los Angeles — no alcohol, no
-          drugs, free to walk into. Hosted by VALLEYPAA, a young people in
-          Alcoholics Anonymous committee. You don&apos;t have to be in AA, and
-          you don&apos;t have to be sober, to come.
+          You don&apos;t have to be in AA, and you don&apos;t have to be sober,
+          to come.
         </p>
 
         {event.rsvpUrl && !past ? (
