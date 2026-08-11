@@ -14,10 +14,10 @@ const websiteId = `${siteUrl}/#website`
  */
 const businessMeetingAddress = {
   "@type": "PostalAddress",
-  streetAddress: "21520 Sherman Way",
-  addressLocality: "Canoga Park",
+  streetAddress: "16134 Sherman Way",
+  addressLocality: "Van Nuys",
   addressRegion: serviceArea.state,
-  postalCode: "91303",
+  postalCode: "91406",
   addressCountry: "US",
 }
 

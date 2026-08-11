@@ -56,12 +56,16 @@ export const navItems = [
   },
 ]
 
+// Moved from Hole in the Sky (Canoga Park) to SFV Central Office (Van Nuys),
+// and from 2 pm to 12 pm. Address verified against sfvaa.org. This is the only
+// real postal address on the site — it also feeds the Organization JSON-LD in
+// lib/structured-data.ts, so the two must be changed together.
 export const businessMeeting = {
   title: "Business Meeting",
   schedule: "Second Saturday of each month",
-  time: "2 pm",
-  location: "Hole in the Sky",
-  address: "21520 Sherman Way, Canoga Park, CA 91303",
+  time: "12 pm",
+  location: "SFV Central Office",
+  address: "16134 Sherman Way, Van Nuys, CA 91406",
 }
 
 export const involvement = [

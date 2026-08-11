@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
 
 const defaultLocationSuggestions = [
   "San Fernando Valley",
-  "Hole in the Sky, Canoga Park",
+  "SFV Central Office, 16134 Sherman Way, Van Nuys",
   "Location TBD",
 ];
 
