@@ -173,13 +173,6 @@ export default async function EventDetailPage({
           {event.tone}
         </p>
 
-        {/* The sober/geography framing now lives in the dek under the h1. This
-            keeps only the part that isn't stated there. */}
-        <p className="mt-4 text-base leading-relaxed text-text-soft">
-          You don&apos;t have to be in AA, and you don&apos;t have to be sober,
-          to come.
-        </p>
-
         {event.rsvpUrl && !past ? (
           <Button
             className="mt-7"
