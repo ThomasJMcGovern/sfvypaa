@@ -79,7 +79,7 @@ export async function SiteFooter() {
           >
             Brewlune
           </a>
-          .
+          {"."}
         </span>
       </div>
     </footer>
