@@ -69,7 +69,7 @@ export async function SiteFooter() {
           Not affiliated with AA World Services. A newcomer is the most
           important person in the room.
         </span>
-        <span className="font-mono text-xs text-[#8A8472]">
+        <span className="font-mono text-[10px] leading-normal text-[#8A8472]">
           Site by the team behind{" "}
           <a
             className="underline decoration-[#5C5749] underline-offset-2 transition-colors hover:text-bone hover:decoration-orange"
