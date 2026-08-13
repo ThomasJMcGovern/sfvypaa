@@ -38,7 +38,10 @@ per-site.
 | `bun run indexnow --url /path` | Specific paths (repeatable) |
 | `bun run bing quota` | Daily / monthly URL-submission allowance |
 | `bun run bing submit --all` | Ask Bing to fetch. Quota-limited. Refuses to exceed remaining quota; prints before/after. |
-| `bun run bing inspect --url /path` | Crawl dates, size, **never-crawled verdict** |
+| `bun run bing inspect --all` | Every sitemap URL — **run this first**, the depth pattern only shows in aggregate |
+| `bun run bing inspect --url /path` | One or more URLs (repeatable) |
+| `bun run indexnow --all --dry-run` | Show the payload without sending |
+| `bun run indexnow --verify-key` | Check the hosted key file only |
 | `bun run bing feeds` | Sitemaps on file + stale-feed warning |
 | `bun run bing fetch --url /path` | Order a single fetch (`FetchUrl`) |
 | `bun run bing submitted` | Recent fetch activity |
@@ -77,8 +80,38 @@ something. Spend it on pages that actually need crawling.
    once at submission and abandoned — while still showing `Status: Success`.
    Found here on 2026-08-13: the sitemap submitted Jul 29 22:16 had last-read
    Jul 29 22:16, fourteen days stale, looking healthy the whole time.
-   `bun run bing feeds` flags this.
+   `bun run bing feeds` flags this **only after 3 days** — a fresh
+   resubmission always shows `LastCrawled == Submitted` and means nothing.
+   Feed timestamps print in **UTC**.
 5. **Sitemap fetch ≠ page crawl.** Feed activity is not indexing progress.
+
+## Check crawl depth before blaming authority
+
+**Run `bun run bing inspect --all` first.** Comparing depth-1 pages against
+depth-2 pages is the single most informative diagnostic here, and it is invisible
+if you inspect URLs one at a time. Observed 2026-08-13:
+
+| Depth | Pages | Verdict |
+|---|---|---|
+| 1 | `/`, `/upcoming-events` | crawled, refreshed same day |
+| 1 | `/get-involved`, `/newsletters` | **fetched but empty** |
+| 2 | all 3 event permalinks, newsletter detail | **never crawled** |
+
+That reframes the problem from "Bing ignores this site" — which it demonstrably
+does not — to "Bing crawls the hubs and won't descend." Which yields a fix
+inside our control: surface specific events at depth 1 so they sit on a page
+Bing already crawls daily. Confirm the child links are real `<a href>` in
+server HTML (`curl` the hub) before concluding anything about depth.
+
+## Three verdicts, not two
+
+`inspect` distinguishes:
+
+- **crawled** — a crawl date and non-zero `DocumentSize`.
+- **FETCHED BUT EMPTY** — a real crawl date but zero bytes retained. A distinct
+  failure that reads as success if you only check the date. Found on
+  `/get-involved` (Bing: 0 bytes, live page: 76 KB).
+- **NEVER CRAWLED** — MinValue date and zero bytes.
 
 ## The ladder
 
@@ -129,6 +162,13 @@ Submissions cannot end it. Time and a followable inbound link can.
 
 ## Rules of engagement
 
+- **Every state description in this file has an expiry date.** Run
+  `bun run bing inspect --all` before reporting status to anyone. A cold reader
+  of an earlier draft nearly reported the site as frozen when both hubs had
+  been re-crawled that morning. Prose here is a starting hypothesis, not data.
+- **Quota counters are per-user and shared.** If `DailyQuota` is below 100,
+  someone (or an earlier session) already spent it today. Check `bing quota`
+  before assuming you have the full allowance.
 - **Do not re-run diagnostics by hand daily.** State changes on Bing's clock.
 - **Do not read `site:` results as data.** Use `bun run bing inspect`. If a
   scrape must be used, DuckDuckGo's HTML endpoint proxies Bing without

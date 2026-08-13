@@ -40,6 +40,9 @@ const ORIGIN = `https://${HOST}`;
 const SITE_URL = `${ORIGIN}/`;
 const API = "https://ssl.bing.com/webmaster/api.svc/json";
 
+// Below this, "last read == submitted" just means the feed is new.
+const STALE_FEED_DAYS = 3;
+
 function fail(message: string): never {
   console.error(`\n✗ ${message}\n`);
   process.exit(1);
@@ -180,16 +183,31 @@ if (command === "feeds") {
     const submitted = stamp(feed.Submitted);
     const crawled = stamp(feed.LastCrawled);
 
+    const ageDays = (() => {
+      const match = /\/Date\((-?\d+)/.exec(String(feed.LastCrawled));
+      const ms = match ? Number(match[1]) : NaN;
+      return Number.isFinite(ms) && ms > 0 ? (Date.now() - ms) / 86_400_000 : NaN;
+    })();
+
     console.log(`  ${feed.Url}`);
     console.log(`    status:     ${feed.Status}`);
-    console.log(`    submitted:  ${submitted}`);
-    console.log(`    last read:  ${crawled}`);
+    console.log(`    submitted:  ${submitted} UTC`);
+    console.log(`    last read:  ${crawled} UTC`);
     console.log(`    URLs found: ${feed.UrlsTotal ?? "—"}`);
 
     // A feed Bing fetched once at submission and never revisited hides behind
-    // Status: Success — the stale-feed failure mode.
+    // Status: Success. But "never revisited" only means something once enough
+    // time has passed — otherwise this cries wolf on a fresh resubmission.
     if (submitted === crawled && submitted !== "—") {
-      console.log("    ⚠ read only at submission — Bing has not revisited this feed");
+      if (ageDays >= STALE_FEED_DAYS) {
+        console.log(
+          `    ⚠ read only at submission, ${Math.floor(ageDays)}d ago — Bing has not revisited this feed`,
+        );
+      } else {
+        console.log(
+          `    ↻ submitted ${ageDays < 1 ? "today" : `${Math.floor(ageDays)}d ago`}; too soon to judge (staleness flagged after ${STALE_FEED_DAYS}d)`,
+        );
+      }
     }
 
     console.log();
@@ -232,11 +250,16 @@ if (command === "submitted") {
 }
 
 if (command === "inspect") {
-  if (args.url.length === 0) {
-    fail("Pass --url <path> to inspect.");
+  if (args.url.length === 0 && !args.all && !args.events) {
+    fail("Pass --url <path>, or --all / --events to walk the sitemap.");
   }
 
-  for (const url of args.url.map(normalize)) {
+  // Depth matters: Bing can crawl the hubs daily and never descend to detail
+  // pages, so inspecting one URL at a time hides the pattern.
+  const targets =
+    args.url.length > 0 ? args.url.map(normalize) : await resolveUrls();
+
+  for (const url of targets) {
     const result = await call("GetUrlInfo", { siteUrl: SITE_URL, url });
     const info = result.d;
 
@@ -263,11 +286,19 @@ if (command === "inspect") {
 
     const size = Number(info.DocumentSize ?? 0);
     const crawled = stamp(info.LastCrawledDate);
-    // Zero bytes plus a MinValue crawl date is the never-fetched signature.
-    // HttpStatus is 0 even on successfully crawled pages, so it proves nothing.
-    const neverCrawled = crawled === "never" && size === 0;
 
-    console.log(`    verdict:         ${neverCrawled ? "NEVER CRAWLED — Bing has zero bytes" : "crawled"}`);
+    // Three states, not two. A crawl date with zero bytes is its own failure —
+    // Bing visited and retained nothing — and calling that "crawled" hides the
+    // problem behind a reassuring word. HttpStatus is 0 on healthy pages too,
+    // so it plays no part here.
+    const verdict =
+      crawled === "never"
+        ? "NEVER CRAWLED — Bing has zero bytes"
+        : size === 0
+          ? "FETCHED BUT EMPTY — Bing has a crawl date but retained zero bytes"
+          : "crawled";
+
+    console.log(`    verdict:         ${verdict}`);
     console.log(`    discovered:      ${stamp(info.DiscoveryDate)}`);
     console.log(`    last crawled:    ${crawled}`);
     console.log(`    document size:   ${size}`);
