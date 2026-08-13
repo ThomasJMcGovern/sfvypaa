@@ -79,6 +79,15 @@ export async function SiteFooter() {
           >
             Brewlune
           </a>
+          {" and "}
+          <a
+            className="underline decoration-[#5C5749] underline-offset-2 transition-colors hover:text-bone hover:decoration-orange"
+            href="https://drinkdeadpoint.com/"
+            rel="noreferrer"
+            target="_blank"
+          >
+            Deadpoint
+          </a>
           {"."}
         </span>
       </div>
