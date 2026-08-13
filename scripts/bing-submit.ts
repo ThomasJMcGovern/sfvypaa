@@ -156,6 +156,64 @@ if (command === "quota") {
   process.exit(0);
 }
 
+if (command === "feeds") {
+  const result = await call("GetFeeds", { siteUrl: SITE_URL });
+  const feeds: Array<Record<string, unknown>> = result.d ?? [];
+
+  if (feeds.length === 0) {
+    console.log("  No sitemaps on file with Bing.\n");
+    process.exit(0);
+  }
+
+  const stamp = (value: unknown) => {
+    const match = /\/Date\((-?\d+)/.exec(String(value));
+
+    if (!match) {
+      return "—";
+    }
+
+    const ms = Number(match[1]);
+    return ms < 0 ? "never" : new Date(ms).toISOString().slice(0, 16).replace("T", " ");
+  };
+
+  for (const feed of feeds) {
+    const submitted = stamp(feed.Submitted);
+    const crawled = stamp(feed.LastCrawled);
+
+    console.log(`  ${feed.Url}`);
+    console.log(`    status:     ${feed.Status}`);
+    console.log(`    submitted:  ${submitted}`);
+    console.log(`    last read:  ${crawled}`);
+    console.log(`    URLs found: ${feed.UrlsTotal ?? "—"}`);
+
+    // A feed Bing fetched once at submission and never revisited hides behind
+    // Status: Success — the stale-feed failure mode.
+    if (submitted === crawled && submitted !== "—") {
+      console.log("    ⚠ read only at submission — Bing has not revisited this feed");
+    }
+
+    console.log();
+  }
+
+  process.exit(0);
+}
+
+if (command === "fetch") {
+  if (args.url.length === 0) {
+    fail("Pass --url <path> to order a fetch.");
+  }
+
+  for (const url of args.url.map(normalize)) {
+    // Write methods answer {"d":null} on success — there is no confirmation
+    // object, so absence of an error is the only signal.
+    await call("FetchUrl", {}, { siteUrl: SITE_URL, url });
+    console.log(`  ✓ fetch ordered: ${url}`);
+  }
+
+  console.log("\n  Re-check with: bun run bing inspect --url <path>\n");
+  process.exit(0);
+}
+
 if (command === "submitted") {
   const result = await call("GetUrlSubmissionQuota", { siteUrl: SITE_URL });
   console.log(`  daily remaining: ${result.d?.DailyQuota}`);
@@ -189,23 +247,38 @@ if (command === "inspect") {
       continue;
     }
 
+    // Bing encodes "never" as DateTime.MinValue — /Date(-62135568000000-0800)/.
+    // The epoch is negative, so a \d+ regex silently misses it and the field
+    // reads as merely absent rather than as the never-crawled fingerprint.
     const stamp = (value: unknown) => {
-      const match = /\/Date\((\d+)/.exec(String(value));
-      return match ? new Date(Number(match[1])).toISOString().slice(0, 10) : "—";
+      const match = /\/Date\((-?\d+)/.exec(String(value));
+
+      if (!match) {
+        return "—";
+      }
+
+      const ms = Number(match[1]);
+      return ms < 0 ? "never" : new Date(ms).toISOString().slice(0, 10);
     };
 
+    const size = Number(info.DocumentSize ?? 0);
+    const crawled = stamp(info.LastCrawledDate);
+    // Zero bytes plus a MinValue crawl date is the never-fetched signature.
+    // HttpStatus is 0 even on successfully crawled pages, so it proves nothing.
+    const neverCrawled = crawled === "never" && size === 0;
+
+    console.log(`    verdict:         ${neverCrawled ? "NEVER CRAWLED — Bing has zero bytes" : "crawled"}`);
     console.log(`    discovered:      ${stamp(info.DiscoveryDate)}`);
-    console.log(`    last crawled:    ${stamp(info.LastCrawledDate)}`);
-    console.log(`    document size:   ${info.DocumentSize ?? "—"}`);
-    console.log(`    HTTP status:     ${info.HttpStatus ?? "—"}`);
-    console.log(`    total children:  ${info.TotalChildUrlCount ?? "—"}\n`);
+    console.log(`    last crawled:    ${crawled}`);
+    console.log(`    document size:   ${size}`);
+    console.log(`    anchors:         ${info.AnchorCount ?? 0}\n`);
   }
 
   process.exit(0);
 }
 
 if (command !== "submit") {
-  fail(`Unknown command "${command}". Use: submit | quota | inspect | submitted`);
+  fail(`Unknown command "${command}". Use: submit | quota | inspect | feeds | fetch | submitted`);
 }
 
 const urls = [...new Set(await resolveUrls())];
