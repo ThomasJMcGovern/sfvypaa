@@ -14,6 +14,7 @@
     "dev:admin:emu": "FIRESTORE_EMULATOR_HOST=127.0.0.1:8085 FIREBASE_STORAGE_EMULATOR_HOST=127.0.0.1:9199 FIREBASE_AUTH_EMULATOR_HOST=127.0.0.1:9100 NEXT_PUBLIC_FIREBASE_PROJECT_ID=demo-valleypaa NEXT_PUBLIC_FIREBASE_AUTH_EMULATOR_HOST=127.0.0.1:9100 bun run --filter @valleypaa/admin dev",
     "emulators": "PATH=\"/usr/local/opt/openjdk/bin:/opt/homebrew/opt/openjdk/bin:$PATH\" firebase emulators:start --project demo-valleypaa $([ -d .firebase/emulator-data ] && echo --import=.firebase/emulator-data) --export-on-exit=.firebase/emulator-data",
     "content": "bun scripts/content-cli.ts",
+    "indexnow": "bun scripts/indexnow.ts",
     "build": "bun run --filter @valleypaa/content build && bun run --filter @valleypaa/web build && bun run --filter @valleypaa/admin build",
     "build:web": "bun run --filter @valleypaa/content build && bun run --filter @valleypaa/web build",
     "build:admin": "bun run --filter @valleypaa/content build && bun run --filter @valleypaa/admin build",
