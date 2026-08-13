@@ -15,6 +15,7 @@
     "emulators": "PATH=\"/usr/local/opt/openjdk/bin:/opt/homebrew/opt/openjdk/bin:$PATH\" firebase emulators:start --project demo-valleypaa $([ -d .firebase/emulator-data ] && echo --import=.firebase/emulator-data) --export-on-exit=.firebase/emulator-data",
     "content": "bun scripts/content-cli.ts",
     "indexnow": "bun scripts/indexnow.ts",
+    "bing": "bun scripts/bing-submit.ts",
     "build": "bun run --filter @valleypaa/content build && bun run --filter @valleypaa/web build && bun run --filter @valleypaa/admin build",
     "build:web": "bun run --filter @valleypaa/content build && bun run --filter @valleypaa/web build",
     "build:admin": "bun run --filter @valleypaa/content build && bun run --filter @valleypaa/admin build",
