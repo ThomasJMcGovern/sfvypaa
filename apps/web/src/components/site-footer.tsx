@@ -64,10 +64,22 @@ export async function SiteFooter() {
           </div>
         </div>
       </div>
-      <div className="border-t-2 border-ink-2 px-5 py-4 text-center">
+      <div className="flex flex-col items-center gap-1.5 border-t-2 border-ink-2 px-5 py-4 text-center">
         <span className="font-mono text-xs text-[#8A8472]">
           Not affiliated with AA World Services. A newcomer is the most
           important person in the room.
+        </span>
+        <span className="font-mono text-xs text-[#8A8472]">
+          Site by the team behind{" "}
+          <a
+            className="underline decoration-[#5C5749] underline-offset-2 transition-colors hover:text-bone hover:decoration-orange"
+            href="https://brewlune.com/"
+            rel="noreferrer"
+            target="_blank"
+          >
+            Brewlune
+          </a>
+          .
         </span>
       </div>
     </footer>
