@@ -74,7 +74,7 @@ export default function GetInvolvedPage() {
               fill
               priority
               sizes="(min-width: 1024px) 440px, 100vw"
-              src="/business-meeting.png"
+              src="/business-meeting-2026-08.png"
             />
           </div>
           <div className="relative z-[2] mx-4 -mt-10 border-[3px] border-border bg-card p-7 text-card-foreground shadow-stamp-lg lg:mx-0 lg:-ml-[90px] lg:mt-0 lg:px-[30px] lg:py-8">

@@ -249,7 +249,7 @@ export default async function Home() {
             href={site.links.getInvolved}
             imageAlt="VALLEYPAA business meeting flyer"
             imageMode="contain"
-            imageSrc="/business-meeting.png"
+            imageSrc="/business-meeting-2026-08.png"
             title="Get involved"
           />
           <LinkRow
